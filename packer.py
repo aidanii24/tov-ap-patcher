@@ -67,13 +67,13 @@ class Hyouta:
 
         return err
 
-    def extract_svo(self, file: str, out: str="", manifest: bool = True):
+    def extract_svo(self, file: str, out: str="", manifest:str = ""):
         command: list[str] = [self.dotnet, self.path, "ToVfps4e", file]
         if out:
             command.append(out)
 
         if manifest:
-            command.extend(["-j", file + ".json"])
+            command.extend(["-j", manifest + ".json"])
 
         subprocess.check_output(command)
 
@@ -188,12 +188,11 @@ class VesperiaPacker:
         base_build: str = os.path.join(self.build_dir, "btl")
         assert os.path.isfile(path)
 
-        self.hyouta.extract_svo(os.path.join(self.vesperia, tov_btl), base_build, False)
+        self.hyouta.extract_svo(os.path.join(self.vesperia, tov_btl), base_build)
 
         pack_build: str = os.path.join(self.build_dir, "BTL_PACK")
-        self.hyouta.extract_svo(os.path.join(base_build, "BTL_PACK.DAT"), pack_build)
-        shutil.move(os.path.join(base_build, "BTL_PACK.DAT.json"),
-                    os.path.join(self.manifest_dir, "BTL_PACK.DAT.json"))
+        self.hyouta.extract_svo(os.path.join(base_build, "BTL_PACK.DAT"), pack_build,
+                                os.path.join(self.manifest_dir, "BTL_PACK.DAT"))
 
     def pack_btl(self):
         path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")

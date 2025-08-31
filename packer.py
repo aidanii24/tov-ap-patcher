@@ -1,5 +1,6 @@
 import subprocess
 import hashlib
+import shutil
 import json
 import sys
 import os
@@ -21,7 +22,7 @@ default_comptoe: str = "comptoe"
 
 # Vesperia Files directories
 tov_executable = "TOV_DE.exe"
-tov_btl = os.path.join("data64", "btl.svo")
+tov_btl = os.path.join("Data64", "btl.svo")
 
 # Checksums
 sha256_vesperia: str = "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827"
@@ -29,7 +30,6 @@ sha256_vesperia: str = "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b380
 class Hyouta:
     dotnet: str = default_dotnet
     path: str = default_hyouta
-
 
     def __init__(self, dotnet:str, path: str):
         self.dotnet = dotnet
@@ -77,11 +77,20 @@ class Hyouta:
 
         subprocess.check_output(command)
 
+    def pack_svo(self, manifest_file: str, out: str=""):
+        command: list[str] = [self.dotnet, self.path, "ToVfps4p", manifest_file]
+        if out:
+            command.append(out)
+
+        subprocess.check_output(command)
+
 class VesperiaPacker:
     vesperia: str = default_vesperia
     comptoe: str = default_comptoe
-
     hyouta: Hyouta
+
+    build_dir: str = os.path.join(os.getcwd(), "builds")
+    manifest_dir: str = os.path.join(build_dir, "manifests")
 
     def __init__(self):
         if not os.path.isfile(dependencies):
@@ -108,6 +117,12 @@ class VesperiaPacker:
                     self.hyouta = Hyouta(dotnet_dir, hyouta_dir)
 
                 file.close()
+
+        if not os.path.exists(self.build_dir):
+            os.makedirs(self.build_dir)
+
+        if not os.path.exists(self.manifest_dir):
+            os.makedirs(self.manifest_dir)
 
         self.check_dependencies()
 
@@ -137,9 +152,9 @@ class VesperiaPacker:
         try:
             with open(os.path.join(self.vesperia, "TOV_DE.exe"), "rb") as file:
                 as_bytes = file.read()
-                hash = hashlib.sha256(as_bytes).hexdigest()
+                exec_hash = hashlib.sha256(as_bytes).hexdigest()
 
-                assert hash == sha256_vesperia
+                assert exec_hash == sha256_vesperia
                 file.close()
         except AssertionError:
             err = True
@@ -149,7 +164,7 @@ class VesperiaPacker:
             err = True
             print("Missing Dependency: The game was not found in the provided path.")
 
-        err = self.hyouta.check_dependencies()
+        err = err and self.hyouta.check_dependencies()
 
         try:
             subprocess.check_output([self.comptoe])
@@ -165,11 +180,30 @@ class VesperiaPacker:
         if err:
             exit(1)
 
+    def set_build_dir(self, build_dir: str):
+        self.build_dir = build_dir
+
     def unpack_btl(self):
-        assert os.path.isfile(os.path.join(self.vesperia, tov_btl))
+        path: str = os.path.join(self.vesperia, tov_btl)
+        base_build: str = os.path.join(self.build_dir, "btl")
+        assert os.path.isfile(path)
 
+        self.hyouta.extract_svo(os.path.join(self.vesperia, tov_btl), base_build, False)
 
+        pack_build: str = os.path.join(self.build_dir, "BTL_PACK")
+        self.hyouta.extract_svo(os.path.join(base_build, "BTL_PACK.DAT"), pack_build)
+        shutil.move(os.path.join(base_build, "BTL_PACK.DAT.json"),
+                    os.path.join(self.manifest_dir, "BTL_PACK.DAT.json"))
+
+    def pack_btl(self):
+        path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")
+        assert os.path.isfile(path)
+
+        self.hyouta.pack_svo(path, os.path.join(self.build_dir, "btl", "BTL_PACK.DAT"))
 
 if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
+
+    packer.unpack_btl()
+    packer.pack_btl()

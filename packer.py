@@ -19,14 +19,69 @@ default_dotnet: str = "dotnet"
 default_hyouta: str = os.path.join("HyoutaToolsCLI", "HyoutaToolsCLI.dll")
 default_comptoe: str = "comptoe"
 
+# Vesperia Files directories
+tov_executable = "TOV_DE.exe"
+tov_btl = os.path.join("data64", "btl.svo")
+
 # Checksums
 sha256_vesperia: str = "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827"
 
+class Hyouta:
+    dotnet: str = default_dotnet
+    path: str = default_hyouta
+
+
+    def __init__(self, dotnet:str, path: str):
+        self.dotnet = dotnet
+        self.path = path
+
+    def check_dependencies(self) -> bool:
+        err: bool = False
+
+        try:
+            version = subprocess.check_output([self.dotnet, "--version"])
+
+            assert version.decode('utf-8')[0] == "6"
+        except AssertionError:
+            err = True
+            print("Wrong Dependency: The installed .NET is incompatible with HyoutaToolsCLI. Please install .NET 6.0.")
+        except FileNotFoundError:
+            err = True
+            print("Missing Dependency: .NET 6.0 is not installed, or is not present in the provided path.")
+        except subprocess.CalledProcessError as e:
+            err = True
+            if e.returncode != 255:
+                print("Runtime Error: There was a problem calling .NET 6.0. "
+                      "Try re-installing the application then try again.")
+
+        try:
+            subprocess.check_output([self.dotnet, self.path])
+        except FileNotFoundError:
+            err = True
+            print("Missing Dependency: HyoutaToolsCLI was not found.")
+        except subprocess.CalledProcessError as c:
+            if c.returncode != 255:
+                err = True
+                print("Runtime Error: There was a problem calling HyoutaToolsCLI. "
+                      "Try re-installing the application then try again.")
+
+        return err
+
+    def extract_svo(self, file: str, out: str="", manifest: bool = True):
+        command: list[str] = [self.dotnet, self.path, "ToVfps4e", file]
+        if out:
+            command.append(out)
+
+        if manifest:
+            command.extend(["-j", file + ".json"])
+
+        subprocess.check_output(command)
+
 class VesperiaPacker:
     vesperia: str = default_vesperia
-    dotnet: str = default_dotnet
-    hyouta: str = default_hyouta
     comptoe: str = default_comptoe
+
+    hyouta: Hyouta
 
     def __init__(self):
         if not os.path.isfile(dependencies):
@@ -41,13 +96,16 @@ class VesperiaPacker:
                     self.vesperia = data[dependency_vesperia]
 
                 if dependency_dotnet in data and data[dependency_dotnet]:
-                    self.dotnet = data[dependency_dotnet]
+                    dotnet_dir = data[dependency_dotnet]
 
                 if dependency_hyouta in data and data[dependency_hyouta]:
-                    self.hyouta = data[dependency_hyouta]
+                    hyouta_dir = data[dependency_hyouta]
 
                 if dependencies_comptoe in data and data[dependencies_comptoe]:
                     self.comptoe = data[dependencies_comptoe]
+
+                if hyouta_dir and dotnet_dir:
+                    self.hyouta = Hyouta(dotnet_dir, hyouta_dir)
 
                 file.close()
 
@@ -91,32 +149,7 @@ class VesperiaPacker:
             err = True
             print("Missing Dependency: The game was not found in the provided path.")
 
-        try:
-            version = subprocess.check_output([self.dotnet, "--version"])
-
-            assert version.decode('utf-8')[0] == "6"
-        except AssertionError:
-            err = True
-            print("Wrong Dependency: The installed .NET is incompatible with HyoutaToolsCLI. Please install .NET 6.0.")
-        except FileNotFoundError:
-            err = True
-            print("Missing Dependency: .NET 6.0 is not installed, or is not present in the provided path.")
-        except subprocess.CalledProcessError as e:
-            err = True
-            if e.returncode != 255:
-                print("Runtime Error: There was a problem calling .NET 6.0. "
-                      "Try re-installing the application then try again.")
-
-        try:
-            subprocess.check_output([self.dotnet, self.hyouta])
-        except FileNotFoundError:
-            err = True
-            print("Missing Dependency: HyoutaToolsCLI was not found.")
-        except subprocess.CalledProcessError as c:
-            if c.returncode != 255:
-                err = True
-                print("Runtime Error: There was a problem calling HyoutaToolsCLI. "
-                      "Try re-installing the application then try again.")
+        err = self.hyouta.check_dependencies()
 
         try:
             subprocess.check_output([self.comptoe])
@@ -131,6 +164,10 @@ class VesperiaPacker:
 
         if err:
             exit(1)
+
+    def unpack_btl(self):
+        assert os.path.isfile(os.path.join(self.vesperia, tov_btl))
+
 
 
 if __name__ == "__main__":

@@ -157,7 +157,7 @@ class VesperiaPacker:
                 file.close()
         except AssertionError:
             err = True
-            print("Wrong Dependency: The provided game executable did not meet the expected supported version. "
+            print("Wrong Dependency: The provided game executable did not meet the expected supported version."
                   "Please update the game then try again.")
         except FileNotFoundError:
             err = True

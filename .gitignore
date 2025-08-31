@@ -1,7 +1,6 @@
-/dependencies/
-
 # Jetbrains
 .idea
 
 # Production Configurations
+/dependencies/
 config.json

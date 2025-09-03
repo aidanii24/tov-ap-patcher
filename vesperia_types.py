@@ -1,6 +1,7 @@
 import ctypes
 import json
 import mmap
+import os
 
 
 class VesperiaFileEncoder(json.JSONEncoder):
@@ -45,6 +46,12 @@ class SkillsEntry(ctypes.Structure):
 
     name: str = "SKILL_NONE"
 
+def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
+    data: dict[str, list] = {"entries": skills, "strings": strings}
+
+    with open(filename, "w+") as f:
+        json.dump(data, f, cls=VesperiaFileEncoder, indent=4)
+        f.close()
 
 def generate_skills_file(file: str, header: SkillsHeader, skills: list[SkillsEntry], strings: list[str]):
     with open(file, "r+b") as f:

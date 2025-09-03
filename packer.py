@@ -26,7 +26,9 @@ tov_btl = os.path.join("Data64", "btl.svo")
 # Checksums
 sha256_vesperia: str = "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827"
 
+
 class Hyouta:
+    """Wrapper instance for HyoutaToolsCLI Commands"""
     dotnet: str = default_dotnet
     path: str = default_hyouta
 
@@ -84,6 +86,7 @@ class Hyouta:
         subprocess.check_output(command)
 
 class VesperiaPacker:
+    """Handler Instance for Extraction, Packing, Compressing and Decompressing files from the game."""
     vesperia: str = default_vesperia
     comptoe: str = default_comptoe
     hyouta: Hyouta

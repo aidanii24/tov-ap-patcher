@@ -1,5 +1,4 @@
 import ctypes
-import array
 import copy
 import json
 import mmap

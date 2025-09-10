@@ -4,12 +4,26 @@ import json
 import mmap
 
 
-class VesperiaFileEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, ctypes.Structure):
-            return obj.__dict__
+class VesperiaStructureEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ctypes.Structure):
+            d: dict = {}
+            try:
+                for attribute in o._fields_:
+                    name: str = attribute[0]
+                    value = getattr(o, attribute[0])
 
-        return super().default(obj)
+                    if issubclass(type(value), ctypes.Array):
+                        value = [*value]
+                    elif type(value) is bytes:
+                        value = value.decode('utf-8')
+
+                    d[name] = value
+            except TypeError:
+                return TypeError
+            return d
+
+        return super().default(o)
 
 class SkillsHeader(ctypes.Structure):
     _pack_ = 1
@@ -20,7 +34,7 @@ class SkillsHeader(ctypes.Structure):
     ]
 
     def __init__(self, entries: int, entry_end: int):
-        super(SkillsHeader).__init__("T8BTSK  ", entries, entry_end)
+        super().__init__("T8BTSK  ".encode(), entries, entry_end)
 
 class SkillsEntry(ctypes.Structure):
     """Byte Structure Template for Skill Entries in file data64/btl.svo/BTL_PACK.DAT/0010 (T8BTSK)"""
@@ -44,8 +58,6 @@ class SkillsEntry(ctypes.Structure):
         ("is_equippable", ctypes.c_uint32),
     ]
 
-    name: str = "SKILL_NONE"
-
 class ArtesHeader(ctypes.Structure):
     _pack_ = 1
     _fields_ = [
@@ -55,7 +67,7 @@ class ArtesHeader(ctypes.Structure):
     ]
 
     def __init__(self, entries: int, entry_end: int):
-        super(ArtesHeader).__init__("T8BTMA  ", entries, entry_end)
+        super().__init__("T8BTMA  ".encode(), entries, entry_end)
 
 
 class ArtesEntry(ctypes.Structure):
@@ -136,6 +148,7 @@ class ArtesEntry(ctypes.Structure):
         ("aerial_enable_skill1", ctypes.c_uint32),
         ("aerial_enable_skill2", ctypes.c_uint32),
         # Evolve Attributes
+        ("can_evolve", ctypes.c_uint32),
         ("evolve_condition1", ctypes.c_uint32),
         ("evolve_condition2", ctypes.c_uint32),
         ("evolve_condition3", ctypes.c_uint32),
@@ -170,30 +183,48 @@ class ArtesEntry(ctypes.Structure):
         # Automatically Handle Variable Length of Character IDs Attribute
         character_id_entry_size: int = 1
 
-        if len(args) >= 96 and args[-2] > 1:
+        if len(args) >= 97:
             character_id_entry_size = args[-2]
-            args = tuple([*args[:95], (ctypes.c_uint32 * character_id_entry_size)(*args[95:])])
-        elif "character_id_entries" in kwargs and kwargs["character_id_entries"] > 1:
+            id_entries: list[int] = []
+            for id_entry in args[96:]:
+                if isinstance(id_entry, int):
+                    id_entries.append(id_entry)
+                elif isinstance(id_entry, list):
+                    id_entries.extend(id_entry)
+            args = tuple([*args[:96], (ctypes.c_uint32 * character_id_entry_size)(*id_entries)])
+        elif "character_id_entries" in kwargs and "character_ids" in kwargs:
             character_id_entry_size = kwargs["character_id_entries"]
-            kwargs["character_id_entries"] = (ctypes.c_uint32 * character_id_entry_size)(*args[95:])
+            kwargs["character_ids"] = (ctypes.c_uint32 * character_id_entry_size)(*kwargs["character_ids"])
 
-        if character_id_entry_size > 1:
-            local_fields = copy.deepcopy(cls._fields_)
-            local_fields[-1] = ("character_ids", ctypes.c_uint32 * character_id_entry_size)
+        local_fields = copy.deepcopy(cls._fields_)
+        local_fields[-1] = ("character_ids", ctypes.c_uint32 * character_id_entry_size)
 
-            class BaseArteEntry(ctypes.Structure):
-                _pack_ = 1
-                _fields_ = local_fields
+        class BaseArteEntry(ctypes.Structure):
+            _pack_ = 1
+            _fields_ = local_fields
+        return BaseArteEntry(*args, **kwargs)
 
-            return BaseArteEntry(*args, **kwargs)
+    @classmethod
+    def from_buffer_copy(cls, source, offset:... = 0):
+        character_id_entry_size_position: int = ctypes.sizeof(cls) - 8
+        character_id_entry_size: int = int.from_bytes(
+            source[character_id_entry_size_position:character_id_entry_size_position + 4], "little"
+        )
 
-        return super().__new__(cls, *args, **kwargs)
+        local_fields = copy.deepcopy(cls._fields_)
+        local_fields[-1] = ("character_ids", ctypes.c_uint32 * character_id_entry_size)
+
+        class BaseArteEntry(ctypes.Structure):
+            _pack_ = 1
+            _fields_ = local_fields
+
+        return BaseArteEntry.from_buffer_copy(source, offset)
 
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}
 
     with open(filename, "w+") as f:
-        json.dump(data, f, cls=VesperiaFileEncoder, indent=4)
+        json.dump(data, f, cls=VesperiaStructureEncoder, indent=4)
         f.close()
 
 def generate_skills_file(file: str, header: SkillsHeader, skills: list[SkillsEntry], strings: list[str]):

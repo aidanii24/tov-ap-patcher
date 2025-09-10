@@ -206,5 +206,7 @@ if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    packer.unpack_btl()
-    packer.pack_btl()
+    # packer.unpack_btl()
+    # packer.pack_btl()
+
+    packer.hyouta.extract_svo(os.path.join(packer.build_dir, "BTL_PACK", "0004"))

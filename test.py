@@ -1,3 +1,4 @@
+import random
 import struct
 import ctypes
 import json
@@ -5,16 +6,11 @@ import mmap
 import math
 import time
 
-from vesperia_types import ArtesHeader, ArtesEntry, VesperiaStructureEncoder
+from vesperia_types import *
 
-def test_arte_structure():
-    sample_arte = ArtesEntry(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, [8, 2, 3, 4, 5])
-
-    for attribute, ctype in sample_arte._fields_:
-        value = getattr(sample_arte, attribute)
+def test_arte_structure(sample_struct):
+    for attribute, ctype in sample_struct._fields_:
+        value = getattr(sample_struct, attribute)
         as_hex = ""
 
         if type(value) == int:
@@ -34,8 +30,15 @@ def test_arte_structure():
 
         print(f"{attribute}: {value} | ({as_hex})")
 
-    print(json.dumps(sample_arte, cls=VesperiaStructureEncoder, indent=4))
-    as_bytes = bytearray(sample_arte)
+    print(json.dumps(sample_struct, cls=VesperiaStructureEncoder, indent=4))
+    as_bytes = bytearray(sample_struct)
+    format_bytes(as_bytes)
+
+    copy_arte: ArtesEntry = ArtesEntry.from_buffer_copy(as_bytes)
+    copy_bytes = bytearray(copy_arte)
+    print(copy_bytes)
+
+def format_bytes(as_bytes: bytes):
     print(as_bytes)
     print("\n 0 1 2 3  4 5 6 7  8 9 A B  C D E F")
     for _ in range(math.ceil(len(as_bytes) / 16)):
@@ -46,12 +49,7 @@ def test_arte_structure():
 
         print(final)
 
-    copy_arte: ArtesEntry = ArtesEntry.from_buffer_copy(as_bytes)
-    copy_bytes = bytearray(copy_arte)
-    print(copy_bytes)
-
-
-def to_json():
+def arte_to_json():
     test_file: str = "builds/BTL_PACK/0004.ext/ALL.0000"
 
     start: float = time.time()
@@ -88,7 +86,7 @@ def to_json():
 
     print(f"Artes: {len(artes)} | Strings: {len(strings)}")
 
-def from_json():
+def arte_from_json():
     start = time.time()
 
     artes: list[ArtesEntry] = []
@@ -122,5 +120,100 @@ def from_json():
     end: float = time.time()
     print(f"[Rebuilding File] Time taken: {end - start} seconds")
 
+def item_to_json():
+    test_file: str = "builds/item/ITEM.DAT"
+
+    start: float = time.time()
+
+    items: list[ItemEntry] = []
+
+    with open(test_file, "r+b") as f:
+        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+
+        items_size: int = ctypes.sizeof(ItemEntry)
+
+        mm.seek(0)
+        while True:
+            data = mm.read(items_size)
+
+            if not data or len(data) < items_size or all(b == 0 for b in data): break
+
+            items.append(ItemEntry.from_buffer_copy(data))
+
+        mm.close()
+
+    with open("builds/item.json", "x+") as f:
+        manifest: dict = {"items": items}
+        json.dump(manifest, f, cls=VesperiaStructureEncoder, indent=4)
+
+        f.close()
+
+    end: float = time.time()
+    print(f"[Writing JSON] Time taken: {end - start} seconds")
+
+    print(f"Items: {len(items)}")
+
+def add_items():
+    start = time.time()
+
+    items: list[ItemEntry] = []
+
+    with open("builds/item.json", "r") as f:
+        data = json.load(f)
+
+        items = [ItemEntry(**entry) for entry in data["items"]]
+
+        f.close()
+
+    base_data: ItemEntry = items[-1]
+    for _ in range(1000):
+        new_entry: ItemEntry = ItemEntry.copy(base_data)
+        new_entry.id = 2000 + _
+        new_entry.name_string_key = base_data.name_string_key + _ + 1
+        new_entry.buy_price = random.randint(1, 500) * 10
+        new_entry.picture = f"ITEM_AP{_}".encode()
+        new_entry.entry = base_data.entry + _ + 1
+
+        items.append(new_entry)
+
+    with open("builds/item-r1k.dat", "x+") as f:
+        f.truncate(ctypes.sizeof(ItemEntry) * len(items))
+        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+
+        for item in items:
+            mm.write(bytearray(item))
+
+        mm.flush()
+        mm.close()
+
+    end: float = time.time()
+    print(f"[Rebuilding File and Added 100 new Items] Time taken: {end - start} seconds")
+
+
+def item_from_json():
+    start = time.time()
+
+    items: list[ItemEntry] = []
+
+    with open("builds/item.json", "r") as f:
+        data = json.load(f)
+
+        items = [ItemEntry(**entry) for entry in data["items"]]
+
+        f.close()
+
+    with open("builds/item-r.dat", "x+") as f:
+        f.truncate(ctypes.sizeof(ItemEntry) * len(items))
+        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+
+        for item in items:
+            mm.write(bytearray(item))
+
+        mm.flush()
+        mm.close()
+
+    end: float = time.time()
+    print(f"[Rebuilding File] Time taken: {end - start} seconds")
+
 if __name__ == '__main__':
-    from_json()
+    add_items()

@@ -22,6 +22,7 @@ default_comptoe: str = "comptoe"
 # Vesperia Files directories
 tov_executable = "TOV_DE.exe"
 tov_btl = os.path.join("Data64", "btl.svo")
+tov_item = os.path.join("Data64", "item.svo")
 
 # Checksums
 sha256_vesperia: str = "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827"
@@ -190,11 +191,18 @@ class VesperiaPacker:
         base_build: str = os.path.join(self.build_dir, "btl")
         assert os.path.isfile(path)
 
-        self.hyouta.extract_svo(os.path.join(self.vesperia, tov_btl), base_build)
+        self.hyouta.extract_svo(path, base_build)
 
         pack_build: str = os.path.join(self.build_dir, "BTL_PACK")
         self.hyouta.extract_svo(os.path.join(base_build, "BTL_PACK.DAT"), pack_build,
                                 os.path.join(self.manifest_dir, "BTL_PACK.DAT"))
+
+    def unpack_item(self):
+        path: str = os.path.join(self.vesperia, tov_item)
+        base_build: str = os.path.join(self.build_dir, "item")
+        assert os.path.isfile(path)
+
+        self.hyouta.extract_svo(path, base_build)
 
     def pack_btl(self):
         path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")
@@ -208,5 +216,4 @@ if __name__ == "__main__":
 
     # packer.unpack_btl()
     # packer.pack_btl()
-
-    packer.hyouta.extract_svo(os.path.join(packer.build_dir, "BTL_PACK", "0004"))
+    # packer.unpack_item()

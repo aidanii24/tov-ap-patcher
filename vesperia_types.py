@@ -2,6 +2,7 @@ import ctypes
 import copy
 import json
 import mmap
+from _ctypes import Structure
 
 
 class VesperiaStructureEncoder(json.JSONEncoder):
@@ -417,6 +418,106 @@ class ItemEntry(ctypes.BigEndianStructure):
         ctypes.pointer(new_entry)[0] = item_entry
 
         return new_entry
+
+class ItemSortEntry(ctypes.BigEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("entry", ctypes.c_uint32),
+        ("id", ctypes.c_uint32),
+        ("id_sort", ctypes.c_uint32),
+        ("phys_attack_sort", ctypes.c_uint32),
+        ("phys_defense_sort", ctypes.c_uint32),
+        ("magic_attack_sort", ctypes.c_uint32),
+        ("magic_defense_sort", ctypes.c_uint32),
+        ("padding1", ctypes.c_uint32),
+        ("padding2", ctypes.c_uint32),
+        ("padding3", ctypes.c_uint32),
+        ("padding4", ctypes.c_uint32),
+    ]
+
+    @classmethod
+    def from_item_generic(cls, entry:int, item_entry: ItemEntry = None, **item_data):
+        if isinstance(item_entry, ItemEntry):
+            return ItemSortEntry(entry,
+                                 item_entry.id,
+                                 item_entry.id,
+                                 item_entry.id,
+                                 item_entry.id,
+                                 item_entry.id,
+                                 item_entry.id,
+                                 0, 0, 0, 0)
+
+        elif "id" in item_data:
+            return ItemSortEntry(entry, *[item_data["id"] for _ in range(6)], 0, 0, 0, 0)
+
+        return None
+
+class SearchPointHeader(ctypes.Structure):
+    _padding_ = 1
+    _fields_ = [
+        ("magic_number", ctypes.c_char * 8),
+        ("file_size", ctypes.c_uint32),
+        ("definition_start", ctypes.c_uint32),
+        ("definition_entries", ctypes.c_uint32),
+        ("content_start", ctypes.c_uint32),
+        ("content_entries", ctypes.c_uint32),
+        ("item_start", ctypes.c_uint32),
+        ("item_entries", ctypes.c_uint32),
+        ("entry_end", ctypes.c_uint32),
+        ("padding1", ctypes.c_uint64),
+        ("padding2", ctypes.c_uint64),
+        ("padding3", ctypes.c_uint64),
+    ]
+
+    def __init__(self, file_size:int,
+                 definition_start:int, definition_entries:int,
+                 content_start:int, content_entries:int,
+                 item_start:int, item_entries:int,
+                 entry_end:int):
+        super().__init__("TOVSEAF ".encode(), file_size,
+                         definition_start, definition_entries,
+                         content_start, content_entries,
+                         item_start, item_entries,
+                         entry_end, 0, 0, 0)
+
+class SearchPointDefinitionEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("index", ctypes.c_uint32),
+        ("scenario_begin", ctypes.c_uint32),
+        ("scenario_end", ctypes.c_uint32),
+        ("type", ctypes.c_uint32),
+        ("unknown0", ctypes.c_uint32),
+        ("x_coord", ctypes.c_int32),
+        ("y_coord", ctypes.c_int32),
+        ("z_coord", ctypes.c_int32),
+        ("unknown1", ctypes.c_uint16),
+        ("chance", ctypes.c_uint16),
+        ("disappear_rate", ctypes.c_uint32),
+        ("unknown2", ctypes.c_uint32),
+        ("unknown3", ctypes.c_uint32),
+        ("unknown4", ctypes.c_uint32),
+        ("max_use", ctypes.c_uint16),
+        ("unknown5", ctypes.c_uint16),
+        ("content_index", ctypes.c_uint32),
+        ("content_range", ctypes.c_uint32),
+    ]
+
+class SearchPointContentEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("chance", ctypes.c_uint32),
+        ("item_index", ctypes.c_uint32),
+        ("item_range", ctypes.c_uint32),
+        ("padding", ctypes.c_uint32),
+    ]
+
+class SearchPointItemEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("id", ctypes.c_uint32),
+        ("count", ctypes.c_uint32),
+    ]
 
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}

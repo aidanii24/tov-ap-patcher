@@ -1,17 +1,18 @@
 import random
 import struct
+import shutil
 import ctypes
 import json
 import mmap
 import math
 import time
+import os
 
 from vesperia_types import *
 
-def test_arte_structure(sample_struct):
+def test_structure(sample_struct):
     for attribute, ctype in sample_struct._fields_:
         value = getattr(sample_struct, attribute)
-        as_hex = ""
 
         if type(value) == int:
             as_hex = hex(value)
@@ -34,9 +35,9 @@ def test_arte_structure(sample_struct):
     as_bytes = bytearray(sample_struct)
     format_bytes(as_bytes)
 
-    copy_arte: ArtesEntry = ArtesEntry.from_buffer_copy(as_bytes)
-    copy_bytes = bytearray(copy_arte)
-    print(copy_bytes)
+    # copy_arte: ArtesEntry = ArtesEntry.from_buffer_copy(as_bytes)
+    # copy_bytes = bytearray(copy_arte)
+    # print(copy_bytes)
 
 def format_bytes(as_bytes: bytes):
     print(as_bytes)
@@ -153,30 +154,34 @@ def item_to_json():
 
     print(f"Items: {len(items)}")
 
-def add_items():
+def add_items(extra_items: int):
     start = time.time()
 
     items: list[ItemEntry] = []
+    base_data: dict = {}
 
     with open("builds/item.json", "r") as f:
         data = json.load(f)
+        base_data: dict = data["items"][1]
 
         items = [ItemEntry(**entry) for entry in data["items"]]
 
         f.close()
 
-    base_data: ItemEntry = items[-1]
-    for _ in range(1000):
-        new_entry: ItemEntry = ItemEntry.copy(base_data)
-        new_entry.id = 2000 + _
-        new_entry.name_string_key = base_data.name_string_key + _ + 1
-        new_entry.buy_price = random.randint(1, 500) * 10
-        new_entry.picture = f"ITEM_AP{_}".encode()
-        new_entry.entry = base_data.entry + _ + 1
+    base_data["picture"] = "ITEM_AP"
+    for _ in range(extra_items):
+        new_data: dict = base_data.copy()
+        new_data["id"] = 2000 + _
+        new_data["name_string_key"] += 1 + _
+        new_data["buy_price"] = random.randint(1, 500) * 10
+        new_data["entry"] += _ + 1
 
+        new_entry: ItemEntry = ItemEntry(**new_data)
         items.append(new_entry)
 
-    with open("builds/item-r1k.dat", "x+") as f:
+    patch_item_sort(items[-extra_items:])
+
+    with open(f"builds/item-r{extra_items}.dat", "x+") as f:
         f.truncate(ctypes.sizeof(ItemEntry) * len(items))
         mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
 
@@ -215,5 +220,29 @@ def item_from_json():
     end: float = time.time()
     print(f"[Rebuilding File] Time taken: {end - start} seconds")
 
+def patch_item_sort(items: list[ItemEntry]):
+    shutil.copyfile("builds/item/ITEMSORT.DAT", f"builds/sort-r{len(items)}.dat")
+
+    with open(f"builds/sort-r{len(items)}.dat", "r+b") as f:
+        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+
+        entries: int = int.from_bytes(mm.read(4))
+        entry_size: int = ctypes.sizeof(ItemSortEntry)
+        data_end: int = entries * entry_size + 4
+        mm.resize(data_end + entry_size * len(items))
+
+        mm.seek(0)
+        entries += len(items)
+        mm.write(entries.to_bytes(4))
+
+        mm.seek(data_end)
+
+        for i, item in enumerate(items):
+            new_item: ItemSortEntry = ItemSortEntry.from_item_generic(2000 + i, item)
+            mm.write(bytearray(new_item))
+
+        mm.flush()
+        mm.close()
+
 if __name__ == '__main__':
-    add_items()
+    add_items(1000)

@@ -23,6 +23,7 @@ default_comptoe: str = "comptoe"
 tov_executable = "TOV_DE.exe"
 tov_btl = os.path.join("Data64", "btl.svo")
 tov_item = os.path.join("Data64", "item.svo")
+tov_npc = os.path.join("Data64", "npc.svo")
 
 # Checksums
 sha256_vesperia: str = "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827"
@@ -79,10 +80,20 @@ class Hyouta:
 
         subprocess.check_output(command)
 
+    def decompress_tlzc(self, file: str, out: str=""):
+        command: list[str] = [self.dotnet, self.path, "tlzc", "-d", file, out]
+
+        subprocess.check_output(command)
+
     def pack_svo(self, manifest_file: str, out: str=""):
         command: list[str] = [self.dotnet, self.path, "ToVfps4p", manifest_file]
         if out:
             command.append(out)
+
+        subprocess.check_output(command)
+
+    def compress_tlzc(self, file: str, out: str=""):
+        command: list[str] = [self.dotnet, self.path, "tlzc", "-c", file, out]
 
         subprocess.check_output(command)
 
@@ -204,6 +215,27 @@ class VesperiaPacker:
 
         self.hyouta.extract_svo(path, base_build)
 
+    def unpack_npc(self):
+        path: str = os.path.join(self.vesperia, tov_npc)
+        base_build: str = os.path.join(self.build_dir, "npc")
+        assert os.path.isfile(path)
+
+        self.hyouta.extract_svo(path, base_build)
+
+    def extract_search_points(self):
+        path: str = os.path.join(self.build_dir, "npc", "FIELD.DAT")
+        assert os.path.isfile(path)
+
+        work_dir: str = os.path.join(self.build_dir, "field")
+        if not os.path.isdir(work_dir): os.makedirs(work_dir)
+
+        field_decompress: str = os.path.join(work_dir, "FIELD.tlzc")
+        self.hyouta.decompress_tlzc(path, field_decompress)
+        self.hyouta.extract_svo(field_decompress, "", os.path.join(self.manifest_dir, "FIELD.tlzc"))
+
+        field_extract: str = os.path.join(work_dir, "FIELD.tlzc.ext")
+        self.hyouta.decompress_tlzc(os.path.join(field_extract, "0005"), os.path.join(field_extract, "0005.tlzc"))
+
     def pack_btl(self):
         path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")
         assert os.path.isfile(path)
@@ -214,6 +246,4 @@ if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    # packer.unpack_btl()
-    # packer.pack_btl()
-    # packer.unpack_item()
+    packer.extract_search_points()

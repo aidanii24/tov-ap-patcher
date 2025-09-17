@@ -227,7 +227,7 @@ class VesperiaPacker:
         assert os.path.isfile(path)
 
         work_dir: str = os.path.join(self.build_dir, "field")
-        if not os.path.isdir(work_dir): os.makedirs(work_dir)
+        if not os.path.isdir(work_dir): os.mkdir(work_dir)
 
         field_decompress: str = os.path.join(work_dir, "FIELD.tlzc")
         self.hyouta.decompress_tlzc(path, field_decompress)
@@ -242,8 +242,25 @@ class VesperiaPacker:
 
         self.hyouta.pack_svo(path, os.path.join(self.build_dir, "btl", "BTL_PACK.DAT"))
 
+    def pack_search_points(self):
+        work_dir: str = os.path.join(self.build_dir, "field")
+        field_extract: str = os.path.join(work_dir, "FIELD.tlzc.ext")
+        assert os.path.isfile(os.path.join(field_extract, "0005.tlzc"))
+
+        self.hyouta.compress_tlzc(os.path.join(field_extract, "0005.tlzc"), os.path.join(field_extract, "0005"))
+
+        assert os.path.isfile(os.path.join(self.manifest_dir, "FIELD.tlzc.json"))
+        self.hyouta.pack_svo(os.path.join(self.manifest_dir, "FIELD.tlzc.json"),
+                             os.path.join(work_dir, "FIELD.tlzc"))
+
+        assert os.path.isdir(os.path.join(self.build_dir, "npc"))
+        self.hyouta.compress_tlzc(os.path.join(work_dir, "FIELD.tlzc"),
+                                  os.path.join(self.build_dir, "npc", "FIELD.DAT"))
+
+
 if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    packer.extract_search_points()
+    # packer.extract_search_points()
+    packer.pack_search_points()

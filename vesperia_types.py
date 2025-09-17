@@ -474,7 +474,7 @@ class SearchPointHeader(ctypes.Structure):
                  content_start:int, content_entries:int,
                  item_start:int, item_entries:int,
                  entry_end:int):
-        super().__init__("TOVSEAF ".encode(), file_size,
+        super().__init__("TOVSEAF".encode(), file_size,
                          definition_start, definition_entries,
                          content_start, content_entries,
                          item_start, item_entries,

@@ -519,25 +519,28 @@ class SearchPointItemEntry(ctypes.Structure):
         ("count", ctypes.c_uint32),
     ]
 
-class ShopEntry(ctypes.Structure):
-    _pack_ = 1
-    _fields_ = [
-        ("id", ctypes.c_uint32),
-        ("string_key", ctypes.c_uint32),
-        ("unknown_key", ctypes.c_uint32),
-        ("unknown0", ctypes.c_uint32),
-        ("on_trigger", ctypes.c_uint32),
-        ("shop_evolve", ctypes.c_uint32),
-        ("unknown1", ctypes.c_uint32),
-        ("padding", ctypes.c_uint64),
-    ]
-
 class ShopItemEntry(ctypes.Structure):
     _pack_ = 1
     _fields_ = [
+        ("unknown0", ctypes.c_uint32),
         ("shop_id", ctypes.c_uint32),
+        ("unknown1", ctypes.c_uint32),
+        ("unknown2", ctypes.c_uint32),
+        ("unknown3", ctypes.c_uint32),
         ("item_id", ctypes.c_uint32),
+        ("unknown4", ctypes.c_uint32),
+        ("unknown5", ctypes.c_uint32),
+        ("unknown6", ctypes.c_uint32),
+        ("unknown7", ctypes.c_uint32),
+        ("unknown8", ctypes.c_uint32),
+        ("unknown9", ctypes.c_uint32),
+        ("unknown10", ctypes.c_uint32),
+        ("unknown11", ctypes.c_uint32),
     ]
+
+    def __init__(self, shop_id:int, item_id:int):
+        super().__init__(0x2070000, shop_id, 0x1000000, 0xE000007, 0x2070000, item_id, 0x1000000, 0xE000007,
+                         0x5020119, 0xFFFFFFFF, 0x14010000, 0x10000000, 0x10, 0x1000000)
 
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}

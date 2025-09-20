@@ -519,6 +519,26 @@ class SearchPointItemEntry(ctypes.Structure):
         ("count", ctypes.c_uint32),
     ]
 
+class ShopEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("id", ctypes.c_uint32),
+        ("string_key", ctypes.c_uint32),
+        ("unknown_key", ctypes.c_uint32),
+        ("unknown0", ctypes.c_uint32),
+        ("on_trigger", ctypes.c_uint32),
+        ("shop_evolve", ctypes.c_uint32),
+        ("unknown1", ctypes.c_uint32),
+        ("padding", ctypes.c_uint64),
+    ]
+
+class ShopItemEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("shop_id", ctypes.c_uint32),
+        ("item_id", ctypes.c_uint32),
+    ]
+
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}
 

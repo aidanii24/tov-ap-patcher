@@ -24,6 +24,7 @@ tov_executable = "TOV_DE.exe"
 tov_btl = os.path.join("Data64", "btl.svo")
 tov_item = os.path.join("Data64", "item.svo")
 tov_npc = os.path.join("Data64", "npc.svo")
+tov_scenario = os.path.join("Data64", "language", "scenario_ENG.dat")
 
 # Checksums
 sha256_vesperia: str = "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827"
@@ -85,6 +86,11 @@ class Hyouta:
 
         subprocess.check_output(command)
 
+    def extract_scenario(self, file: str, dir_out: str=""):
+        command: list[str] = [self.dotnet, self.path, "Tales.Vesperia.Scenario.Extract", file, dir_out]
+
+        subprocess.check_output(command)
+
     def pack_svo(self, manifest_file: str, out: str=""):
         command: list[str] = [self.dotnet, self.path, "ToVfps4p", manifest_file]
         if out:
@@ -94,6 +100,11 @@ class Hyouta:
 
     def compress_tlzc(self, file: str, out: str=""):
         command: list[str] = [self.dotnet, self.path, "tlzc", "-c", file, out]
+
+        subprocess.check_output(command)
+
+    def pack_scenario(self, file: str, dir_out: str=""):
+        command: list[str] = [self.dotnet, self.path, "Tales.Vesperia.Scenario.Pack", file, dir_out]
 
         subprocess.check_output(command)
 
@@ -194,6 +205,22 @@ class VesperiaPacker:
         if err:
             exit(1)
 
+    def comptoe_decompress(self, file: str, out: str = ""):
+        command: list[str] = [self.comptoe, "-d", file]
+
+        if out:
+            command.append(out)
+
+        subprocess.check_output(command)
+
+    def comptoe_compress(self, file: str, out: str = ""):
+        command: list[str] = [self.comptoe, "-c", file]
+
+        if out:
+            command.append(out)
+
+        subprocess.check_output(command)
+
     def set_build_dir(self, build_dir: str):
         self.build_dir = build_dir
 
@@ -257,10 +284,28 @@ class VesperiaPacker:
         self.hyouta.compress_tlzc(os.path.join(work_dir, "FIELD.tlzc"),
                                   os.path.join(self.build_dir, "npc", "FIELD.DAT"))
 
+    def extract_scenario(self):
+        path: str = os.path.join(self.vesperia, tov_scenario)
+        assert os.path.isfile(path)
+
+        work_dir: str = os.path.join(self.build_dir, "scenario")
+        if not os.path.isdir(work_dir): os.mkdir(work_dir)
+
+        extract_dir: str = os.path.join(work_dir, "ENG")
+        if not os.path.isdir(extract_dir): os.mkdir(extract_dir)
+
+        self.hyouta.extract_scenario(path, extract_dir)
+
+        file0: str = os.path.join(extract_dir, "0")
+        assert os.path.isfile(file0)
+
+        dir0: str = os.path.join(work_dir, "0")
+        if not os.path.isdir(dir0): os.mkdir(dir0)
+
+        self.comptoe_decompress(file0, os.path.join(dir0, "0.dec"))
 
 if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    # packer.extract_search_points()
-    packer.pack_search_points()
+    packer.extract_scenario()

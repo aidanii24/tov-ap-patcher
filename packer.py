@@ -304,8 +304,28 @@ class VesperiaPacker:
 
         self.comptoe_decompress(file0, os.path.join(dir0, "0.dec"))
 
+    def pack_scenario(self):
+        path: str = os.path.join(self.build_dir, "scenario")
+        main: str = os.path.join(path, "ENG")
+        assert os.path.isdir(path)
+        assert os.path.isdir(main)
+
+        dirs: list[str] = [F for F in os.listdir(path)
+                           if os.path.isdir(os.path.join(path, F))
+                           and F.isdigit()]
+
+        for directory in dirs:
+            file: str = os.path.join(path, directory, f"{directory}.dec")
+            out: str = os.path.join(main, directory)
+            if not os.path.isfile(file): continue
+
+            self.comptoe_compress(file, out)
+
+        packed: str = os.path.join(path, "scenario_ENG.dat")
+        self.hyouta.pack_scenario(main, packed)
+
 if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    packer.extract_scenario()
+    packer.pack_scenario()

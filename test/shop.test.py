@@ -43,34 +43,5 @@ def to_json():
     end: float = time.time()
     print(f"[Shop Data Extraction] Time Taken: {end - start} seconds")
 
-def append_item():
-    file: str = "../builds/scenario/0/0.dec"
-    assert os.path.isfile(file)
-
-    item_size: int = ctypes.sizeof(ShopItemEntry)
-    item_end: int = item_start + (item_size * base_shop_items)
-
-    # Zaphias Shop I - Adding Overdrive Big Kid
-    new_item: ShopItemEntry = ShopItemEntry(7, 1841)
-
-    start: float = time.time()
-
-    with open(file, "r+b") as f:
-        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
-
-        original_size: int = mm.size()
-
-        mm.resize(mm.size() + item_size)
-        mm.move(item_end + item_size, item_end, original_size - item_end)
-
-        mm.seek(item_end)
-        mm.write(bytearray(new_item))
-
-        mm.flush()
-        mm.close()
-
-    end: float = time.time()
-    print(f"[Shop Data Addition] Time Taken: {end - start} seconds")
-
 if __name__ == "__main__":
-    append_item()
+    to_json()

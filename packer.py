@@ -244,24 +244,36 @@ class VesperiaPacker:
 
     def unpack_npc(self):
         path: str = os.path.join(self.vesperia, tov_npc)
-        base_build: str = os.path.join(self.build_dir, "npc")
+        base_build: str = os.path.join(self.build_dir, "npc", "npc")
         assert os.path.isfile(path)
 
         self.hyouta.extract_svo(path, base_build)
 
-    def extract_search_points(self):
-        path: str = os.path.join(self.build_dir, "npc", "FIELD.DAT")
+    def extract_map(self, map_data: str):
+        data_name: str = map_data if not map_data.endswith(".DAT") else map_data.replace(".DAT", "")
+        data_file: str = data_name + ".DAT"
+
+        base: str = os.path.join(self.build_dir, "npc")
+        assert os.path.isdir(base)
+
+        path: str = os.path.join(base, "npc", data_file)
         assert os.path.isfile(path)
 
-        work_dir: str = os.path.join(self.build_dir, "field")
+        work_dir: str = os.path.join(base, data_name)
         if not os.path.isdir(work_dir): os.mkdir(work_dir)
 
-        field_decompress: str = os.path.join(work_dir, "FIELD.tlzc")
+        decompress_name: str = f"{data_name}.tlzc"
+        field_decompress: str = os.path.join(work_dir, decompress_name)
         self.hyouta.decompress_tlzc(path, field_decompress)
-        self.hyouta.extract_svo(field_decompress, "", os.path.join(self.manifest_dir, "FIELD.tlzc"))
+        self.hyouta.extract_svo(field_decompress, "", os.path.join(self.manifest_dir, decompress_name))
 
-        field_extract: str = os.path.join(work_dir, "FIELD.tlzc.ext")
-        self.hyouta.decompress_tlzc(os.path.join(field_extract, "0005"), os.path.join(field_extract, "0005.tlzc"))
+        return field_decompress + ".ext"
+
+    def decompress_data(self, file: str):
+        assert os.path.isfile(file)
+
+        out: str = file + ".tlzc"
+        self.hyouta.decompress_tlzc(file, out)
 
     def pack_btl(self):
         path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")
@@ -269,20 +281,33 @@ class VesperiaPacker:
 
         self.hyouta.pack_svo(path, os.path.join(self.build_dir, "btl", "BTL_PACK.DAT"))
 
-    def pack_search_points(self):
-        work_dir: str = os.path.join(self.build_dir, "field")
-        field_extract: str = os.path.join(work_dir, "FIELD.tlzc.ext")
-        assert os.path.isfile(os.path.join(field_extract, "0005.tlzc"))
+    def pack_map(self, map_data: str):
+        base_dir: str = os.path.join(self.build_dir, "npc")
+        assert os.path.isdir(base_dir)
 
-        self.hyouta.compress_tlzc(os.path.join(field_extract, "0005.tlzc"), os.path.join(field_extract, "0005"))
+        data_name: str = map_data if not map_data.endswith(".DAT") else map_data.replace(".DAT", "")
+        work_dir: str = os.path.join(base_dir, data_name)
+        extract_dir: str = os.path.join(work_dir, data_name + ".tlzc.ext")
+        assert os.path.isdir(extract_dir)
 
-        assert os.path.isfile(os.path.join(self.manifest_dir, "FIELD.tlzc.json"))
-        self.hyouta.pack_svo(os.path.join(self.manifest_dir, "FIELD.tlzc.json"),
-                             os.path.join(work_dir, "FIELD.tlzc"))
+        manifest: str = os.path.join(self.manifest_dir, data_name + ".tlzc.json")
+        assert os.path.isfile(manifest)
 
-        assert os.path.isdir(os.path.join(self.build_dir, "npc"))
-        self.hyouta.compress_tlzc(os.path.join(work_dir, "FIELD.tlzc"),
-                                  os.path.join(self.build_dir, "npc", "FIELD.DAT"))
+        map_decompressed: str = os.path.join(work_dir, data_name + ".tlzc")
+        self.hyouta.pack_svo(manifest, os.path.join(work_dir, data_name + ".tlzc"))
+
+        data_file: str = os.path.join(base_dir, "npc", data_name + ".DAT")
+        self.hyouta.compress_tlzc(map_decompressed, data_file)
+
+    def compress_data(self, file: str):
+        assert os.path.isfile(file)
+        if file.endswith(".tlzc"):
+            out: str = file.replace(".tlzc", "")
+        else:
+            out: str = file
+            file = file + ".tlzc"
+
+        self.hyouta.compress_tlzc(file, out)
 
     def extract_scenario(self):
         path: str = os.path.join(self.vesperia, tov_scenario)
@@ -328,4 +353,12 @@ if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    packer.pack_scenario()
+    map_target: str = "MYS_D00.DAT"
+    compress_target: str = "0004"
+
+    data_dir: str = packer.extract_map(map_target)
+    packer.decompress_data(os.path.join(data_dir, compress_target))
+
+    target: str = os.path.join(data_dir, compress_target)
+    packer.compress_data(target)
+    packer.pack_map(map_target)

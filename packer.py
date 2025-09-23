@@ -24,6 +24,7 @@ tov_executable = "TOV_DE.exe"
 tov_btl = os.path.join("Data64", "btl.svo")
 tov_item = os.path.join("Data64", "item.svo")
 tov_npc = os.path.join("Data64", "npc.svo")
+tov_ui = os.path.join("Data64", "UI.svo")
 tov_scenario = os.path.join("Data64", "language", "scenario_ENG.dat")
 
 # Checksums
@@ -275,6 +276,15 @@ class VesperiaPacker:
         out: str = file + ".tlzc"
         self.hyouta.decompress_tlzc(file, out)
 
+    def unpack_ui(self):
+        path: str = os.path.join(self.vesperia, tov_ui)
+        assert os.path.isfile(path)
+
+        work_dir: str = os.path.join(self.build_dir, "ui")
+        if not os.path.isdir(work_dir): os.mkdir(work_dir)
+
+        self.hyouta.extract_svo(path, work_dir)
+
     def pack_btl(self):
         path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")
         assert os.path.isfile(path)
@@ -353,12 +363,4 @@ if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    map_target: str = "MYS_D00.DAT"
-    compress_target: str = "0004"
-
-    data_dir: str = packer.extract_map(map_target)
-    packer.decompress_data(os.path.join(data_dir, compress_target))
-
-    target: str = os.path.join(data_dir, compress_target)
-    packer.compress_data(target)
-    packer.pack_map(map_target)
+    packer.unpack_ui()

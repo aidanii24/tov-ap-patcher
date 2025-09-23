@@ -40,4 +40,4 @@ def format_bytes(as_bytes: bytes):
         for _ in range(min(4, math.ceil(len(chunk) / 4))):
             final += chunk[_ * 8: _ * 8 + 8] + " "
 
-        print(final)
+        print(final.upper())

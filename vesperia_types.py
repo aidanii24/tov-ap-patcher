@@ -542,6 +542,18 @@ class ShopItemEntry(ctypes.Structure):
         super().__init__(0x2070000, shop_id, 0x1000000, 0xE000007, 0x2070000, item_id, 0x1000000, 0xE000007,
                          0x5020119, 0xFFFFFFFF, 0x14010000, 0x10000000, 0x10, 0x1000000)
 
+class ChestHeader(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("magic_number", ctypes.c_char * 8),
+        ("file_end", ctypes.c_uint32),
+        ("chest_start", ctypes.c_uint32),
+        ("chest_entries", ctypes.c_uint32),
+        ("item_start", ctypes.c_uint32),
+        ("item_entries", ctypes.c_uint32),
+        ("dummy", ctypes.c_uint32),
+    ]
+
 class ChestItemEntry(ctypes.Structure):
     _pack_ = 1
     _fields_ = [

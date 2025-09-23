@@ -542,6 +542,13 @@ class ShopItemEntry(ctypes.Structure):
         super().__init__(0x2070000, shop_id, 0x1000000, 0xE000007, 0x2070000, item_id, 0x1000000, 0xE000007,
                          0x5020119, 0xFFFFFFFF, 0x14010000, 0x10000000, 0x10, 0x1000000)
 
+class ChestItemEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("item_id", ctypes.c_uint32),
+        ("amount", ctypes.c_uint32),
+    ]
+
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}
 

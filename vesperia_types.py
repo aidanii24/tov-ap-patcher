@@ -2,7 +2,6 @@ import ctypes
 import copy
 import json
 import mmap
-from _ctypes import Structure
 
 
 class VesperiaStructureEncoder(json.JSONEncoder):

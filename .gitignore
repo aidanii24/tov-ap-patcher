@@ -6,3 +6,6 @@
 /dependencies/
 /builds/
 config.json
+
+# Cache
+*.pyc

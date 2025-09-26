@@ -560,6 +560,72 @@ class ChestItemEntry(ctypes.Structure):
         ("amount", ctypes.c_uint32),
     ]
 
+class TSSHeader(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("magic_number", ctypes.c_char * 4),
+        ("code_start", ctypes.c_uint32),
+        ("code_length", ctypes.c_uint32),
+        ("text_start", ctypes.c_uint32),
+        ("entry_code_start", ctypes.c_uint32),
+        ("entry_pointer_end", ctypes.c_uint32),
+        ("text_length", ctypes.c_uint32),
+        ("sector_size", ctypes.c_uint32),
+    ]
+
+class TSSStringLeadEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("unknown0", ctypes.c_uint32),
+        ("unknown1", ctypes.c_uint32),
+        ("unknown2", ctypes.c_uint32),
+        ("unknown3", ctypes.c_uint32),
+        ("unknown4", ctypes.c_uint32),
+        ("unknown5", ctypes.c_uint32),
+        ("unknown6", ctypes.c_uint32),
+        ("unknown7", ctypes.c_uint32),
+        ("unknown8", ctypes.c_uint32),
+        ("unknown9", ctypes.c_uint32),
+        ("unknown10", ctypes.c_uint32),
+        ("unknown11", ctypes.c_uint32),
+        ("unknown12", ctypes.c_uint32),
+        ("string_id", ctypes.c_uint32),
+        ("unknown13", ctypes.c_uint32),
+        ("unknown14", ctypes.c_uint32),
+        ("unknown15", ctypes.c_uint32),
+        ("pointer_jpn", ctypes.c_uint32),
+        ("unknown16", ctypes.c_uint32),
+        ("unknown17", ctypes.c_uint32),
+        ("unknown18", ctypes.c_uint32),
+        ("pointer_eng", ctypes.c_uint32),
+        ("unknown19", ctypes.c_uint32),
+        ("unknown20", ctypes.c_uint32),
+        ("unknown21", ctypes.c_uint32),
+    ]
+
+class TSSStringEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("unknown0", ctypes.c_uint32),
+        ("unknown1", ctypes.c_uint32),
+        ("unknown2", ctypes.c_uint32),
+        ("unknown3", ctypes.c_uint32),
+        ("unknown4", ctypes.c_uint32),
+        ("unknown5", ctypes.c_uint32),
+        ("string_id", ctypes.c_uint32),
+        ("unknown6", ctypes.c_uint32),
+        ("unknown7", ctypes.c_uint32),
+        ("unknown8", ctypes.c_uint32),
+        ("pointer_jpn", ctypes.c_uint32),
+        ("unknown9", ctypes.c_uint32),
+        ("unknown10", ctypes.c_uint32),
+        ("unknown11", ctypes.c_uint32),
+        ("pointer_eng", ctypes.c_uint32),
+        ("unknown12", ctypes.c_uint32),
+        ("unknown13", ctypes.c_uint32),
+        ("unknown14", ctypes.c_uint32),
+    ]
+
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}
 

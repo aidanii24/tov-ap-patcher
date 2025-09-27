@@ -573,11 +573,33 @@ class TSSHeader(ctypes.Structure):
         ("sector_size", ctypes.c_uint32),
     ]
 
-class TSSStringEntry():
+class TSSStringEntry:
     def __init__(self, string_id:int = 0, pointer_jpn = 0, pointer_eng = 0):
         self.string_id: int = string_id
         self.pointer_jpn: int = pointer_jpn
         self.pointer_eng: int = pointer_eng
+
+    def encode_tss(self) -> bytes:
+        as_bytes = int.to_bytes(0xFFFFFFFF, 4)
+        as_bytes += int.to_bytes(0x114, 4)
+        as_bytes += int.to_bytes(0x10, 4)
+        as_bytes += int.to_bytes(0x18000000, 4)
+        as_bytes += int.to_bytes(0x1, 4)
+        as_bytes += int.to_bytes(0x702, 4)
+        as_bytes += int.to_bytes(self.string_id, 4, 'little')
+        as_bytes += int.to_bytes(0x1, 4)
+        as_bytes += int.to_bytes(0x700000E, 4)
+        as_bytes += int.to_bytes(0x8202, 4)
+        as_bytes += int.to_bytes(self.pointer_jpn, 4, 'little')
+        as_bytes += int.to_bytes(0x1, 4)
+        as_bytes += int.to_bytes(0x8300000E, 4)
+        as_bytes += int.to_bytes(0x8202, 4)
+        as_bytes += int.to_bytes(self.pointer_eng, 4, 'little')
+        as_bytes += int.to_bytes(0x1, 4)
+        as_bytes += int.to_bytes(0x8300000E, 4)
+        as_bytes += int.to_bytes(0x10000305, 4)
+
+        return as_bytes
 
     @classmethod
     def from_buffer(cls, buffer: bytes):

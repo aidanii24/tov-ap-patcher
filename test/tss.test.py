@@ -4,7 +4,7 @@ import os
 
 from vesperia_types import TSSHeader, TSSStringEntry
 
-from debug import test_structure
+from debug import test_structure, format_bytes
 
 
 def parse_tss():
@@ -66,4 +66,5 @@ def parse_tss():
 
 
 if __name__ == "__main__":
-    parse_tss()
+    test = TSSStringEntry(50143, 0x35099, 0x35134)
+    format_bytes(test.encode_tss())

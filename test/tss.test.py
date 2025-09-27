@@ -9,6 +9,7 @@ from debug import test_structure
 
 def parse_tss():
     test_file: str = "../builds/strings/string_dic_ENG.so"
+    dump_file: str = "../builds/strings/output.txt"
     stop: bytes = (0xFFFFFFFF).to_bytes(4, byteorder="little")
 
     header_size: int = ctypes.sizeof(TSSHeader)
@@ -24,6 +25,7 @@ def parse_tss():
         stop_index: int = header.code_length
         last_max: int = header.code_start
 
+        print("Getting Entries...")
         while stop_index >= 0:
             stop_index = mm.find(stop, last_max + 1, mm.size())
 
@@ -36,23 +38,32 @@ def parse_tss():
             last_max: int = stop_index
             mm.seek(last_max + 1)
 
-        test = string_entries[0]
-        start: int = test.pointer_eng + header.text_start
-        mm.seek(start)
-        end: int = mm.find("\x00".encode(), start)
+        print("Entries:", len(string_entries))
+        print("Getting Strings...")
+        out = open(dump_file, "w")
+        for string in string_entries:
+            print(f"id: {string.string_id}")
+            out.write(f"\n{string.string_id}:")
+            start: int = string.pointer_eng + header.text_start
+            mm.seek(start)
+            end: int = mm.find("\x00".encode(), start)
 
-        if end >= test.pointer_eng:
-            print(hex(start), hex(end))
-            result = mm.read(end - test.pointer_eng)
-            print(len(result))
-            print(result.decode())
-        else: print("No String...")
+            if end == -1:
+                raise AssertionError(f"Cannot find String endpoint for {string.string_id}")
+
+            if end >= string.pointer_eng:
+                result = mm.read(end - string.pointer_eng)
+
+                try:
+                    decoded = "\t".join(result.decode("utf-8"))
+                    out.write(decoded)
+                except UnicodeDecodeError:
+                    continue
+
+        out.close()
 
         mm.close()
-
-    print("Entries", len(string_entries))
-    for entry in string_entries:
-        print(entry.string_id, entry.pointer_jpn, entry.pointer_eng)
+        f.close()
 
 
 if __name__ == "__main__":

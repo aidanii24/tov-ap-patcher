@@ -2,7 +2,7 @@ import ctypes
 import mmap
 import os
 
-from vesperia_types import TSSHeader, TSSStringLeadEntry, TSSStringEntry
+from vesperia_types import TSSHeader, TSSStringEntry
 
 from debug import test_structure
 
@@ -11,7 +11,6 @@ def parse_tss():
     test_file: str = "../builds/strings/string_dic_ENG.so"
     stop: bytes = (0xFFFFFFFF).to_bytes(4, byteorder="little")
 
-    header: TSSHeader = TSSHeader()
     header_size: int = ctypes.sizeof(TSSHeader)
 
     string_entries: list = []
@@ -29,13 +28,9 @@ def parse_tss():
             stop_index = mm.find(stop, last_max + 1, mm.size())
 
             length: int = stop_index - last_max
-            if length == 0x64:
+            if length == 0x64 or length == 0x48:
                 mm.seek(last_max)
-                new_entry: TSSStringLeadEntry = TSSStringLeadEntry.from_buffer_copy(mm.read(length))
-                string_entries.append(new_entry)
-            elif length == 0x48:
-                mm.seek(last_max)
-                new_entry: TSSStringEntry = TSSStringEntry.from_buffer_copy(mm.read(length))
+                new_entry: TSSStringEntry = TSSStringEntry.from_buffer(mm.read(length))
                 string_entries.append(new_entry)
 
             last_max: int = stop_index

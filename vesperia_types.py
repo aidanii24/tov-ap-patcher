@@ -573,58 +573,22 @@ class TSSHeader(ctypes.Structure):
         ("sector_size", ctypes.c_uint32),
     ]
 
-class TSSStringLeadEntry(ctypes.Structure):
-    _pack_ = 1
-    _fields_ = [
-        ("unknown0", ctypes.c_uint32),
-        ("unknown1", ctypes.c_uint32),
-        ("unknown2", ctypes.c_uint32),
-        ("unknown3", ctypes.c_uint32),
-        ("unknown4", ctypes.c_uint32),
-        ("unknown5", ctypes.c_uint32),
-        ("unknown6", ctypes.c_uint32),
-        ("unknown7", ctypes.c_uint32),
-        ("unknown8", ctypes.c_uint32),
-        ("unknown9", ctypes.c_uint32),
-        ("unknown10", ctypes.c_uint32),
-        ("unknown11", ctypes.c_uint32),
-        ("unknown12", ctypes.c_uint32),
-        ("string_id", ctypes.c_uint32),
-        ("unknown13", ctypes.c_uint32),
-        ("unknown14", ctypes.c_uint32),
-        ("unknown15", ctypes.c_uint32),
-        ("pointer_jpn", ctypes.c_uint32),
-        ("unknown16", ctypes.c_uint32),
-        ("unknown17", ctypes.c_uint32),
-        ("unknown18", ctypes.c_uint32),
-        ("pointer_eng", ctypes.c_uint32),
-        ("unknown19", ctypes.c_uint32),
-        ("unknown20", ctypes.c_uint32),
-        ("unknown21", ctypes.c_uint32),
-    ]
+class TSSStringEntry():
+    def __init__(self, string_id:int = 0, pointer_jpn = 0, pointer_eng = 0):
+        self.string_id: int = string_id
+        self.pointer_jpn: int = pointer_jpn
+        self.pointer_eng: int = pointer_eng
 
-class TSSStringEntry(ctypes.Structure):
-    _pack_ = 1
-    _fields_ = [
-        ("unknown0", ctypes.c_uint32),
-        ("unknown1", ctypes.c_uint32),
-        ("unknown2", ctypes.c_uint32),
-        ("unknown3", ctypes.c_uint32),
-        ("unknown4", ctypes.c_uint32),
-        ("unknown5", ctypes.c_uint32),
-        ("string_id", ctypes.c_uint32),
-        ("unknown6", ctypes.c_uint32),
-        ("unknown7", ctypes.c_uint32),
-        ("unknown8", ctypes.c_uint32),
-        ("pointer_jpn", ctypes.c_uint32),
-        ("unknown9", ctypes.c_uint32),
-        ("unknown10", ctypes.c_uint32),
-        ("unknown11", ctypes.c_uint32),
-        ("pointer_eng", ctypes.c_uint32),
-        ("unknown12", ctypes.c_uint32),
-        ("unknown13", ctypes.c_uint32),
-        ("unknown14", ctypes.c_uint32),
-    ]
+    @classmethod
+    def from_buffer(cls, buffer: bytes):
+        # The first string entry in the dictionary library has a longer buffer than subsequent entries
+        if len(buffer) > 0x64 or len(buffer) < 0x48: return None
+
+        string_id: int = int.from_bytes(buffer[-48:-44], 'little')
+        pointer_jpn = int.from_bytes(buffer[-32:-28], 'little')
+        pointer_eng = int.from_bytes(buffer[-16:-12], 'little')
+
+        return TSSStringEntry(string_id, pointer_jpn, pointer_eng)
 
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}

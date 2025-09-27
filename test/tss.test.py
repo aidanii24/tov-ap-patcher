@@ -27,7 +27,7 @@ def parse_tss():
 
         print("Getting Entries...")
         while stop_index >= 0:
-            stop_index = mm.find(stop, last_max + 1, mm.size())
+            stop_index = mm.find(stop, last_max + 4, mm.size())
 
             length: int = stop_index - last_max
             if length == 0x64 or length == 0x48:
@@ -36,13 +36,12 @@ def parse_tss():
                 string_entries.append(new_entry)
 
             last_max: int = stop_index
-            mm.seek(last_max + 1)
+            mm.seek(last_max + 4)
 
         print("Entries:", len(string_entries))
         print("Getting Strings...")
         out = open(dump_file, "w")
         for string in string_entries:
-            print(f"id: {string.string_id}")
             out.write(f"\n{string.string_id}:")
             start: int = string.pointer_eng + header.text_start
             mm.seek(start)
@@ -52,10 +51,10 @@ def parse_tss():
                 raise AssertionError(f"Cannot find String endpoint for {string.string_id}")
 
             if end >= string.pointer_eng:
-                result = mm.read(end - string.pointer_eng)
+                result = mm.read(end - start)
 
                 try:
-                    decoded = "\t".join(result.decode("utf-8"))
+                    decoded = "\t" + (result.decode("utf-8"))
                     out.write(decoded)
                 except UnicodeDecodeError:
                     continue

@@ -582,7 +582,7 @@ class TSSStringEntry():
     @classmethod
     def from_buffer(cls, buffer: bytes):
         # The first string entry in the dictionary library has a longer buffer than subsequent entries
-        if len(buffer) > 0x64 or len(buffer) < 0x48: return None
+        if len(buffer) != 0x64 and len(buffer) != 0x48: return None
 
         string_id: int = int.from_bytes(buffer[-48:-44], 'little')
         pointer_jpn = int.from_bytes(buffer[-32:-28], 'little')

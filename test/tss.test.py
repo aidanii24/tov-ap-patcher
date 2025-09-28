@@ -67,8 +67,53 @@ def parse_tss():
     print("Parsing and Dumping Time Taken:", end_time - start_time, "seconds")
 
     ids = [entry.string_id for entry in string_entries]
-    print(f"Highest ID: {max(*ids)}")
+    print(f"Highest ID: {max(*ids)}")   # 966589
+
+    print(string_entries[-1].string_id, hex(string_entries[-1].pointer_jpn), hex(string_entries[-1].pointer_eng))
+
+def add_entry():
+    test_file: str = "../builds/strings/string_dic_ENG.so"
+    stop: bytes = (0xFFFFFFFF).to_bytes(4, byteorder="little")
+
+    header_size: int = ctypes.sizeof(TSSHeader)
+
+    test_entry: TSSStringEntry = TSSStringEntry(7, 966590, 0x2FDC02, 0x2FDC0B)
+    test_string: str = "\x00テスト\x00This is a sample string! Please be careful!\x00"
+    bytecode: bytes = test_entry.encode_tss()
+
+    strings_size: int = len(test_string.encode('shift_jis'))
+    additional_size: int = len(bytecode) + strings_size
+
+    with open(test_file, "r+b") as f:
+        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+
+        header = TSSHeader.from_buffer_copy(mm.read(header_size))
+
+        entries_end: int = mm.rfind(stop, header.code_start, header.code_length)
+        original_size: int = mm.size()
+
+        header.code_length += len(bytecode)
+        header.text_start += len(bytecode)
+        header.text_length += strings_size
+        header.entry_pointer_end += len(bytecode)
+
+        mm.seek(mm.size())
+        mm.resize(mm.size() + additional_size)
+        mm.write(test_string.encode('shift_jis'))
+
+        mm.seek(entries_end)
+        mm.move(entries_end + len(bytecode), entries_end, original_size - entries_end + strings_size)
+
+        mm.seek(entries_end)
+        mm.write(bytecode)
+
+        mm.seek(0)
+        mm.write(bytearray(header))
+
+        mm.flush()
+        mm.close()
+        f.close()
 
 
 if __name__ == "__main__":
-    parse_tss()
+    add_entry()

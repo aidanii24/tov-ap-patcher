@@ -574,7 +574,8 @@ class TSSHeader(ctypes.Structure):
     ]
 
 class TSSStringEntry:
-    def __init__(self, string_id:int = 0, pointer_jpn = 0, pointer_eng = 0):
+    def __init__(self, id_type: int = 0, string_id:int = 0, pointer_jpn = 0, pointer_eng = 0):
+        self.id_type = id_type
         self.string_id: int = string_id
         self.pointer_jpn: int = pointer_jpn
         self.pointer_eng: int = pointer_eng
@@ -586,7 +587,7 @@ class TSSStringEntry:
         as_bytes += int.to_bytes(0x18000000, 4)
         as_bytes += int.to_bytes(0x1, 4)
         as_bytes += int.to_bytes(0x702, 4)
-        as_bytes += int.to_bytes(self.string_id, 4, 'little')
+        as_bytes += int.to_bytes(self.string_id, 4 if self.id_type else 2, 'little')
         as_bytes += int.to_bytes(0x1, 4)
         as_bytes += int.to_bytes(0x700000E, 4)
         as_bytes += int.to_bytes(0x8202, 4)
@@ -603,11 +604,16 @@ class TSSStringEntry:
 
     @classmethod
     def from_buffer(cls, buffer: bytes):
-        string_id: int = int.from_bytes(buffer[-48:-44], 'little')
-        pointer_jpn = int.from_bytes(buffer[-32:-28], 'little')
-        pointer_eng = int.from_bytes(buffer[-16:-12], 'little')
 
-        return TSSStringEntry(string_id, pointer_jpn, pointer_eng)
+        id_type: int = int.from_bytes(buffer[-0x32:-0x31], 'little')
+
+        string_end: int = -0x2C if id_type else -0x2E
+
+        string_id: int = int.from_bytes(buffer[-0x30:string_end], 'little')
+        pointer_jpn = int.from_bytes(buffer[-0x20:-0x1C], 'little')
+        pointer_eng = int.from_bytes(buffer[-0x10:-0xC], 'little')
+
+        return TSSStringEntry(id_type, string_id, pointer_jpn, pointer_eng)
 
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}

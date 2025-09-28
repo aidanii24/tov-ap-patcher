@@ -1,5 +1,6 @@
 import ctypes
 import mmap
+import time
 import os
 
 from vesperia_types import TSSHeader, TSSStringEntry
@@ -16,34 +17,31 @@ def parse_tss():
 
     string_entries: list = []
 
+    start_time: float = time.time()
+
     with open(test_file, "rb") as f:
         mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
 
         header = TSSHeader.from_buffer_copy(mm.read(header_size))
         mm.seek(header.code_start)
 
-        stop_index: int = header.code_length
         last_max: int = header.code_start
+        stop_index: int = mm.find(stop, last_max + 4, header.code_length)
 
-        print("Getting Entries...")
         while stop_index >= 0:
-            stop_index = mm.find(stop, last_max + 4, mm.size())
-
             length: int = stop_index - last_max
-            if length == 0x64 or length == 0x48:
-                mm.seek(last_max)
-                new_entry: TSSStringEntry = TSSStringEntry.from_buffer(mm.read(length))
-                string_entries.append(new_entry)
+            new_entry: TSSStringEntry = TSSStringEntry.from_buffer(mm.read(length))
+            print(new_entry.string_id, new_entry.id_type)
+            string_entries.append(new_entry)
 
             last_max: int = stop_index
-            mm.seek(last_max + 4)
+            stop_index = mm.find(stop, last_max + 4, header.code_length)
 
-        print("Entries:", len(string_entries))
-        print("Getting Strings...")
         out = open(dump_file, "w")
         for string in string_entries:
-            out.write(f"\n{string.string_id}:")
+            out.write(f"{string.string_id}:")
             start: int = string.pointer_eng + header.text_start
+
             mm.seek(start)
             end: int = mm.find("\x00".encode(), start)
 
@@ -59,12 +57,16 @@ def parse_tss():
                 except UnicodeDecodeError:
                     continue
 
+            out.write("\n")
+
         out.close()
 
         mm.close()
         f.close()
 
+    end_time: float = time.time()
+    print("Parsing and Dumping Time Taken:", end_time - start_time, "seconds")
+
 
 if __name__ == "__main__":
-    test = TSSStringEntry(50143, 0x35099, 0x35134)
-    format_bytes(test.encode_tss())
+    parse_tss()

@@ -31,7 +31,6 @@ def parse_tss():
         while stop_index >= 0:
             length: int = stop_index - last_max
             new_entry: TSSStringEntry = TSSStringEntry.from_buffer(mm.read(length))
-            print(new_entry.string_id, new_entry.id_type)
             string_entries.append(new_entry)
 
             last_max: int = stop_index
@@ -66,6 +65,9 @@ def parse_tss():
 
     end_time: float = time.time()
     print("Parsing and Dumping Time Taken:", end_time - start_time, "seconds")
+
+    ids = [entry.string_id for entry in string_entries]
+    print(f"Highest ID: {max(*ids)}")
 
 
 if __name__ == "__main__":

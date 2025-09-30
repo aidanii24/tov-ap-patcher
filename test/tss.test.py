@@ -1,9 +1,11 @@
 import ctypes
 import mmap
 import time
+import json
+import pdb
 import os
 
-from vesperia_types import TSSHeader, TSSStringEntry
+from vesperia_types import TSSHeader, TSSStringEntry, VesperiaStructureEncoder
 
 from debug import test_structure, format_bytes
 
@@ -11,6 +13,7 @@ from debug import test_structure, format_bytes
 def parse_tss():
     test_file: str = "../builds/strings/string_dic_ENG.so"
     dump_file: str = "../builds/strings/output.txt"
+    data_file: str = "../builds/strings/strings.json"
     stop: bytes = (0xFFFFFFFF).to_bytes(4, byteorder="little")
 
     header_size: int = ctypes.sizeof(TSSHeader)
@@ -36,32 +39,36 @@ def parse_tss():
             last_max: int = stop_index
             stop_index = mm.find(stop, last_max + 4, header.code_length)
 
-        out = open(dump_file, "w")
-        for string in string_entries:
-            out.write(f"{string.string_id}:")
-            start: int = string.pointer_eng + header.text_start
-
-            mm.seek(start)
-            end: int = mm.find("\x00".encode(), start)
-
-            if end == -1:
-                raise AssertionError(f"Cannot find String endpoint for {string.string_id}")
-
-            if end >= string.pointer_eng:
-                result = mm.read(end - start)
-
-                try:
-                    decoded = "\t" + (result.decode("utf-8"))
-                    out.write(decoded)
-                except UnicodeDecodeError:
-                    continue
-
-            out.write("\n")
-
-        out.close()
+        # out = open(dump_file, "w")
+        # for string in string_entries:
+        #     out.write(f"{string.string_id}:")
+        #     start: int = string.pointer_eng + header.text_start
+        #
+        #     mm.seek(start)
+        #     end: int = mm.find("\x00".encode(), start)
+        #
+        #     if end == -1:
+        #         raise AssertionError(f"Cannot find String endpoint for {string.string_id}")
+        #
+        #     if end >= string.pointer_eng:
+        #         result = mm.read(end - start)
+        #
+        #         try:
+        #             decoded = "\t" + (result.decode("utf-8"))
+        #             out.write(decoded)
+        #         except UnicodeDecodeError:
+        #             continue
+        #
+        #     out.write("\n")
+        #
+        # out.close()
 
         mm.close()
         f.close()
+
+    with open(data_file, "w+") as f:
+        as_dict: dict[int, dict] = {string.string_id : string.to_json() for string in string_entries}
+        json.dump(as_dict, f, cls=VesperiaStructureEncoder, indent=4)
 
     end_time: float = time.time()
     print("Parsing and Dumping Time Taken:", end_time - start_time, "seconds")
@@ -114,6 +121,80 @@ def add_entry():
         mm.close()
         f.close()
 
+def replace_entry():
+    test_file: str = "../builds/strings/string_dic_ENG.so"
+    stop: bytes = (0xFFFFFFFF).to_bytes(4, byteorder="little")
+
+    header_size: int = ctypes.sizeof(TSSHeader)
+
+    test_entry: TSSStringEntry = TSSStringEntry(7, 860048, 0x297B94, 0x297B95)
+    str_jpn: str = "テスト\x00"
+    str_eng: str = "This is a test string! Be careful!\x00"
+
+    extra_size: int = len(str_jpn.encode()) + len(str_eng.encode())
+
+    with open(test_file, "r+b") as f:
+        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+
+        header = TSSHeader.from_buffer_copy(mm.read(header_size))
+        header.text_length += extra_size
+
+        mm.seek(0)
+        mm.write(bytearray(header))
+
+        mm.seek(header.text_start)
+        string_data: bytearray = bytearray(mm.read(-1))
+
+        mm.seek(header.code_start)
+        last_max: int = header.code_start
+        stop_index: int = mm.find(stop, last_max + 4, header.code_length)
+
+        offset: int = 0
+        while stop_index >= 0:
+            length: int = stop_index - last_max
+            entry: TSSStringEntry = TSSStringEntry.from_buffer(mm.read(length))
+
+            if entry.string_id == test_entry.string_id:
+                p_eng = entry.pointer_eng + offset
+                p_jpn = entry.pointer_jpn + offset
+
+                del string_data[p_eng]
+                string_data[p_eng:p_eng] = str_eng.encode()
+
+                del string_data[p_jpn]
+                string_data[p_jpn:p_jpn] = str_jpn.encode()
+                offset += extra_size - 2
+
+                entry.pointer_eng = entry.pointer_jpn + len(str_jpn.encode())
+
+                mm.seek(-0x10, 1)
+                mm.write(int.to_bytes(entry.pointer_eng, length=4, byteorder="little"))
+                mm.seek(0xC, 1)
+
+            elif offset > 0:
+                entry.pointer_jpn += offset
+                entry.pointer_eng += offset
+
+                mm.seek(-0x20, 1)
+                mm.write(int.to_bytes(entry.pointer_jpn, length=4, byteorder="little"))
+
+                mm.seek(0xC, 1)
+                mm.write(int.to_bytes(entry.pointer_eng, length=4, byteorder="little"))
+
+                mm.seek(0xC, 1)
+
+            last_max: int = stop_index
+            stop_index = mm.find(stop, last_max + 4, header.code_length)
+
+        mm.seek(header.text_start)
+
+        content_end: int = header.text_start + len(string_data)
+        mm.resize(max(mm.size(), content_end))
+        mm.write(string_data)
+
+        mm.close()
+        f.close()
+
 
 if __name__ == "__main__":
-    add_entry()
+    replace_entry()

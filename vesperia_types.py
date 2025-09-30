@@ -580,27 +580,12 @@ class TSSStringEntry:
         self.pointer_jpn: int = pointer_jpn
         self.pointer_eng: int = pointer_eng
 
-    def encode_tss(self) -> bytes:
-        as_bytes = int.to_bytes(0xFFFFFFFF, 4)
-        as_bytes += int.to_bytes(0x114, 4)
-        as_bytes += int.to_bytes(0x10, 4)
-        as_bytes += int.to_bytes(0x18000000, 4)
-        as_bytes += int.to_bytes(0x1, 4)
-        as_bytes += int.to_bytes(0x702, 4)
-        as_bytes += int.to_bytes(self.string_id, 4 if self.id_type else 2, 'little')
-        as_bytes += int.to_bytes(0x1, 4)
-        as_bytes += int.to_bytes(0x700000E, 4)
-        as_bytes += int.to_bytes(0x8202, 4)
-        as_bytes += int.to_bytes(self.pointer_jpn, 4, 'little')
-        as_bytes += int.to_bytes(0x1, 4)
-        as_bytes += int.to_bytes(0x8300000E, 4)
-        as_bytes += int.to_bytes(0x8202, 4)
-        as_bytes += int.to_bytes(self.pointer_eng, 4, 'little')
-        as_bytes += int.to_bytes(0x1, 4)
-        as_bytes += int.to_bytes(0x8300000E, 4)
-        as_bytes += int.to_bytes(0x10000305, 4)
-
-        return as_bytes
+    def to_json(self):
+        return {
+            "id_type": self.id_type,
+            "pointer_jpn": self.pointer_jpn,
+            "pointer_eng": self.pointer_eng,
+        }
 
     @classmethod
     def from_buffer(cls, buffer: bytes):

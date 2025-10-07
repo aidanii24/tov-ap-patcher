@@ -13,12 +13,14 @@ from debug import test_structure, format_bytes
 def parse_tss():
     test_file: str = "../builds/strings/string_dic_ENG.so"
     dump_file: str = "../builds/strings/output.txt"
+    extract_file: str = "../builds/manifests/strings.json"
     data_file: str = "../builds/strings/strings.json"
     stop: bytes = (0xFFFFFFFF).to_bytes(4, byteorder="little")
 
     header_size: int = ctypes.sizeof(TSSHeader)
 
     string_entries: list = []
+    string_id_table: dict[int, str] = {}
 
     start_time: float = time.time()
 
@@ -39,29 +41,23 @@ def parse_tss():
             last_max: int = stop_index
             stop_index = mm.find(stop, last_max + 4, header.code_length)
 
-        # out = open(dump_file, "w")
-        # for string in string_entries:
-        #     out.write(f"{string.string_id}:")
-        #     start: int = string.pointer_eng + header.text_start
-        #
-        #     mm.seek(start)
-        #     end: int = mm.find("\x00".encode(), start)
-        #
-        #     if end == -1:
-        #         raise AssertionError(f"Cannot find String endpoint for {string.string_id}")
-        #
-        #     if end >= string.pointer_eng:
-        #         result = mm.read(end - start)
-        #
-        #         try:
-        #             decoded = "\t" + (result.decode("utf-8"))
-        #             out.write(decoded)
-        #         except UnicodeDecodeError:
-        #             continue
-        #
-        #     out.write("\n")
-        #
-        # out.close()
+        for string in string_entries:
+            start: int = string.pointer_eng + header.text_start
+
+            mm.seek(start)
+            end: int = mm.find("\x00".encode(), start)
+
+            if end == -1:
+                raise AssertionError(f"Cannot find String endpoint for {string.string_id}")
+
+            if end >= string.pointer_eng:
+                result = mm.read(end - start)
+
+                try:
+                    decoded = "\t" + (result.decode("utf-8"))
+                    string_id_table[string.string_id] = decoded
+                except UnicodeDecodeError:
+                    continue
 
         mm.close()
         f.close()
@@ -69,6 +65,9 @@ def parse_tss():
     with open(data_file, "w+") as f:
         as_dict: dict[int, dict] = {string.string_id : string.to_json() for string in string_entries}
         json.dump(as_dict, f, cls=VesperiaStructureEncoder, indent=4)
+
+    with open(extract_file, "w+") as f:
+        json.dump(string_id_table, f, cls=VesperiaStructureEncoder, indent=4)
 
     end_time: float = time.time()
     print("Parsing and Dumping Time Taken:", end_time - start_time, "seconds")
@@ -197,4 +196,4 @@ def replace_entry():
 
 
 if __name__ == "__main__":
-    replace_entry()
+    parse_tss()

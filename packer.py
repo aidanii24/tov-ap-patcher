@@ -285,6 +285,35 @@ class VesperiaPacker:
 
         self.hyouta.extract_svo(path, work_dir)
 
+    def extract_scenario(self):
+        path: str = os.path.join(self.vesperia, tov_scenario)
+        assert os.path.isfile(path)
+
+        work_dir: str = os.path.join(self.build_dir, "scenario")
+        if not os.path.isdir(work_dir): os.mkdir(work_dir)
+
+        extract_dir: str = os.path.join(work_dir, "ENG")
+        if not os.path.isdir(extract_dir): os.mkdir(extract_dir)
+
+        self.hyouta.extract_scenario(path, extract_dir)
+
+    def decompress_scenario(self, file: str):
+        assert file
+
+        work_dir: str = os.path.join(self.build_dir, "scenario")
+        if not os.path.isdir(work_dir): os.mkdir(work_dir)
+
+        extract_dir: str = os.path.join(work_dir, "ENG")
+        if not os.path.isdir(extract_dir): os.mkdir(extract_dir)
+
+        target: str = os.path.join(extract_dir, file)
+        assert os.path.isfile(target)
+
+        decompress_dir: str = os.path.join(work_dir, file)
+        if not os.path.isdir(decompress_dir): os.mkdir(decompress_dir)
+
+        self.comptoe_decompress(target, os.path.join(decompress_dir, file + ".dec"))
+
     def pack_btl(self):
         path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")
         assert os.path.isfile(path)
@@ -319,26 +348,6 @@ class VesperiaPacker:
 
         self.hyouta.compress_tlzc(file, out)
 
-    def extract_scenario(self):
-        path: str = os.path.join(self.vesperia, tov_scenario)
-        assert os.path.isfile(path)
-
-        work_dir: str = os.path.join(self.build_dir, "scenario")
-        if not os.path.isdir(work_dir): os.mkdir(work_dir)
-
-        extract_dir: str = os.path.join(work_dir, "ENG")
-        if not os.path.isdir(extract_dir): os.mkdir(extract_dir)
-
-        self.hyouta.extract_scenario(path, extract_dir)
-
-        file0: str = os.path.join(extract_dir, "0")
-        assert os.path.isfile(file0)
-
-        dir0: str = os.path.join(work_dir, "0")
-        if not os.path.isdir(dir0): os.mkdir(dir0)
-
-        self.comptoe_decompress(file0, os.path.join(dir0, "0.dec"))
-
     def pack_scenario(self):
         path: str = os.path.join(self.build_dir, "scenario")
         main: str = os.path.join(path, "ENG")
@@ -363,4 +372,4 @@ if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    packer.unpack_ui()
+    packer.decompress_scenario("1018")

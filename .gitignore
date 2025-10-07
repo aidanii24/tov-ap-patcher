@@ -11,5 +11,4 @@ config.json
 *.pyc
 
 # Helper Artifacts
-**id_table.json
-**id_table.csv
+/helper/artifacts/*

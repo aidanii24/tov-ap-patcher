@@ -4,9 +4,9 @@ import os
 
 
 def generate_ids():
-    artes_id_table_out: str = "artes_id_table.csv"
-    skills_id_table_out: str = "skills_id_table.csv"
-    items_id_table_out: str = "items_id_table.csv"
+    artes_id_table_out: str = "./artifacts/artes_id_table.csv"
+    skills_id_table_out: str = "./artifacts/skills_id_table.csv"
+    items_id_table_out: str = "./artifacts/items_id_table.csv"
 
     manifest: str = "../builds/manifests"
     assert os.path.isdir(manifest)

@@ -371,5 +371,3 @@ class VesperiaPacker:
 if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
-
-    packer.decompress_scenario("1018")

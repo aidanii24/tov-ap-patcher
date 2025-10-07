@@ -31,7 +31,7 @@ def arte_to_json():
 
         mm.close()
 
-    with open("builds/0004R.json", "x+") as f:
+    with open("../builds/manifests/0004R.json", "w+") as f:
         manifest: dict = {"artes": artes, "strings": strings}
         json.dump(manifest, f, cls=VesperiaStructureEncoder, indent=4)
 
@@ -48,7 +48,7 @@ def arte_from_json():
     artes: list[ArtesEntry] = []
     strings: list[str] = []
 
-    with open("builds/0004R.json", "r") as f:
+    with open("builds/manifests/0004R.json", "r") as f:
         data = json.load(f)
 
         artes = [ArtesEntry(*entry.values()) for entry in data["artes"]]
@@ -75,3 +75,6 @@ def arte_from_json():
 
     end: float = time.time()
     print(f"[Rebuilding File] Time taken: {end - start} seconds")
+
+if __name__ == "__main__":
+    arte_to_json()

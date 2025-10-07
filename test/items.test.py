@@ -4,6 +4,7 @@ import shutil
 import json
 import mmap
 import time
+import os
 
 from vesperia_types import VesperiaStructureEncoder, ItemEntry, ItemSortEntry
 
@@ -30,7 +31,7 @@ def item_to_json():
 
         mm.close()
 
-    with open("builds/item.json", "x+") as f:
+    with open("../builds/manifests/item.json", "w+") as f:
         manifest: dict = {"items": items}
         json.dump(manifest, f, cls=VesperiaStructureEncoder, indent=4)
 
@@ -130,3 +131,7 @@ def patch_item_sort(items: list[ItemEntry]):
 
         mm.flush()
         mm.close()
+
+
+if __name__ == "__main__":
+    item_to_json()

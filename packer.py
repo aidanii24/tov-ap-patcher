@@ -331,13 +331,22 @@ class VesperiaPacker:
 
         self.hyouta.extract_scenario(path, extract_dir)
 
-        file0: str = os.path.join(extract_dir, "0")
-        assert os.path.isfile(file0)
+    def decompress_scenario(self, file: str):
+        assert file
 
-        dir0: str = os.path.join(work_dir, "0")
-        if not os.path.isdir(dir0): os.mkdir(dir0)
+        work_dir: str = os.path.join(self.build_dir, "scenario")
+        if not os.path.isdir(work_dir): os.mkdir(work_dir)
 
-        self.comptoe_decompress(file0, os.path.join(dir0, "0.dec"))
+        extract_dir: str = os.path.join(work_dir, "ENG")
+        if not os.path.isdir(extract_dir): os.mkdir(extract_dir)
+        
+        target: str = os.path.join(extract_dir, file)
+        assert os.path.isfile(target)
+
+        decompress_dir: str = os.path.join(work_dir, file)
+        if not os.path.isdir(decompress_dir): os.mkdir(decompress_dir)
+
+        self.comptoe_decompress(target, os.path.join(decompress_dir, file + ".dec"))
 
     def pack_scenario(self):
         path: str = os.path.join(self.build_dir, "scenario")
@@ -363,4 +372,4 @@ if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    packer.unpack_ui()
+    packer.decompress_scenario("1018")

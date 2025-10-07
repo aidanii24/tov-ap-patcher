@@ -9,3 +9,6 @@ config.json
 
 # Cache
 *.pyc
+
+# Helper Artifacts
+**id_table.json

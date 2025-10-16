@@ -49,8 +49,8 @@ class InstructionData:
         self.character: int = character
 
     def __new__(cls, instruction_type: int, instruction_id: int, address: int, slot: int, character: int):
-        if instruction_type == 0xFFFFFF: return None
-        return InstructionType(instruction_type, instruction_id, address, slot, character)
+        if not InstructionType.is_valid(instruction_type): return None
+        return super().__new__(cls)
 
 
 packer: VesperiaPacker
@@ -101,12 +101,16 @@ def find_instruction():
         pos: int = mm.find(find_target, header.code_start, mm.size())
         next_pos: int = mm.find(find_target, pos + 4, mm.size())
 
-        while pos >= 0 or next_pos >= 0:
+        scans: int = 0
+        while pos >= 0 and next_pos >= 0:
             slot: int = 0xFFFFFF
             character: int = 0xFFFFFF
 
-            mm.seek(pos, 1)
+            mm.seek(pos - 0x4)
             inst_type = int.from_bytes(mm.read(type_size), byteorder="little")
+
+            print(f"Scan {scans} > Current: {hex(pos)} | Next: {hex(next_pos)} | Type: {hex(inst_type)} "
+                  f"{InstructionType(inst_type).name if InstructionType.is_valid(inst_type) else ""}")
 
             if InstructionType.is_valid(inst_type):
                 if inst_type == InstructionType.EQUIP_ARTE:
@@ -173,10 +177,14 @@ def find_instruction():
 
             pos = next_pos
             next_pos = mm.find(find_target, pos + 4, mm.size())
-            while next_pos % 4 != 0 or next_pos != -1:
+            while next_pos % 4 != 0 and next_pos > pos:
                 next_pos = mm.find(find_target, next_pos + 4, mm.size())
 
+            scans += 1
+
+    print(f"[-/-] Scanned file {1018} for Events\n"
+          f"Total Scans: {scans}\n"
+          f"Total Events: {len(instructions)}")
+
 if __name__ == "__main__":
-    pass
-    # packer = VesperiaPacker()
-    # packer.check_dependencies()
+    find_instruction()

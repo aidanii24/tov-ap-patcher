@@ -86,6 +86,13 @@ class InstructionData:
         if not InstructionType.is_valid(instruction_type): return None
         return super().__new__(cls)
 
+    def validate(self):
+        if self.instruction_type == InstructionType.UNLOCK_EVENT and self.data_id > 1971: return False
+        if (self.instruction_type == InstructionType.UNLOCK_EVENT and
+                self.character > 9 or self.character < 0): return False
+
+        return True
+
     def report(self):
         report: str = f"{hex(self.address)} {InstructionType(self.instruction_type).name} | "
 
@@ -102,7 +109,7 @@ class InstructionData:
                 if -1 < self.character <= 9:
                     report += f"{Character(self.character).name}-related event giving ID {self.data_id}"
                 else:
-                    report += "unknown event"
+                    report = ""
             else:
                 report = ""
         elif self.instruction_type in InstructionType.get_item_types():
@@ -126,8 +133,6 @@ class InstructionData:
             report += "unknown event"
 
         return report
-
-packer: VesperiaPacker
 
 def strip_formatting(string: str) -> str:
     return string.replace("\n", "").replace("\t", "").replace("\r", "")
@@ -163,14 +168,15 @@ def get_meta_data():
     item_table = {item["id"]: strip_formatting(strings[f"{str(item['name_string_key'])}"]) for item in items
                             if str(item['name_string_key']) in strings}
 
-def get_events():
+def get_events() -> list[str]:
+    packer: VesperiaPacker = VesperiaPacker()
+    packer.check_dependencies()
+
     work_dir: str = os.path.join("../builds/scenario")
     assert os.path.isdir(work_dir)
 
     scenario: str = os.path.join(work_dir, "ENG")
     assert os.path.isdir(scenario)
-
-    start: float = time.time()
 
     files = os.listdir(scenario)
     for file in files:
@@ -182,17 +188,9 @@ def get_events():
     dirs = [d for d in os.listdir(scenario)
             if d.isdigit()]
 
-    count: int = 0
-    for d in dirs:
-        print(d)
-        assert os.path.isfile(os.path.join(work_dir, d, d + ".dec"))
-        count += 1
+    return dirs
 
-    end: float = time.time()
-    print(f"[Scenario Walking] Time Taken: {end - start}")
-    print("Total Files: ", count)
-
-def find_instructions(target: str):
+def find_instructions(target: str) -> list[InstructionData]:
     target_file: str = os.path.join(f"./builds/scenario/{target}/{target}.dec")
     assert os.path.isfile(target_file)
 
@@ -202,8 +200,6 @@ def find_instructions(target: str):
 
     instructions: list[InstructionData] = []
 
-    start = time.time()
-
     with open(target_file, "r+b") as f:
         mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
 
@@ -212,7 +208,6 @@ def find_instructions(target: str):
         pos: int = mm.find(find_target, header.code_start, mm.size())
         next_pos: int = mm.find(find_target, pos + 4, mm.size())
 
-        scans: int = 0
         while pos >= 0 and next_pos >= 0:
             slot: int = 0xFFFFFF
             character: int = 0xFFFFFF
@@ -258,7 +253,7 @@ def find_instructions(target: str):
                 if inst_type in [InstructionType.CHECK_ARTE, InstructionType.CHECK_TITLE, InstructionType.CHECK_UNLOCK]:
                     event_pos: int = mm.find(find_target_event, pos + 4, next_pos)
 
-                    slot = 0xFFFFFFFF
+                    slot = 0xFF
 
                     while event_pos >= pos:
                         if event_pos % 4 == 0:
@@ -291,31 +286,54 @@ def find_instructions(target: str):
             while next_pos % 4 != 0 and next_pos > pos:
                 next_pos = mm.find(find_target, next_pos + 4, mm.size())
 
-            scans += 1
+    return instructions
 
-    end: float = time.time()
-    print(f"[Event Scanning ({target})]\n"
-          f"Time Taken: {end - start} seconds\n"
-          f"Total Scans: {scans}\n"
-          f"Total Events: {len(instructions)}")
+def write_report(instruction: dict[str, list[InstructionData]]):
+    out_dir: str = os.path.join("..", "helper", "artifacts")
+    assert os.path.isdir(out_dir)
 
-    artifact: str = "../helper/artifacts/"
-    assert os.path.isdir(artifact)
-
-    output: str = os.path.join(artifact, f"{target}.txt")
+    output: str = os.path.join(out_dir, "events.txt")
     with open(output, "w+") as f:
-        f.write(f"--- File {target} ---------------\n")
+        for file, insts in instruction.items():
+            f.write(f"--- File {file} -------------------------\n")
+            if insts:
+                count: int = 0
+                for inst in insts:
+                    report: str = inst.report()
+                    if report:
+                        f.write(report + "\n")
+                        count += 1
 
-        for instruction in instructions:
-            report = instruction.report()
-            if report:
-                report += "\n"
+                if not count: f.write("Invalid Events\n")
+                f.write("\n")
+            else:
+                f.write(f"No Events\n\n")
 
-            f.write(report)
 
-        f.close()
+def generate_report():
+    start: float = time.time()
 
-if __name__ == "__main__":
+    print("--- Generating Event Report -------------------------\n")
+    print("[...] Preparing Meta Data")
     get_meta_data()
 
-    find_instructions("1252")
+    print("[...] Finding Scenario Files")
+    dirs: list[str] = get_events()
+    dirs.sort()
+    instructions: dict[str, list[InstructionData]] = {}
+
+    print("[...] Scanning for Events")
+    for d in dirs:
+        instructions[d] = find_instructions(d)
+
+    print("[...] Writing Event Report")
+    write_report(instructions)
+
+    end: float = time.time()
+    print("\n[-/-] Finished Generating Event Report")
+    print(f"> Time Taken: {end - start} seconds" )
+    print(f"> Total Files Scanned: {len(instructions)}")
+    print(f"> Total Events Found: {sum(len(inst) for inst in instructions.values())}")
+
+if __name__ == "__main__":
+    generate_report()

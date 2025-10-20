@@ -35,7 +35,8 @@ class InstructionType(IntEnum):
     EQUIP_ITEM2 = 0x3BC
     ADD_ITEM2 = 0x3BD
 
-    UNLOCK_EVENT = 0xFFF
+    UNLOCK_EVENT = 0xFFFF
+    CHECK_UNLOCK = 0x000F
 
     @classmethod
     def is_valid(cls, inst_type: int) -> bool:
@@ -70,7 +71,7 @@ class Character(IntEnum):
     PATTY = 9
 
     @classmethod
-    def _missing_(cls, vakue):
+    def _missing_(cls, value):
         return cls.UNKNOWN
 
 class InstructionData:
@@ -98,8 +99,12 @@ class InstructionData:
             report += f"{Character(self.character).name}'s Title ID {self.data_id}"
         elif self.instruction_type == InstructionType.UNLOCK_EVENT:
             if self.data_id <= 1971:
-                report += f"{Character(self.character).name}-related "
-            report += "unknown event"
+                if -1 < self.character <= 9:
+                    report += f"{Character(self.character).name}-related event giving ID {self.data_id}"
+                else:
+                    report += "unknown event"
+            else:
+                report = ""
         elif self.instruction_type in InstructionType.get_item_types():
             item: str = item_table[self.data_id] if self.data_id in item_table else f"Unknown Item {self.data_id}"
 
@@ -187,18 +192,19 @@ def get_events():
     print(f"[Scenario Walking] Time Taken: {end - start}")
     print("Total Files: ", count)
 
-def find_instructions():
-    target: str = os.path.join("./builds/scenario/1018/1018.dec")
-    assert os.path.isfile(target)
+def find_instructions(target: str):
+    target_file: str = os.path.join(f"./builds/scenario/{target}/{target}.dec")
+    assert os.path.isfile(target_file)
 
     type_size: int = 2
     find_target: bytes = (0xFFFFFFFF).to_bytes(4, byteorder="little")
+    find_target_event: bytes = (0xFFFF).to_bytes(2, byteorder="little")
 
     instructions: list[InstructionData] = []
 
     start = time.time()
 
-    with open(target, "r+b") as f:
+    with open(target_file, "r+b") as f:
         mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
 
         header = TSSHeader.from_buffer_copy(mm.read(ctypes.sizeof(TSSHeader)))
@@ -213,9 +219,6 @@ def find_instructions():
 
             mm.seek(pos - 0x4)
             inst_type = int.from_bytes(mm.read(type_size), byteorder="little")
-
-            # print(f"Scan {scans} > Current: {hex(pos)} | Next: {hex(next_pos)} | Type: {hex(inst_type)} "
-            #       f"{InstructionType(inst_type).name if InstructionType.is_valid(inst_type) else ""}")
 
             if InstructionType.is_valid(inst_type):
                 if inst_type == InstructionType.EQUIP_ARTE:
@@ -249,12 +252,15 @@ def find_instructions():
                     mm.seek(pos - 0x1C - 0x4)
                     character = int.from_bytes(mm.read(4), byteorder="little")
 
-                instructions.append(InstructionData(inst_type, data_id, pos, slot, character))
+                if inst_type != InstructionType.CHECK_UNLOCK:
+                    instructions.append(InstructionData(inst_type, data_id, pos, slot, character))
 
-                if inst_type in [InstructionType.CHECK_ARTE, InstructionType.CHECK_TITLE, 0x000F]:
-                    event_pos: int = mm.find(find_target, pos + 4, next_pos)
+                if inst_type in [InstructionType.CHECK_ARTE, InstructionType.CHECK_TITLE, InstructionType.CHECK_UNLOCK]:
+                    event_pos: int = mm.find(find_target_event, pos + 4, next_pos)
 
-                    while event_pos >= 0:
+                    slot = 0xFFFFFFFF
+
+                    while event_pos >= pos:
                         if event_pos % 4 == 0:
                             mm.seek(event_pos - 0x26)
                             sub_type: int = int.from_bytes(mm.read(2), byteorder="little")
@@ -276,9 +282,9 @@ def find_instructions():
                                 mm.seek(event_pos - 0xC)
                                 data_id = int.from_bytes(mm.read(4), byteorder="little")
 
-                            instructions.append(InstructionData(inst_type, data_id, pos, slot, character))
+                            instructions.append(InstructionData(inst_type, data_id, event_pos, slot, character))
 
-                        event_pos: int = mm.find(find_target, event_pos + 4, next_pos)
+                        event_pos: int = mm.find(find_target_event, event_pos + 4, next_pos)
 
             pos = next_pos
             next_pos = mm.find(find_target, pos + 4, mm.size())
@@ -288,7 +294,7 @@ def find_instructions():
             scans += 1
 
     end: float = time.time()
-    print(f"[Event Scanning ({1018})]\n"
+    print(f"[Event Scanning ({target})]\n"
           f"Time Taken: {end - start} seconds\n"
           f"Total Scans: {scans}\n"
           f"Total Events: {len(instructions)}")
@@ -296,16 +302,20 @@ def find_instructions():
     artifact: str = "../helper/artifacts/"
     assert os.path.isdir(artifact)
 
-    output: str = os.path.join(artifact, f"1018.txt")
+    output: str = os.path.join(artifact, f"{target}.txt")
     with open(output, "w+") as f:
-        f.write("--- File 1018 ---------------\n\n")
+        f.write(f"--- File {target} ---------------\n")
 
         for instruction in instructions:
-            f.write(instruction.report() + "\n")
+            report = instruction.report()
+            if report:
+                report += "\n"
+
+            f.write(report)
 
         f.close()
 
 if __name__ == "__main__":
     get_meta_data()
 
-    find_instructions()
+    find_instructions("1252")

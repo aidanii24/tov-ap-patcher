@@ -1,8 +1,52 @@
+from enum import IntEnum
 import ctypes
 import copy
 import json
 import mmap
 
+
+class InstructionType(IntEnum):
+    LEARN_ARTE = 0x183
+    EQUIP_ARTE = 0x327
+    CHECK_ARTE = 0x8B
+
+    LEARN_SKILL = 0x6C
+    EQUIP_SKILL = 0x2A4
+    CHECK_SKILL = 0x98
+
+    LEARN_TITLE = 0x1C0
+    EQUIP_TITLE = 0x27B
+    CHECK_TITLE = 0x2EE
+
+    EQUIP_ITEM1 = 0xCB
+    ADD_ITEM1 = 0xCC
+    GET_ITEM1 = 0XCD
+    GET_ITEM2 = 0x3BB
+    EQUIP_ITEM2 = 0x3BC
+    ADD_ITEM2 = 0x3BD
+
+    UNLOCK_EVENT = 0xFFFF
+    CHECK_UNLOCK = 0x000F
+
+    @classmethod
+    def is_valid(cls, inst_type: int) -> bool:
+        return any(inst_type == inst for inst in cls)
+
+    @classmethod
+    def get_arte_events(cls) -> list[int]:
+        return [cls.LEARN_ARTE, cls.EQUIP_ARTE, cls.CHECK_ARTE]
+
+    @classmethod
+    def get_skill_events(cls) -> list[int]:
+        return [cls.LEARN_SKILL, cls.EQUIP_SKILL, cls.CHECK_SKILL]
+
+    @classmethod
+    def get_title_events(cls) -> list[int]:
+        return [cls.LEARN_TITLE, cls.EQUIP_TITLE, cls.CHECK_TITLE]
+
+    @classmethod
+    def get_item_types(cls) -> list[int]:
+        return [cls.EQUIP_ITEM1, cls.ADD_ITEM1, cls.GET_ITEM1, cls.GET_ITEM2, cls.EQUIP_ITEM2, cls.ADD_ITEM2]
 
 class VesperiaStructureEncoder(json.JSONEncoder):
     def default(self, o):
@@ -599,6 +643,54 @@ class TSSStringEntry:
         pointer_eng = int.from_bytes(buffer[-0x10:-0xC], 'little')
 
         return TSSStringEntry(id_type, string_id, pointer_jpn, pointer_eng)
+
+class TSSEventEntry:
+    def __init__(self, address: int, instruction_type: int, from_check: bool = False, is_sub_type: bool = False,
+                 slot: int = 0, data_id: int = 0, character: int = 0):
+        self.address: int = address
+        self.instruction_type: int = instruction_type
+        self.from_check: bool = from_check
+        self.is_sub_type: int = is_sub_type
+        self.slot: int = slot
+        self.data_id: int = data_id
+        self.character: int = character
+
+    def write(self, mm: mmap.mmap):
+        slot_address: int = 0x0
+        character_address: int = 0x0
+
+        if self.from_check:
+            if not self.is_sub_type:
+                character_address = self.address - 0x1C
+                data_id_address = self.address - 0x24
+            else:
+                data_id_address = self.address - 0xC
+        elif self.instruction_type == InstructionType.EQUIP_ARTE:
+            slot_address = self.address - 0x1C - 0x4
+            data_id_address = self.address - 0xC - 0x4
+            character_address = self.address - 0x28 - 0x4
+        elif self.instruction_type in InstructionType.get_item_types():
+            if self.is_sub_type:
+                slot_address = self.address - 0x1C - 0x4
+                data_id_address = self.address - 0x2C - 0x4
+            else:
+                slot_address = self.address - 0x18 - 0x4
+                data_id_address = self.address - 0x24 - 0x4
+        else:
+            data_id_address = self.address - 0xC - 0x4
+            character_address = self.address - 0x1C - 0x4
+
+        if slot_address:
+            mm.seek(slot_address)
+            mm.write(self.slot.to_bytes(1, byteorder="little"))
+
+        if data_id_address:
+            mm.seek(data_id_address)
+            mm.write(self.data_id.to_bytes(4, byteorder="little"))
+
+        if character_address:
+            mm.seek(character_address)
+            mm.write(self.character.to_bytes(4, byteorder="little"))
 
 def generate_skills_manifest(filename: str, skills: list[SkillsEntry], strings: list[str]):
     data: dict[str, list] = {"entries": skills, "strings": strings}

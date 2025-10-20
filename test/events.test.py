@@ -74,14 +74,18 @@ class Character(IntEnum):
         return cls.UNKNOWN
 
 class InstructionData:
-    def __init__(self, address: int, instruction_type: int, slot: int, data_id: int, character: int):
+    def __init__(self, address: int, instruction_type: int, from_check: bool, is_sub_type: bool, slot: int, data_id: int,
+                 character: int):
         self.address: int = address
         self.instruction_type: int = instruction_type
+        self.from_check: bool = from_check
+        self.sub_type: bool = is_sub_type
         self.slot: int = slot
         self.data_id: int = data_id
         self.character: int = character
 
-    def __new__(cls, address: int, instruction_type: int, slot: int, data_id: int, character: int):
+    def __new__(cls, address: int, instruction_type: int, from_check: bool, is_sub_type: bool, slot: int, data_id: int,
+                character: int):
         if not InstructionType.is_valid(instruction_type): return None
         return super().__new__(cls)
 
@@ -94,8 +98,7 @@ class InstructionData:
 
     def tabulate(self, raw: bool = True) -> list:
         if raw:
-            values: list = [*self.__dict__.values()]
-            values[0] = hex(values[0])
+            values: list = [hex(self.address), self.instruction_type, self.slot, self.data_id, self.character]
             return values
 
         address: hex = hex(self.address)
@@ -228,6 +231,7 @@ def find_instructions(target: str) -> list[InstructionData]:
         next_pos: int = mm.find(find_target, pos + 4, mm.size())
 
         while pos >= 0 and next_pos >= 0:
+            is_sub_type: bool = False
             slot: int = 0xFFFFFF
             character: int = 0xFFFFFF
 
@@ -248,6 +252,8 @@ def find_instructions(target: str) -> list[InstructionData]:
                     mm.seek(next_pos - 0x1E)
                     sub_type: int = int.from_bytes(mm.read(2), byteorder="little")
                     if sub_type == 0x203:
+                        is_sub_type = True
+
                         mm.seek(pos - 0x1C - 0x4)
                         slot = int.from_bytes(mm.read(1), byteorder="little")
 
@@ -267,11 +273,13 @@ def find_instructions(target: str) -> list[InstructionData]:
                     character = int.from_bytes(mm.read(4), byteorder="little")
 
                 if inst_type != InstructionType.CHECK_UNLOCK:
-                    instructions.append(InstructionData(pos, inst_type, slot, data_id, character))
+                    instructions.append(InstructionData(pos, inst_type, False, is_sub_type, slot, data_id,
+                                                        character))
 
                 if inst_type in [InstructionType.CHECK_ARTE, InstructionType.CHECK_TITLE, InstructionType.CHECK_UNLOCK]:
                     event_pos: int = mm.find(find_target_event, pos + 4, next_pos)
 
+                    is_sub_type = False
                     slot = 0xFF
 
                     while event_pos >= pos:
@@ -279,6 +287,7 @@ def find_instructions(target: str) -> list[InstructionData]:
                             mm.seek(event_pos - 0x26)
                             sub_type: int = int.from_bytes(mm.read(2), byteorder="little")
                             if sub_type == 0x207:
+                                is_sub_type = True
                                 character = -1
 
                                 mm.seek(event_pos)
@@ -296,7 +305,8 @@ def find_instructions(target: str) -> list[InstructionData]:
                                 mm.seek(event_pos - 0xC)
                                 data_id = int.from_bytes(mm.read(4), byteorder="little")
 
-                            instructions.append(InstructionData(pos, inst_type, slot, data_id, character))
+                            instructions.append(InstructionData(pos, inst_type, True, is_sub_type, slot,
+                                                                data_id, character))
 
                         event_pos: int = mm.find(find_target_event, event_pos + 4, next_pos)
 

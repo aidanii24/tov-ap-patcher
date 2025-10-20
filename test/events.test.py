@@ -3,12 +3,11 @@ import ctypes
 import mmap
 import time
 import json
+import csv
 import os
 
 from packer import VesperiaPacker
 from vesperia_types import TSSHeader
-
-from debug import test_structure
 
 
 arte_table: dict = {}
@@ -75,25 +74,45 @@ class Character(IntEnum):
         return cls.UNKNOWN
 
 class InstructionData:
-    def __init__(self, instruction_type: int, data_id: int, address: int, slot: int, character: int):
-        self.instruction_type: int = instruction_type
-        self.data_id: int = data_id
+    def __init__(self, address: int, instruction_type: int, slot: int, data_id: int, character: int):
         self.address: int = address
+        self.instruction_type: int = instruction_type
         self.slot: int = slot
+        self.data_id: int = data_id
         self.character: int = character
 
-    def __new__(cls, instruction_type: int, instruction_id: int, address: int, slot: int, character: int):
+    def __new__(cls, address: int, instruction_type: int, slot: int, data_id: int, character: int):
         if not InstructionType.is_valid(instruction_type): return None
         return super().__new__(cls)
 
-    def validate(self):
+    def validate(self) -> bool:
         if self.instruction_type == InstructionType.UNLOCK_EVENT and self.data_id > 1971: return False
         if (self.instruction_type == InstructionType.UNLOCK_EVENT and
                 self.character > 9 or self.character < 0): return False
 
         return True
 
-    def report(self):
+    def tabulate(self, raw: bool = True) -> list:
+        if raw:
+            values: list = [*self.__dict__.values()]
+            values[0] = hex(values[0])
+            return values
+
+        address: hex = hex(self.address)
+        instruction_type: str = InstructionType(self.instruction_type).name
+        data = self.data_id
+        if self.instruction_type in InstructionType.get_arte_events() and data in arte_table:
+            data = arte_table[data]
+        elif self.instruction_type in InstructionType.get_skill_events() and data in skill_table:
+            data = skill_table[data]
+        elif self.instruction_type in InstructionType.get_item_types() and data in item_table:
+            data = item_table[data]
+
+        character: str = Character(self.character).name
+
+        return[address, instruction_type, self.slot, data, character]
+
+    def report(self) -> str:
         report: str = f"{hex(self.address)} {InstructionType(self.instruction_type).name} | "
 
         if self.instruction_type in InstructionType.get_arte_events():
@@ -248,7 +267,7 @@ def find_instructions(target: str) -> list[InstructionData]:
                     character = int.from_bytes(mm.read(4), byteorder="little")
 
                 if inst_type != InstructionType.CHECK_UNLOCK:
-                    instructions.append(InstructionData(inst_type, data_id, pos, slot, character))
+                    instructions.append(InstructionData(pos, inst_type, slot, data_id, character))
 
                 if inst_type in [InstructionType.CHECK_ARTE, InstructionType.CHECK_TITLE, InstructionType.CHECK_UNLOCK]:
                     event_pos: int = mm.find(find_target_event, pos + 4, next_pos)
@@ -277,7 +296,7 @@ def find_instructions(target: str) -> list[InstructionData]:
                                 mm.seek(event_pos - 0xC)
                                 data_id = int.from_bytes(mm.read(4), byteorder="little")
 
-                            instructions.append(InstructionData(inst_type, data_id, event_pos, slot, character))
+                            instructions.append(InstructionData(pos, inst_type, slot, data_id, character))
 
                         event_pos: int = mm.find(find_target_event, event_pos + 4, next_pos)
 
@@ -288,17 +307,29 @@ def find_instructions(target: str) -> list[InstructionData]:
 
     return instructions
 
-def write_report(instruction: dict[str, list[InstructionData]]):
+def get_instructions() -> dict[str, list[InstructionData]]:
+    get_meta_data()
+
+    dirs: list[str] = get_events()
+    dirs.sort()
+    instructions: dict[str, list[InstructionData]] = {}
+
+    for d in dirs:
+        instructions[d] = find_instructions(d)
+
+    return instructions
+
+def write_report(instructions: dict[str, list[InstructionData]]):
     out_dir: str = os.path.join("..", "helper", "artifacts")
     assert os.path.isdir(out_dir)
 
-    output: str = os.path.join(out_dir, "events.txt")
+    output: str = os.path.join(out_dir, f"events.txt")
     with open(output, "w+") as f:
-        for file, insts in instruction.items():
+        for file, instruction in instructions.items():
             f.write(f"--- File {file} -------------------------\n")
-            if insts:
+            if instruction:
                 count: int = 0
-                for inst in insts:
+                for inst in instruction:
                     report: str = inst.report()
                     if report:
                         f.write(report + "\n")
@@ -309,31 +340,49 @@ def write_report(instruction: dict[str, list[InstructionData]]):
             else:
                 f.write(f"No Events\n\n")
 
+def write_table(instructions: dict[str, list[InstructionData]], raw = True):
+    out_dir: str = os.path.join("..", "helper", "artifacts")
+    assert os.path.isdir(out_dir)
+
+    output: str = os.path.join(out_dir, f"events{"-raw" if raw else ""}.csv")
+    with open(output, "w+") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Address", "Type", "Slot", "Object", "Character"])
+
+        for file, instruction in instructions.items():
+            if not instruction or all(not inst.validate() for inst in instruction):
+                continue
+
+            writer.writerow([f"File {file}"])
+            for inst in instruction:
+                writer.writerow(inst.tabulate(raw))
+
+            writer.writerow([])
 
 def generate_report():
     start: float = time.time()
 
     print("--- Generating Event Report -------------------------\n")
-    print("[...] Preparing Meta Data")
-    get_meta_data()
-
-    print("[...] Finding Scenario Files")
-    dirs: list[str] = get_events()
-    dirs.sort()
-    instructions: dict[str, list[InstructionData]] = {}
-
-    print("[...] Scanning for Events")
-    for d in dirs:
-        instructions[d] = find_instructions(d)
-
-    print("[...] Writing Event Report")
+    instructions: dict[str, list[InstructionData]] = get_instructions()
     write_report(instructions)
 
     end: float = time.time()
     print("\n[-/-] Finished Generating Event Report")
     print(f"> Time Taken: {end - start} seconds" )
-    print(f"> Total Files Scanned: {len(instructions)}")
-    print(f"> Total Events Found: {sum(len(inst) for inst in instructions.values())}")
+
+def generate_table(raw: bool = True):
+    out_dir: str = os.path.join("..", "helper", "artifacts")
+    assert os.path.isdir(out_dir)
+
+    start: float = time.time()
+
+    print("--- Generating Event Table -------------------------\n")
+    instructions: dict[str, list[InstructionData]] = get_instructions()
+    write_table(instructions, raw)
+
+    end: float = time.time()
+    print("\n[-/-] Finished Generating Event Table")
+    print(f"> Time Taken: {end - start} seconds")
 
 if __name__ == "__main__":
-    generate_report()
+    generate_table()

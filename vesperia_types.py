@@ -597,6 +597,13 @@ class ChestHeader(ctypes.Structure):
         ("dummy", ctypes.c_uint32),
     ]
 
+class ChestEntry(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("chest_id", ctypes.c_uint32),
+        ("item_amount", ctypes.c_uint32),
+    ]
+
 class ChestItemEntry(ctypes.Structure):
     _pack_ = 1
     _fields_ = [

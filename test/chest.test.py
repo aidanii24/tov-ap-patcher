@@ -1,5 +1,6 @@
 import ctypes
 import mmap
+import csv
 import os
 
 from GameMeta import IDTables
@@ -8,7 +9,7 @@ from debug import test_structure
 from packer import VesperiaPacker
 from vesperia_types import ChestHeader, ChestEntry, ChestItemEntry
 
-chest_files_data: str = "../helper/artifacts/chest_files"
+chest_files_data: str = "../helper/artifacts/chest_files.txt"
 
 item_table = IDTables().get_item_table()
 
@@ -16,6 +17,9 @@ def to_bytes():
     chest_item: ChestItemEntry = ChestItemEntry(17, 1)
 
     test_structure(chest_item)
+
+def get_item_name(item_id: int) -> str:
+    return item_table[item_id] if item_id in item_table else f"ID {item_id}"
 
 def test_header(target_file):
     subject: str = "target_file"
@@ -41,7 +45,15 @@ def test_header(target_file):
         test_structure(item)
 
 # TODO: Test using async functions to see if it provides better performance
-def get_chest_files() -> list[str]:
+def get_chest_maps() -> list[str]:
+    if os.path.isfile(chest_files_data):
+        print("[-!-] Using Cache!")
+        with open(chest_files_data, "r") as f:
+            table = [line.replace("\n", "") for line in f.readlines()]
+            f.close()
+
+        return table
+
     packer: VesperiaPacker = VesperiaPacker()
     packer.check_dependencies()
 
@@ -51,7 +63,7 @@ def get_chest_files() -> list[str]:
     npc: str = os.path.join(work_dir, "npc")
     assert os.path.isdir(npc)
 
-    maps: list[str] = []
+    game_maps: list[str] = []
     npc_files = os.listdir(npc)
     for npc_file in npc_files:
         file_name: str = npc_file.strip(".DAT")
@@ -63,11 +75,46 @@ def get_chest_files() -> list[str]:
             continue
 
         extracted_file: str = chests_file + ".tlzc"
-        maps.append(extracted_file)
+        game_maps.append(extracted_file)
         if not os.path.isfile(extracted_file):
             packer.decompress_data(chests_file)
 
-    return maps
+    with open(chest_files_data, "w+") as f:
+        formatted = [file + "\n" for file in game_maps]
+        f.writelines(formatted)
+        f.close()
+
+    return game_maps
+
+def generate_chest_table(game_maps: list[str]):
+    chests: dict = {}
+    for file in game_maps:
+        file_name: str = file.split("/")[-3]
+        if file_name == "NPC": continue
+        print(f"Processing {file_name}")
+        chests[file_name] = get_chests(file)
+
+    output: str = os.path.join("..", "helper", "artifacts", "chest_table.csv")
+    with open(output, "w+") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Chest ID", "Amount", "Item"])
+
+        for game_map, contents in chests.items():
+            writer.writerow([game_map])
+            for chest, items in contents.items():
+                writer.writerow([chest, items[0].amount, items[0].item_id])
+                if len(items) > 1:
+                    writer.writerows([["", item.amount, item.item_id] for item in items[1:]])
+
+    # output: str = os.path.join("..", "helper", "artifacts", "chests.txt")
+    # with open(output, "w+") as f:
+    #     for game_map, contents in chests.items():
+    #         f.write(f"--- {game_map} ---------------------\n")
+    #         for chest, items in contents.items():
+    #             f.write(f"> Chest {chest}: {[f"x{item.amount} "
+    #                                          f"{item_table[item.item_id] if item.item_id in item_table
+    #                                          else f"ID {item.item_id}"}" for item in items]}\n")
+    #         f.write("\n")
 
 def get_chests(target) -> dict:
     assert os.path.isfile(target)
@@ -102,32 +149,5 @@ def get_chests(target) -> dict:
     return chests_table
 
 if __name__ == "__main__":
-    files: list[str] = []
-    if os.path.isfile(chest_files_data):
-        print("[-!-] Using Cache!")
-        with open(chest_files_data, "r") as f:
-            files = [line.replace("\n", "") for line in f.readlines()]
-            f.close()
-    else:
-        files = get_chest_files()
-        with open(chest_files_data, "w+") as f:
-            files_formatted = [file + "\n" for file in files]
-            f.writelines(files_formatted)
-            f.close()
-
-    chests: dict = {}
-    for file in files:
-        file_name: str = file.split("/")[-3]
-        if file_name == "NPC": continue
-        print(f"Processing {file_name}")
-        chests[file_name] = get_chests(file)
-
-    output: str = os.path.join("..", "helper", "artifacts", "chests.txt")
-    with open(output, "w+") as f:
-        for game_map, contents in chests.items():
-            f.write(f"--- {game_map} ---------------------\n")
-            for chest, items in contents.items():
-                f.write(f"> Chest {chest}: {[f"x{item.amount} "
-                                           f"{item_table[item.item_id] if item.item_id in item_table
-                                           else f"ID {item.item_id}"}" for item in items]}\n")
-            f.write("\n")
+    maps: list[str] = get_chest_maps()
+    generate_chest_table(maps)

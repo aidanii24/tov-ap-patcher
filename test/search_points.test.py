@@ -8,7 +8,7 @@ from vesperia_types import VesperiaStructureEncoder, SearchPointHeader, SearchPo
 
 
 def search_point_to_json():
-    test_file: str = "../builds/field/FIELD.tlzc.ext/0005.tlzc"
+    test_file: str = "../builds/npc/FIELD/FIELD.tlzc.ext/0005.tlzc"
 
     start: float = time.time()
 
@@ -39,7 +39,7 @@ def search_point_to_json():
 
         mm.close()
 
-    with open("../builds/manifests/search_points.json", "x+") as f:
+    with open("../builds/manifests/search_points.json", "w+") as f:
         manifest: dict = {
             "definitions": definitions,
             "contents": contents,
@@ -110,3 +110,7 @@ def search_point_from_json():
 
     end: float = time.time()
     print(f"[Rebuilding File] Time taken: {end - start} seconds")
+
+
+if __name__ == "__main__":
+    search_point_to_json()

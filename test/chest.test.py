@@ -94,7 +94,7 @@ def generate_chest_table(game_maps: list[str]):
         print(f"Processing {file_name}")
         chests[file_name] = get_chests(file)
 
-    output: str = os.path.join("..", "helper", "artifacts", "chest_table.csv")
+    output: str = os.path.join(".", "artifacts", "chest_table.csv")
     with open(output, "w+") as f:
         writer = csv.writer(f)
         writer.writerow(["Chest ID", "Amount", "Item"])

@@ -238,8 +238,11 @@ class VesperiaPacker:
 
     def unpack_item(self):
         path: str = os.path.join(self.vesperia, tov_item)
-        base_build: str = os.path.join(self.build_dir, "item")
         assert os.path.isfile(path)
+
+        base_build: str = os.path.join(self.build_dir, "item")
+        if not os.path.isdir(base_build):
+            os.makedirs(base_build)
 
         self.hyouta.extract_svo(path, base_build)
 
@@ -372,5 +375,4 @@ if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
 
-    packer.hyouta.extract_svo('./builds/BTL_PACK/0004')
-    packer.hyouta.extract_svo('./builds/BTL_PACK/0010')
+    packer.unpack_item()

@@ -22,6 +22,46 @@ def generate_strings_table():
 
         f.close()
 
+def generate_artes_table():
+    json_file: str = os.path.join("..", "builds", "manifests", "0004R.json")
+    assert os.path.isfile(json_file)
+
+    artes_data: dict = json.load(open(json_file))["artes"]
+    artes_formatted = [[artes['name_string_key'], artes['id'], artes['tp_cost'], artes['cast_time'],
+                        artes['learn_condition1'], artes['learn_parameter1'], artes["unknown3"],
+                        artes['learn_condition2'], artes['learn_parameter2'], artes["unknown4"],
+                        artes['learn_condition3'], artes['learn_parameter3'], artes["unknown5"],
+                        artes['learn_condition4'], artes['learn_parameter4'], artes["unknown6"],
+                        artes['learn_condition5'], artes['learn_parameter5'], artes["unknown7"],
+                        artes['learn_condition6'], artes['learn_parameter6'], artes["unknown8"],
+                        artes['evolve_base'],
+                        artes['evolve_condition1'], artes['evolve_parameter1'],
+                        artes['evolve_condition2'], artes['evolve_parameter2'],
+                        artes['evolve_condition3'], artes['evolve_parameter3'],
+                        artes['evolve_condition4'], artes['evolve_parameter4'],
+                        artes['fatal_strike_type']]
+                        for artes in artes_data]
+
+    output: str = os.path.join("..", "artifacts", "artes.csv")
+    with open(output, "w+") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Name", "ID", "TP", "Cast Time",
+                         "Learn Condition 1", "Learn Parameter 1", "Learn Meta 1",
+                         "Learn Condition 2", "Learn Parameter 2", "Learn Meta 2",
+                         "Learn Condition 3", "Learn Parameter 3", "Learn Meta 3",
+                         "Learn Condition 4", "Learn Parameter 4", "Learn Meta 4",
+                         "Learn Condition 5", "Learn Parameter 5", "Learn Meta 5",
+                         "Learn Condition 6", "Learn Parameter 6", "Learn Meta 6",
+                         "Evolution Base",
+                         "Evolve Condition 1", "Evolve Paramter 1",
+                         "Evolve Condition 2", "Evolve Paramter 2",
+                         "Evolve Condition 3", "Evolve Paramter 3",
+                         "Evolve Condition 4", "Evolve Paramter 4",
+                         "Fatal Strike Type"])
+        writer.writerows(artes_formatted)
+
+        f.close()
+
 def generate_skills_table():
     json_file: str = os.path.join("..", "builds", "manifests", "skills.json")
     assert os.path.isfile(json_file)
@@ -68,4 +108,4 @@ class DataTableGenerator:
 
 
 if __name__ == "__main__":
-    generate_skills_table()
+    generate_artes_table()

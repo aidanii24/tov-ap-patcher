@@ -26,7 +26,7 @@ def generate_artes_table():
     json_file: str = os.path.join("..", "builds", "manifests", "0004R.json")
     assert os.path.isfile(json_file)
 
-    artes_data: dict = json.load(open(json_file))["artes"]
+    data: dict = json.load(open(json_file))["artes"]
     artes_formatted = [[artes['name_string_key'], artes['id'], artes['tp_cost'], artes['cast_time'],
                         artes['learn_condition1'], artes['learn_parameter1'], artes["unknown3"],
                         artes['learn_condition2'], artes['learn_parameter2'], artes["unknown4"],
@@ -40,7 +40,7 @@ def generate_artes_table():
                         artes['evolve_condition3'], artes['evolve_parameter3'],
                         artes['evolve_condition4'], artes['evolve_parameter4'],
                         artes['fatal_strike_type']]
-                        for artes in artes_data]
+                        for artes in data]
 
     output: str = os.path.join("..", "artifacts", "artes.csv")
     with open(output, "w+") as f:
@@ -66,16 +66,38 @@ def generate_skills_table():
     json_file: str = os.path.join("..", "builds", "manifests", "skills.json")
     assert os.path.isfile(json_file)
 
-    skills_data: dict = json.load(open(json_file))["skills"]
+    data: dict = json.load(open(json_file))["skills"]
     skills_formatted = [[skill['name_string_key'], skill['id'], skill['sp_cost'], skill['lp_cost'],
                          skill['symbol'], skill['symbol_weight']]
-                        for skill in skills_data]
+                        for skill in data]
 
     output: str = os.path.join("..", "artifacts", "skills.csv")
     with open(output, "w+") as f:
         writer = csv.writer(f)
         writer.writerow(["Name", "ID", "SP", "LP", "Symbol", "Symbol Weight"])
         writer.writerows(skills_formatted)
+
+        f.close()
+
+def generate_items_table():
+    json_file: str = os.path.join("..", "builds", "manifests", "item.json")
+    assert os.path.isfile(json_file)
+
+    data: dict = json.load(open(json_file))["items"]
+    items_formatted = [[item['name_string_key'], item['id'], item['buy_price'],
+                         item['skill1'], item['skill1_lp'],
+                        item['skill2'], item['skill2_lp'],
+                        item['skill3'], item['skill3_lp'],]
+                        for item in data]
+
+    output: str = os.path.join("..", "artifacts", "items.csv")
+    with open(output, "w+") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Name", "ID", "Price",
+                         "Skill 1", "Skill 1 LP",
+                         "Skill 2", "Skill 2 LP",
+                         "Skill 3", "Skill 3 LP"])
+        writer.writerows(items_formatted)
 
         f.close()
 
@@ -108,4 +130,4 @@ class DataTableGenerator:
 
 
 if __name__ == "__main__":
-    generate_artes_table()
+    generate_items_table()

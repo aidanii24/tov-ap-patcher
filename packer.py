@@ -371,3 +371,6 @@ class VesperiaPacker:
 if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
+
+    packer.hyouta.extract_svo('./builds/BTL_PACK/0004')
+    packer.hyouta.extract_svo('./builds/BTL_PACK/0010')

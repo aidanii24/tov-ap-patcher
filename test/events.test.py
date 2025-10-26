@@ -394,5 +394,16 @@ def generate_table(raw: bool = True):
     print("\n[-/-] Finished Generating Event Table")
     print(f"> Time Taken: {end - start} seconds")
 
+def generate_maps(dirs: list[str]):
+    out_dir: str = os.path.join("..", "artifacts")
+    assert os.path.isdir(out_dir)
+
+    output: str = os.path.join(out_dir, "maps.csv")
+    with open(output, "w+") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Filename"])
+        writer.writerows([[dir] for dir in dirs])
+
 if __name__ == "__main__":
-    generate_table()
+    maps: list[str] = get_events()
+    generate_maps(maps)

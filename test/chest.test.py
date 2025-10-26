@@ -9,7 +9,7 @@ from debug import test_structure
 from packer import VesperiaPacker
 from vesperia_types import ChestHeader, ChestEntry, ChestItemEntry
 
-chest_files_data: str = "../helper/artifacts/chest_files.txt"
+chest_files_data: str = "../artifacts/chest_files.txt"
 
 item_table = IDTables().get_item_table()
 
@@ -86,6 +86,16 @@ def get_chest_maps() -> list[str]:
 
     return game_maps
 
+def generate_maps(dirs: list[str]):
+    out_dir: str = os.path.join("..", "artifacts")
+    assert os.path.isdir(out_dir)
+
+    output: str = os.path.join(out_dir, "maps.csv")
+    with open(output, "w+") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Filename"])
+        writer.writerows([[dir.split("/")[-3]] for dir in dirs])
+
 def generate_chest_table(game_maps: list[str]):
     chests: dict = {}
     for file in game_maps:
@@ -150,4 +160,5 @@ def get_chests(target) -> dict:
 
 if __name__ == "__main__":
     maps: list[str] = get_chest_maps()
-    generate_chest_table(maps)
+    generate_maps(maps)
+

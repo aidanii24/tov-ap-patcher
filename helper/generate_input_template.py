@@ -40,7 +40,7 @@ class InputTemplate:
             artes_data_table[int(arte['id'])] = arte
 
             for char in arte['character_ids']:
-                if self.artes_ids[arte['id']]:
+                if arte['arte_type'] not in [12, 14, 15] and any(0 < chara < 10 for chara in arte['character_ids']):
                     artes_by_char.setdefault(char, []).append(arte['id'])
 
         self.artes_data_table = artes_data_table
@@ -66,31 +66,37 @@ class InputTemplate:
 
     @staticmethod
     def generate_artes_input():
-        artes_data: str = os.path.join("..", "artifacts", "artes.csv")
+        artes_data: str = os.path.join("..", "artifacts", "artes_api.csv")
 
         assert os.path.isfile(artes_data)
 
         return csv.DictReader(open(artes_data))
 
     def randomize_artes_input(self, patch):
+        # Based on average amount of character artes with evolve conditions
+        evolve_opportunities: list[int] = [0, 0.0258, 0.0041, 0.0005, 0.005]
+        # Based on average amount of character artes with learn conditions
+        learn_opportunities: list[int] = [0, 0.75, 0.042, 0.8, 0.077]
+        learn_type_opportunities: list[list[int]] = [[0, 0], [0.35, 0.05], [0.005, 0.005], [0.75, 0.05], [0.5, 0.5]]
+
         def _randomize_evolve(target_arte, count):
             target_arte[f'Evolve Condition {count}'] = 3
             target_arte[f'Evolve Parameter {count}'] = random.choice([*self.skill_ids.keys()])
 
-        def _randomize_learn(target_arte, data, count):
+        def _randomize_learn(target_arte, arte_data, count):
             condition_pop: list[int] = [_ for _ in range(1 if count <= 1 else 2, 4)]
-            condition_chances: list[float] = [0.8] if count <= 1 else []
-            condition_chances.extend([0.2, 0.05])
+            condition_chances: list[float] = [0.6] if count <= 1 else []
+            condition_chances.extend(learn_type_opportunities[count])
 
             meta: int = 0
 
             condition: int = random.choices(condition_pop, weights=condition_chances)[0]
             if condition == 1:
-                cap_level: int = random.randint(50, 200)
+                cap_level: int = random.randint(5, 20)
                 parameter = random.randint(1, cap_level)
             elif condition == 2:
-                parameter: int = random.choice(self.artes_by_char[data['character_ids'][0]])
-                meta = math.ceil(50 * (random.randrange(10, 100) / 100))
+                parameter: int = random.choice(self.artes_by_char[arte_data['character_ids'][0]])
+                meta = math.ceil(10 * (random.randrange(10, 100) / 100))
             else:
                 parameter: int = random.choice([*self.skill_ids.keys()])
 
@@ -108,7 +114,7 @@ class InputTemplate:
         r_learn: int = 0
         for arte in patch:
             # Randomize Candidacy
-            if random.random() <= 0.3:
+            if random.random() <= 0.05:
                 continue
 
             r_candidates += 1
@@ -131,22 +137,21 @@ class InputTemplate:
 
             # Randomize Evolution
             has_evolve: bool = False
-            if random.random() <= 0.0258:  # Average Total Artes over Altered Artes Count across all Party Members
+            if random.random() <= 0.258:  # Average Total Artes over Altered Artes Count across all Party Members
                 r_evolve += 1
                 has_evolve = True
                 arte['Evolution Base'] = random.choice(self.artes_by_char[data['character_ids'][0]])
 
                 continue_iter: bool = True
                 iterations: int = 1
-                opportunities: list[int] = [0, 0.0258, 0.0041, 0.0005, 0.005]
-                while iterations < len(opportunities):
+                while iterations < len(evolve_opportunities):
                     if continue_iter:
                         _randomize_evolve(arte, iterations)
                     else:
                         arte[f'Evolve Condition {iterations}'] = 0
                         arte[f'Evolve Parameter {iterations}'] = 0
 
-                    if continue_iter and random.random() > opportunities[iterations]:
+                    if continue_iter and random.random() > evolve_opportunities[iterations]:
                         continue_iter = False
 
                     iterations += 1
@@ -158,12 +163,12 @@ class InputTemplate:
                 arte['Learn Parameter 1'] = int(arte['ID'])
                 arte['Learn Meta 1'] = usage_req
 
-            if random.random() > 0.75:
+            # Randomize Learn Condition
+            if random.random() > learn_opportunities[has_evolve + 1]:
                 r_learn += 1
                 continue_iter: bool = True
                 iterations: int = 2 if has_evolve else 1
-                opportunities: list[int] = [0, 0.75, 0.042, 0.8, 0.077]
-                while iterations < len(opportunities):
+                while iterations < len(learn_opportunities):
                     if continue_iter: _randomize_learn(arte, data, iterations)
                     else:
                         arte[f"Learn Condition {iterations}"] = 0

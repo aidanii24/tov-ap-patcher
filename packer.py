@@ -373,42 +373,7 @@ class VesperiaPacker:
         packed: str = os.path.join(path, "scenario_ENG.dat")
         self.hyouta.pack_scenario(main, packed)
 
-    def patch_artes(self):
-        target: str = os.path.join(self.build_dir, "BTL_PACK", "0004.ext", "ALL.0000")
-        assert os.path.isfile(target)
-
-        patch_file: str = os.path.join(".", "artifacts", "tovde.appatch")
-        assert os.path.isfile(patch_file)
-
-        patches = {int(key) : value for key, value in json.load(open(patch_file))['artes'].items()}
-        assert patches
-
-        with open(target, 'r+b') as f:
-            mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
-
-            mm.seek(0)
-            header_size: int = ctypes.sizeof(ArtesHeader)
-
-            header: ArtesHeader = ArtesHeader.from_buffer_copy(mm.read(header_size))
-
-            mm.seek(header_size)
-            while len(patches) and mm.tell() < header.entry_end:
-                next_entry: int = int.from_bytes(mm.read(4), byteorder="little")
-                mm.seek(4, 1)
-                arte_id: int = int.from_bytes(mm.read(4), byteorder="little")
-
-                if arte_id in patches:
-                    del patches[arte_id]
-                    print("Found", arte_id)
-
-                mm.seek(next_entry - 12, 1)
-
-            mm.close()
-
 
 if __name__ == "__main__":
     packer = VesperiaPacker()
     packer.check_dependencies()
-
-    packer.patch_artes()
-    # packer.hyouta.extract_svo(os.path.join(".", "builds", "BTL_PACK", "0004"))

@@ -80,8 +80,8 @@ class InputTemplate:
         learn_type_opportunities: list[list[int]] = [[0, 0], [0.35, 0.05], [0.005, 0.005], [0.75, 0.05], [0.5, 0.5]]
 
         def _randomize_evolve(target_arte, count):
-            target_arte[f'Evolve Condition {count}'] = 3
-            target_arte[f'Evolve Parameter {count}'] = random.choice([*self.skill_ids.keys()])
+            target_arte[f'evolve_condition{count}'] = 3
+            target_arte[f'evolve_parameter{count}'] = random.choice([*self.skill_ids.keys()])
 
         def _randomize_learn(target_arte, arte_data, count):
             condition_pop: list[int] = [_ for _ in range(1 if count <= 1 else 2, 4)]
@@ -100,9 +100,9 @@ class InputTemplate:
             else:
                 parameter: int = random.choice([*self.skill_ids.keys()])
 
-            target_arte[f'Learn Condition {count}'] = condition
-            target_arte[f'Learn Parameter {count}'] = parameter
-            target_arte[f'Learn Meta {count}'] = meta
+            target_arte[f'learn_condition{count}'] = condition
+            target_arte[f'learn_parameter{count}'] = parameter
+            target_arte[f'unknown{count + 2}'] = meta
 
         new_input = {}
 
@@ -118,29 +118,29 @@ class InputTemplate:
                 continue
 
             r_candidates += 1
-            data = self.artes_data_table[int(arte['ID'])]
+            data = self.artes_data_table[int(arte['id'])]
 
             # Randomize TP Cost
             if random.random() <= 0.4:
                 r_tp += 1
-                arte['TP'] = math.ceil(int(arte['TP']) * (random.randrange(10, 200) * 0.01))
+                arte['tp_cost'] = math.ceil(int(arte['tp_cost']) * (random.randrange(10, 200) * 0.01))
 
             # Randomize Cast Time
-            if int(arte['Cast Time']) > 0 and random.random() >= 0.3:
+            if int(arte['cast_time']) > 0 and random.random() >= 0.3:
                 r_cast += 1
-                arte['Cast Time'] = math.ceil(int(arte['Cast Time']) * (random.randrange(10, 200) * 0.01))
+                arte['cast_time'] = math.ceil(int(arte['cast_time']) * (random.randrange(10, 200) * 0.01))
 
             # Randomize FS Type
             if random.random() <= 0.75:
                 r_fs += 1
-                arte['Fatal Strike Type'] = random.randrange(0, 3)
+                arte['fatal_strike_type'] = random.randrange(0, 3)
 
             # Randomize Evolution
             has_evolve: bool = False
             if random.random() <= 0.258:  # Average Total Artes over Altered Artes Count across all Party Members
                 r_evolve += 1
                 has_evolve = True
-                arte['Evolution Base'] = random.choice(self.artes_by_char[data['character_ids'][0]])
+                arte['evolve_base'] = random.choice(self.artes_by_char[data['character_ids'][0]])
 
                 continue_iter: bool = True
                 iterations: int = 1
@@ -148,8 +148,8 @@ class InputTemplate:
                     if continue_iter:
                         _randomize_evolve(arte, iterations)
                     else:
-                        arte[f'Evolve Condition {iterations}'] = 0
-                        arte[f'Evolve Parameter {iterations}'] = 0
+                        arte[f'evolve_condition{iterations}'] = 0
+                        arte[f'evolve_parameter{iterations}'] = 0
 
                     if continue_iter and random.random() > evolve_opportunities[iterations]:
                         continue_iter = False
@@ -159,9 +159,9 @@ class InputTemplate:
                 usage_req: int = random.choice([50, 100])
                 if random.random() <= 0.4: math.ceil(usage_req * (random.randrange(10, 100) / 100))
 
-                arte['Learn Condition 1'] = 2
-                arte['Learn Parameter 1'] = int(arte['ID'])
-                arte['Learn Meta 1'] = usage_req
+                arte['learn_condition1'] = 2
+                arte['learn_parameter1'] = int(arte['id'])
+                arte['unknown3'] = usage_req
 
             # Randomize Learn Condition
             if random.random() > learn_opportunities[has_evolve + 1]:
@@ -171,9 +171,9 @@ class InputTemplate:
                 while iterations < len(learn_opportunities):
                     if continue_iter: _randomize_learn(arte, data, iterations)
                     else:
-                        arte[f"Learn Condition {iterations}"] = 0
-                        arte[f"Learn Parameter {iterations}"] = 0
-                        arte[f"Learn Meta {iterations}"] = 0
+                        arte[f"learn_condition{iterations}"] = 0
+                        arte[f"learn_parameter{iterations}"] = 0
+                        arte[f"unknown{iterations + 2}"] = 0
 
                     iterations += 1
 

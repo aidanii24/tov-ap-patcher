@@ -67,20 +67,19 @@ def generate_artes_table():
                 randomizer_valid.append(entry)
                 # randomizer_valid.append([artes['id'], artes_ids[(artes['id'])]])
 
-
-    field_names: list[str] = ["Name", "ID", "TP", "Cast Time",
-                         "Learn Condition 1", "Learn Parameter 1", "Learn Meta 1",
-                         "Learn Condition 2", "Learn Parameter 2", "Learn Meta 2",
-                         "Learn Condition 3", "Learn Parameter 3", "Learn Meta 3",
-                         "Learn Condition 4", "Learn Parameter 4", "Learn Meta 4",
-                         "Learn Condition 5", "Learn Parameter 5", "Learn Meta 5",
-                         "Learn Condition 6", "Learn Parameter 6", "Learn Meta 6",
-                         "Evolution Base",
-                         "Evolve Condition 1", "Evolve Parameter 1",
-                         "Evolve Condition 2", "Evolve Parameter 2",
-                         "Evolve Condition 3", "Evolve Parameter 3",
-                         "Evolve Condition 4", "Evolve Parameter 4",
-                         "Fatal Strike Type"]
+    field_names: list[str] = ["name_string_entry", "id", "tp_cost", "cast_time",
+                         "learn_condition1", "learn_parameter1", "unknown3",
+                         "learn_condition2", "learn_parameter2", "unknown4",
+                         "learn_condition3", "learn_parameter3", "unknown5",
+                         "learn_condition4", "learn_parameter4", "unknown6",
+                         "learn_condition5", "learn_parameter5", "unknown7",
+                         "learn_condition6", "learn_parameter6", "unknown8",
+                         "evolve_base",
+                         "evolve_condition1", "evolve_parameter1",
+                         "evolve_condition2", "evolve_parameter2",
+                         "evolve_condition3", "evolve_parameter3",
+                         "evolve_condition4", "evolve_parameter4",
+                         "fatal_strike_type"]
 
     output: str = os.path.join("..", "artifacts", "artes.csv")
     with open(output, "w+") as f:

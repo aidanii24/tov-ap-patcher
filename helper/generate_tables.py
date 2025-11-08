@@ -34,28 +34,30 @@ def generate_artes_table():
 
     data: list[dict] = json.load(open(json_file))["artes"]
 
+    field_names: list[str] = ["name_string_key", "id", "tp_cost", "cast_time",
+                              "learn_condition1", "learn_parameter1", "unknown3",
+                              "learn_condition2", "learn_parameter2", "unknown4",
+                              "learn_condition3", "learn_parameter3", "unknown5",
+                              "learn_condition4", "learn_parameter4", "unknown6",
+                              "learn_condition5", "learn_parameter5", "unknown7",
+                              "learn_condition6", "learn_parameter6", "unknown8",
+                              "evolve_base",
+                              "evolve_condition1", "evolve_parameter1",
+                              "evolve_condition2", "evolve_parameter2",
+                              "evolve_condition3", "evolve_parameter3",
+                              "evolve_condition4", "evolve_parameter4",
+                              "fatal_strike_type"]
+
     artes_formatted: list = []
     learnable_valid: list = []
-    randomizer_valid: list = []
+    randomizer_valid: list[dict] = []
 
     # artes_queried: list = []
 
     for artes in data:
-        entry: list = [artes['name_string_key'], artes['id'], artes['tp_cost'], artes['cast_time'],
-                        artes['learn_condition1'], artes['learn_parameter1'], artes["unknown3"],
-                        artes['learn_condition2'], artes['learn_parameter2'], artes["unknown4"],
-                        artes['learn_condition3'], artes['learn_parameter3'], artes["unknown5"],
-                        artes['learn_condition4'], artes['learn_parameter4'], artes["unknown6"],
-                        artes['learn_condition5'], artes['learn_parameter5'], artes["unknown7"],
-                        artes['learn_condition6'], artes['learn_parameter6'], artes["unknown8"],
-                        artes['evolve_base'],
-                        artes['evolve_condition1'], artes['evolve_parameter1'],
-                        artes['evolve_condition2'], artes['evolve_parameter2'],
-                        artes['evolve_condition3'], artes['evolve_parameter3'],
-                        artes['evolve_condition4'], artes['evolve_parameter4'],
-                        artes['fatal_strike_type']]
+        entry: dict = {field : artes[field] for field in field_names}
 
-        artes_formatted.append(entry)
+        artes_formatted.append([*entry.values()])
         # artes_queried.append([artes['id'], artes_ids[(artes['id'])], artes['arte_type']])
 
         # Arte Type 12, 14 and 15 refers to Fatal Strikes, Mystic Artes and Skill Artes respectively
@@ -67,20 +69,6 @@ def generate_artes_table():
                 randomizer_valid.append(entry)
                 # randomizer_valid.append([artes['id'], artes_ids[(artes['id'])]])
 
-    field_names: list[str] = ["name_string_entry", "id", "tp_cost", "cast_time",
-                         "learn_condition1", "learn_parameter1", "unknown3",
-                         "learn_condition2", "learn_parameter2", "unknown4",
-                         "learn_condition3", "learn_parameter3", "unknown5",
-                         "learn_condition4", "learn_parameter4", "unknown6",
-                         "learn_condition5", "learn_parameter5", "unknown7",
-                         "learn_condition6", "learn_parameter6", "unknown8",
-                         "evolve_base",
-                         "evolve_condition1", "evolve_parameter1",
-                         "evolve_condition2", "evolve_parameter2",
-                         "evolve_condition3", "evolve_parameter3",
-                         "evolve_condition4", "evolve_parameter4",
-                         "fatal_strike_type"]
-
     output: str = os.path.join("..", "artifacts", "artes.csv")
     with open(output, "w+") as f:
         writer = csv.writer(f)
@@ -89,12 +77,11 @@ def generate_artes_table():
 
         f.close()
 
-    output_randomizer: str = os.path.join("..", "artifacts", "artes_api.csv")
+    output_randomizer: str = os.path.join("..", "artifacts", "artes_api.json")
     with open(output_randomizer, "w+") as f:
-        writer = csv.writer(f)
-        writer.writerow(field_names)
-        writer.writerows(randomizer_valid)
+        json.dump(randomizer_valid, f, indent=4)
 
+        f.flush()
         f.close()
 
     output_learnable: str = os.path.join("..", "artifacts", "artes_learnable.json")

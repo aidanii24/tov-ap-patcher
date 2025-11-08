@@ -66,11 +66,10 @@ class InputTemplate:
 
     @staticmethod
     def generate_artes_input():
-        artes_data: str = os.path.join("..", "artifacts", "artes_api.csv")
-
+        artes_data: str = os.path.join("..", "artifacts", "artes_api.json")
         assert os.path.isfile(artes_data)
 
-        return csv.DictReader(open(artes_data))
+        return json.load(open(artes_data))
 
     def randomize_artes_input(self, patch):
         # Based on average amount of character artes with evolve conditions

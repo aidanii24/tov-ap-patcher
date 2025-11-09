@@ -48,20 +48,17 @@ class VesperiaPatcher():
             count: int = 0
             while len(patched_data) and mm.tell() < header.entry_end:
                 next_entry: int = int.from_bytes(mm.read(4), byteorder="little")
-                mm.seek(4, 1)
-                arte_id: int = int.from_bytes(mm.read(4), byteorder="little")
+                arte_entry: int = int.from_bytes(mm.read(4), byteorder="little")
 
-                if arte_id in patched_data:
-                    mm.write(bytearray(patched_data[arte_id]))
-                    del patched_data[arte_id]
+                if arte_entry in patched_data:
+                    mm.seek(-8, 1)
 
+                    arte_data: ArtesEntry = ArtesEntry(*patched_data[arte_entry].values())
+                    mm.write(bytearray(arte_data))
+                    del patched_data[arte_entry]
+                else:
+                    mm.seek(next_entry - 8, 1)
                 count += 1
 
-            print(f"Patched {count} entries")
-
+            mm.flush()
             mm.close()
-
-
-if __name__ == "__main__":
-    patcher = VesperiaPatcher()
-    patcher.patch_artes()

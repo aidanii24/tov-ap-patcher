@@ -155,7 +155,7 @@ class InputTemplate:
 
                     iterations += 1
 
-                usage_req: int = random.choice([50, 100])
+                usage_req: int = random.choice([5, 10])
                 if random.random() <= 0.4: math.ceil(usage_req * (random.randrange(10, 100) / 100))
 
                 arte['learn_condition1'] = 2

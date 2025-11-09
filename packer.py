@@ -238,6 +238,18 @@ class VesperiaPacker:
         self.hyouta.extract_svo(os.path.join(base_build, "BTL_PACK.DAT"), pack_build,
                                 os.path.join(self.manifest_dir, "BTL_PACK.DAT"))
 
+    def extract_artes(self):
+        path: str = os.path.join(self.build_dir, "BTL_PACK", "0004")
+        assert os.path.isfile(path)
+
+        self.hyouta.extract_svo(path, manifest=os.path.join(self.manifest_dir, "0004"))
+
+    def extract_skills(self):
+        path: str = os.path.join(self.build_dir, "BTL_PACK", "0010")
+        assert os.path.isfile(path)
+
+        self.hyouta.extract_svo(path)
+
     def unpack_item(self):
         path: str = os.path.join(self.vesperia, tov_item)
         assert os.path.isfile(path)
@@ -324,6 +336,19 @@ class VesperiaPacker:
         assert os.path.isfile(path)
 
         self.hyouta.pack_svo(path, os.path.join(self.build_dir, "btl", "BTL_PACK.DAT"))
+
+    def pack_artes(self):
+        path: str = os.path.join(self.manifest_dir, "0004.json")
+        assert os.path.isfile(path)
+
+        self.hyouta.pack_svo(path, os.path.join(self.build_dir, "BTL_PACK", "0004"))
+
+    def pack_skills(self):
+        base_dir: str = os.path.join(self.build_dir, "BTL_PACK")
+        target: str = os.path.join(base_dir, "0010.ext", "ALL.0000")
+        assert os.path.isfile(target)
+
+        self.hyouta.pack_svo(base_dir, out=os.path.join(base_dir, "0010"))
 
     def pack_map(self, map_data: str):
         base_dir: str = os.path.join(self.build_dir, "npc")

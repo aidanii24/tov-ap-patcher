@@ -1,3 +1,4 @@
+import enum
 import datetime
 import random
 import math
@@ -5,6 +6,16 @@ import json
 import csv
 import os
 
+
+class FatalStrikeType(enum.Enum):
+    INDIGO = 0
+    CRIMSON = 1
+    VIRIDIAN = 2
+    NONE = 3
+
+    @classmethod
+    def _missing_(cls, value):
+        return cls.NONE
 
 def strip_formatting(string: str) -> str:
     return string.replace("\n", "").replace("\t", "").replace("\r", "")
@@ -64,12 +75,82 @@ class InputTemplate:
         with open(output, 'w+') as f:
             json.dump(patch_data, f, indent=4)
 
+        self.generate_artes_report(artes_input)
+
     @staticmethod
     def generate_artes_input():
         artes_data: str = os.path.join("..", "artifacts", "artes_api.json")
         assert os.path.isfile(artes_data)
 
         return json.load(open(artes_data))
+
+    def generate_artes_report(self, patched_artes: dict):
+        report_list: list = []
+        for arte in [*patched_artes.values()]:
+            learn_conditions: list = []
+            # Parse Learn Conditions
+            for _ in range(1, 7):
+                condition_id = arte[f'learn_condition{_}']
+                parameter_id = arte[f'learn_parameter{_}']
+                meta_id = arte[f'unknown{_ + 2}']
+
+                if condition_id == 0:
+                    if parameter_id >= 300:
+                        learn_conditions.extend(["Event", "", ""])
+                    else:
+                        learn_conditions.extend(["" for _ in range(3)])
+                elif condition_id == 1:
+                    learn_conditions.extend(["Level", parameter_id, ""])
+                elif condition_id == 2:
+                    learn_conditions.extend(["Arte Usage", self.artes_ids[parameter_id], f"x{meta_id}"])
+                elif condition_id == 3:
+                    learn_conditions.extend(["Equip Skill", self.skill_ids[parameter_id], ""])
+                else:
+                    learn_conditions.extend(["INVALID", "!", "!"])
+
+            # Parse Evolve Conditions
+            evolve_conditions: list = [self.artes_ids[arte['evolve_base']] if arte['evolve_base'] != 0
+                                       else "N/A"]
+            for _ in range(1, 5):
+                condition_id = arte[f'evolve_condition{_}']
+                parameter_id = arte[f'evolve_parameter{_}']
+
+                if condition_id == 0:
+                    evolve_conditions.extend(["" for _ in range(2)])
+                elif condition_id == 3:
+                    evolve_conditions.extend(["Equip Skill", self.skill_ids[parameter_id]])
+                else:
+                    evolve_conditions.extend(["INVALID", "!"])
+
+            details: list = [
+                self.artes_ids[arte['id']], arte['tp_cost'], arte['cast_time'] if arte['cast_time'] else "N/A",
+                *learn_conditions, *evolve_conditions,
+                FatalStrikeType(arte['fatal_strike_type']).name
+            ]
+
+            report_list.append(details)
+
+        field_names: list[str] = ["Arte", "TP", "Cast Time",
+                                  "Learn Condition 1", "Learn Parameter 1", "Learn Meta 1",
+                                  "Learn Condition 2", "Learn Parameter 2", "Learn Meta 2",
+                                  "Learn Condition 3", "Learn Parameter 3", "Learn Meta 3",
+                                  "Learn Condition 4", "Learn Parameter 4", "Learn Meta 4",
+                                  "Learn Condition 5", "Learn Parameter 5", "Learn Meta 5",
+                                  "Learn Condition 6", "Learn Parameter 6", "Learn Meta 6",
+                                  "Evolves From",
+                                  "Evolve Condition 1", "Evolve Parameter 1",
+                                  "Evolve Condition 2", "Evolve Parameter 2",
+                                  "Evolve Condition 3", "Evolve Parameter 3",
+                                  "Evolve Condition 4", "Evolve Parameter 4",
+                                  "Fatal Strike Type"]
+
+        output: str = os.path.join("..", "artifacts", "tovde-report.csv")
+        with open(output, "w+") as f:
+            writer = csv.writer(f)
+            writer.writerow(field_names)
+            writer.writerows(report_list)
+
+            f.close()
 
     def randomize_artes_input(self, patch):
         # Based on average amount of character artes with evolve conditions
@@ -163,7 +244,7 @@ class InputTemplate:
                 arte['unknown3'] = usage_req
 
             # Randomize Learn Condition
-            if random.random() > learn_opportunities[has_evolve + 1]:
+            if random.random() < learn_opportunities[has_evolve + 1]:
                 r_learn += 1
                 continue_iter: bool = True
                 iterations: int = 2 if has_evolve else 1
@@ -173,6 +254,9 @@ class InputTemplate:
                         arte[f"learn_condition{iterations}"] = 0
                         arte[f"learn_parameter{iterations}"] = 0
                         arte[f"unknown{iterations + 2}"] = 0
+
+                    if continue_iter and random.random() > learn_opportunities[iterations]:
+                        continue_iter = False
 
                     iterations += 1
 

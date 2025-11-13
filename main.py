@@ -26,5 +26,5 @@ class VesperiaPatcherApp():
 if __name__ == '__main__':
     app = VesperiaPatcherApp()
     # app.unpack_files()
-    app.patch_artes()
-    app.pack_files()
+    # app.patch_artes()
+    # app.pack_files()

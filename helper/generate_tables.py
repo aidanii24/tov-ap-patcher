@@ -1,7 +1,18 @@
+import enum
 import json
 import csv
 import os
 
+class Characters(enum.Enum):
+    YURI = 1
+    ESTELLE = 2
+    KAROL = 4
+    RITA = 8
+    RAVEN = 16
+    JUDITH = 32
+    REPEDE = 64
+    FLYNN = 128
+    PATTY = 256
 
 def strip_formatting(string: str) -> str:
     return string.replace("\n", "").replace("\t", "").replace("\r", "")
@@ -162,6 +173,50 @@ def generate_search_points_table():
                            definition['x_coord'], definition['y_coord'], definition['z_coord']]
                           for definition in definitions])
 
+def generate_character_equips_table():
+    json_file: str = os.path.join("..", "builds", "manifests", "item.json")
+    assert os.path.isfile(json_file)
+
+    data: list[dict] = json.load(open(json_file))['items']
+
+    char_per_skills: dict = {}
+    skills_by_char: dict = {}
+    for item in data:
+        character_flags: int = item["character_usable"]
+        if not character_flags: continue
+
+        characters: list[str] = []
+        skills: set[str] = {item[f'skill{_}'] for _ in range(1, 4)}
+        for i, index in enumerate(Characters):
+            if item['character_usable'] & index.value > 0:
+                characters.append(index.value)
+
+                skills_by_char.setdefault(i + 1, set()).update(skills)
+
+        for skill in skills:
+            char_per_skills.setdefault(skill, set()).update(set(c for c in characters))
+
+    for skill, chars in char_per_skills.items():
+        as_list: list[str] = [*char_per_skills[skill]]
+        as_list.sort()
+        char_per_skills[skill] = [Characters(index).name for index in as_list]
+
+    per_skills_output: str = os.path.join("..", "artifacts", "chara_per_skills.csv")
+    with open(per_skills_output, "w+") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Skills", "Characters"])
+        writer.writerows([k, *v] for k, v in char_per_skills.items())
+
+        f.flush()
+        f.close()
+
+    by_char_output: str = os.path.join("..", "artifacts", "skills_by_char.json")
+    with open(by_char_output, "w+") as f:
+        json.dump({char: [*skills] for char, skills in skills_by_char.items()}, f, indent=4)
+
+        f.flush()
+        f.close()
+
 class DataTableGenerator:
     strings: dict = {}
 
@@ -176,4 +231,4 @@ class DataTableGenerator:
 
 
 if __name__ == "__main__":
-    generate_artes_table()
+    generate_character_equips_table()

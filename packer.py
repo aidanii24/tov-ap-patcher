@@ -1,6 +1,6 @@
-import ctypes
 import subprocess
 import hashlib
+import shutil
 import sys
 import os
 
@@ -17,6 +17,7 @@ dependency_hyouta = "hyouta"
 dependencies_comptoe = "comptoe"
 
 default_vesperia: str = os.path.join("steam", "steamapps", "common", "Tales of Vesperia Definitive Edition")
+default_backup: str = os.path.join(default_vesperia, "Data64", "_backup")
 default_dotnet: str = "dotnet"
 default_hyouta: str = os.path.join("HyoutaToolsCLI", "HyoutaToolsCLI.dll")
 default_comptoe: str = "comptoe"
@@ -30,7 +31,10 @@ tov_ui = os.path.join("Data64", "UI.svo")
 tov_scenario = os.path.join("Data64", "language", "scenario_ENG.dat")
 
 # Checksums
-sha256_vesperia: str = "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827"
+checksums: dict[str, str] = {
+    "TOV_DE.exe": "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827",
+    "btl.svo": "bab8c0497665bd5a46f2ffabba5f4d2acc9fcdf0e4e0dd50c1b8199d3f6d7111"
+}
 
 
 class Hyouta:
@@ -113,14 +117,18 @@ class Hyouta:
 
 class VesperiaPacker:
     """Handler Instance for Extraction, Packing, Compressing and Decompressing files from the game."""
-    vesperia: str = default_vesperia
+    vesperia_dir: str = default_vesperia
+    backup_dir: str = default_backup
     comptoe: str = default_comptoe
     hyouta: Hyouta
 
     build_dir: str = os.path.join(os.getcwd(), "builds")
     manifest_dir: str = os.path.join(build_dir, "manifests")
+    output_dir: str = os.path.join(os.getcwd(), "output")
 
-    def __init__(self, patch_id: str):
+    apply_immediately: bool = False
+
+    def __init__(self, patch_id: str = "singleton", apply_immediately: bool = False):
         if not os.path.isfile(dependencies):
             VesperiaPacker.generate_config()
             print("> Please provide the paths to the dependencies in the config.json file, then try again.")
@@ -130,7 +138,8 @@ class VesperiaPacker:
                 data = json.load(file)
 
                 if dependency_vesperia in data and data[dependency_vesperia]:
-                    self.vesperia = data[dependency_vesperia]
+                    self.vesperia_dir = data[dependency_vesperia]
+                    self.backup_dir = os.path.join(self.vesperia_dir, "Data64", "_backup")
 
                 if dependency_dotnet in data and data[dependency_dotnet]:
                     dotnet_dir = data[dependency_dotnet]
@@ -146,20 +155,30 @@ class VesperiaPacker:
 
                 file.close()
 
-        if not os.path.exists(self.build_dir):
+        self.check_dependencies()
+
+        if patch_id == "singleton":
+            return
+
+        if not os.path.isdir(self.build_dir):
             os.makedirs(self.build_dir)
 
         build_path: str = os.path.join(self.build_dir, patch_id)
-        if not os.path.exists(build_path):
+        if not os.path.isdir(build_path):
             os.makedirs(build_path)
 
         self.build_dir = build_path
         self.manifest_dir = os.path.join(build_path, "manifests")
 
-        if not os.path.exists(self.manifest_dir):
+        if not os.path.isdir(self.manifest_dir):
             os.makedirs(self.manifest_dir)
 
-        self.check_dependencies()
+        if not os.path.isdir(self.output_dir):
+            os.makedirs(self.output_dir)
+
+        self.output_dir = os.path.join(self.output_dir, patch_id)
+
+        self.apply_immediately = apply_immediately
 
     @classmethod
     def generate_config(cls):
@@ -185,11 +204,11 @@ class VesperiaPacker:
         err: bool = False
 
         try:
-            with open(os.path.join(self.vesperia, "TOV_DE.exe"), "rb") as file:
+            with open(os.path.join(self.vesperia_dir, "TOV_DE.exe"), "rb") as file:
                 as_bytes = file.read()
                 exec_hash = hashlib.sha256(as_bytes).hexdigest()
 
-                assert exec_hash == sha256_vesperia
+                assert exec_hash == checksums["TOV_DE.exe"]
                 file.close()
         except AssertionError:
             err = True
@@ -215,6 +234,50 @@ class VesperiaPacker:
         if err:
             exit(1)
 
+    @staticmethod
+    def verify_vesperia_file(filepath: str) -> bool:
+        basename = os.path.basename(filepath)
+
+        try:
+            with open(filepath, "rb") as file:
+                as_bytes = file.read()
+                file_hash = hashlib.sha256(as_bytes).hexdigest()
+
+                assert file_hash == checksums[basename]
+
+                file.close()
+        except AssertionError:
+            print(f"Invalid File: {basename} may have already been patched, modified, or may be corrupted.")
+            return False
+
+        return True
+
+    def check_vesperia_file(self, filepath: str) -> str:
+        basename: str = os.path.basename(filepath)
+        backup_path: str = os.path.join(self.backup_dir, basename)
+
+        if os.path.isfile(backup_path) and self.verify_vesperia_file(filepath):
+            return backup_path
+        elif os.path.isfile(filepath):
+            assert self.verify_vesperia_file(filepath), \
+                f"Invalid File: {basename} may have already been patched, modified, or may be corrupted."
+
+            if not os.path.isdir(self.backup_dir):
+                os.makedirs(self.backup_dir)
+
+            shutil.copy2(filepath, backup_path)
+
+            if self.apply_immediately:
+                os.remove(filepath)
+
+            return backup_path
+        else:
+            raise AssertionError(f"{basename} could not be found in the game directory.")
+
+    def ensure_output_directory(self):
+        if not os.path.isdir(self.output_dir):
+            os.makedirs(self.output_dir)
+
     def comptoe_decompress(self, file: str, out: str = ""):
         command: list[str] = [self.comptoe, "-d", file]
 
@@ -235,9 +298,9 @@ class VesperiaPacker:
         self.build_dir = build_dir
 
     def unpack_btl(self):
-        path: str = os.path.join(self.vesperia, tov_btl)
+        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_btl))
+
         base_build: str = os.path.join(self.build_dir, "btl")
-        assert os.path.isfile(path)
         if not os.path.isfile(path):
             os.mkdir(base_build)
 
@@ -260,7 +323,7 @@ class VesperiaPacker:
         self.hyouta.extract_svo(path)
 
     def unpack_item(self):
-        path: str = os.path.join(self.vesperia, tov_item)
+        path: str = os.path.join(self.vesperia_dir, tov_item)
         assert os.path.isfile(path)
 
         base_build: str = os.path.join(self.build_dir, "item")
@@ -270,7 +333,7 @@ class VesperiaPacker:
         self.hyouta.extract_svo(path, base_build)
 
     def unpack_npc(self):
-        path: str = os.path.join(self.vesperia, tov_npc)
+        path: str = os.path.join(self.vesperia_dir, tov_npc)
         base_build: str = os.path.join(self.build_dir, "npc", "npc")
         assert os.path.isfile(path)
 
@@ -303,7 +366,7 @@ class VesperiaPacker:
         self.hyouta.decompress_tlzc(file, out)
 
     def unpack_ui(self):
-        path: str = os.path.join(self.vesperia, tov_ui)
+        path: str = os.path.join(self.vesperia_dir, tov_ui)
         assert os.path.isfile(path)
 
         work_dir: str = os.path.join(self.build_dir, "ui")
@@ -312,7 +375,7 @@ class VesperiaPacker:
         self.hyouta.extract_svo(path, work_dir)
 
     def extract_scenario(self):
-        path: str = os.path.join(self.vesperia, tov_scenario)
+        path: str = os.path.join(self.vesperia_dir, tov_scenario)
         assert os.path.isfile(path)
 
         work_dir: str = os.path.join(self.build_dir, "scenario")
@@ -344,7 +407,11 @@ class VesperiaPacker:
         path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")
         assert os.path.isfile(path)
 
-        self.hyouta.pack_svo(path, os.path.join(self.build_dir, "btl", "BTL_PACK.DAT"))
+        self.ensure_output_directory()
+        output_dir: str = os.path.join(self.output_dir, "Data64", "btl")
+
+        shutil.copytree(os.path.join(self.build_dir, "btl"), output_dir, dirs_exist_ok=True)
+        self.hyouta.pack_svo(path, os.path.join(output_dir, "BTL_PACK.DAT"))
 
     def pack_artes(self):
         path: str = os.path.join(self.manifest_dir, "0004.json")
@@ -407,7 +474,17 @@ class VesperiaPacker:
         packed: str = os.path.join(path, "scenario_ENG.dat")
         self.hyouta.pack_scenario(main, packed)
 
+    def apply_patch(self):
+        if not self.apply_immediately: return
 
-if __name__ == "__main__":
-    packer = VesperiaPacker()
-    packer.check_dependencies()
+        shutil.copytree(self.output_dir, self.vesperia_dir, dirs_exist_ok=True)
+
+    def restore_backup(self):
+        if not os.path.isdir(self.backup_dir):
+            print("There is no backup to restore.")
+            return
+
+        shutil.copytree(self.backup_dir, os.path.join(self.vesperia_dir, "Data64"), dirs_exist_ok=True)
+
+        if os.path.isdir(os.path.join(self.vesperia_dir, "Data64", "btl")):
+            shutil.rmtree(os.path.join(self.vesperia_dir, "Data64", "btl"))

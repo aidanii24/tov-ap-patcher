@@ -5,6 +5,7 @@
 /resources/
 /dependencies/
 /builds/
+/output/
 config.json
 
 # Cache

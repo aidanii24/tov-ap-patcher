@@ -1,12 +1,15 @@
 from packer import *
 from patcher import *
 
-class VesperiaPatcherApp():
+class VesperiaPatcherApp:
     packer: VesperiaPacker
     patcher: VesperiaPatcher
 
-    def __init__(self):
-        self.packer = VesperiaPacker()
+    def __init__(self, patch_data: str):
+        patch_data = json.load(open(patch_file))
+        identifier = f"{patch_data['player']}-{patch_data['created'].split(' ')[0]}-{patch_data['seed']}"
+
+        self.packer = VesperiaPacker(identifier)
         self.packer.check_dependencies()
 
         self.patcher = VesperiaPatcher()
@@ -24,7 +27,13 @@ class VesperiaPatcherApp():
 
 
 if __name__ == '__main__':
-    app = VesperiaPatcherApp()
-    # app.unpack_files()
-    # app.patch_artes()
-    # app.pack_files()
+    patch_file: str = ""
+    for arg in sys.argv[1:]:
+        if os.path.isfile(arg) and arg.endswith(".appatch"):
+            patch_file = arg
+            break
+
+    assert patch_file != "", "No Valid Patch File was provided!"
+
+    app = VesperiaPatcherApp(patch_file)
+    app.unpack_files()

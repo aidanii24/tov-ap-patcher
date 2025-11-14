@@ -120,7 +120,7 @@ class VesperiaPacker:
     build_dir: str = os.path.join(os.getcwd(), "builds")
     manifest_dir: str = os.path.join(build_dir, "manifests")
 
-    def __init__(self):
+    def __init__(self, patch_id: str):
         if not os.path.isfile(dependencies):
             VesperiaPacker.generate_config()
             print("> Please provide the paths to the dependencies in the config.json file, then try again.")
@@ -148,6 +148,13 @@ class VesperiaPacker:
 
         if not os.path.exists(self.build_dir):
             os.makedirs(self.build_dir)
+
+        build_path: str = os.path.join(self.build_dir, patch_id)
+        if not os.path.exists(build_path):
+            os.makedirs(build_path)
+
+        self.build_dir = build_path
+        self.manifest_dir = os.path.join(build_path, "manifests")
 
         if not os.path.exists(self.manifest_dir):
             os.makedirs(self.manifest_dir)
@@ -231,6 +238,8 @@ class VesperiaPacker:
         path: str = os.path.join(self.vesperia, tov_btl)
         base_build: str = os.path.join(self.build_dir, "btl")
         assert os.path.isfile(path)
+        if not os.path.isfile(path):
+            os.mkdir(base_build)
 
         self.hyouta.extract_svo(path, base_build)
 

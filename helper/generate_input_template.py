@@ -2,6 +2,7 @@ import enum
 import datetime
 import random
 import math
+import uuid
 import json
 import csv
 import os
@@ -17,6 +18,9 @@ class FatalStrikeType(enum.Enum):
     def _missing_(cls, value):
         return cls.NONE
 
+def keys_to_int(x):
+    return {int(k): v for k, v in x.items()}
+
 def strip_formatting(string: str) -> str:
     return string.replace("\n", "").replace("\t", "").replace("\r", "")
 
@@ -28,13 +32,22 @@ class InputTemplate:
     skill_ids: dict
 
     artes_by_char: dict[int, list[int]]
+    skills_by_char: dict[int, list[int]]
 
-    def __init__(self):
-        artes_id_table: str = os.path.join('..', 'artifacts', 'artes_id_table.csv')
-        skills_id_table: str = os.path.join('..', 'artifacts', 'skills_id_table.csv')
-        artes_data_file: str = os.path.join('..', 'builds', 'manifests', '0004R.json')
+    seed: int
+    random: random.Random
+
+    def __init__(self, seed = random.randint(1, 10000)):
+        self.seed = uuid.uuid1().int
+        self.random = random.Random(seed)
+
+        artes_id_table: str = os.path.join('.', 'artifacts', 'artes_id_table.csv')
+        skills_id_table: str = os.path.join('.', 'artifacts', 'skills_id_table.csv')
+        artes_data_file: str = os.path.join('.', 'builds', 'manifests', '0004R.json')
+        skills_data_file: str = os.path.join('.', 'artifacts', 'skills_by_char.json')
 
         assert os.path.isfile(artes_data_file), f'{artes_data_file} does not exist'
+        assert os.path.isfile(skills_data_file), f'{skills_data_file} does not exist'
         assert os.path.isfile(artes_id_table), f'{artes_id_table} does not exist'
         assert os.path.isfile(skills_id_table), f'{skills_id_table} does not exist'
 
@@ -51,24 +64,28 @@ class InputTemplate:
             artes_data_table[int(arte['id'])] = arte
 
             for char in arte['character_ids']:
-                if arte['arte_type'] not in [12, 14, 15] and any(0 < chara < 10 for chara in arte['character_ids']):
+                if arte['arte_type'] not in [12, 14, 15] and any(0 < chara < 10 for chara in arte['character_ids'])\
+                        and arte['tp_cost'] > 0:
                     artes_by_char.setdefault(char, []).append(arte['id'])
 
         self.artes_data_table = artes_data_table
         self.artes_by_char = artes_by_char
 
-    def generate(self):
-        output: str = os.path.join("..", "artifacts", "tovde.appatch")
+        self.skills_by_char = json.load(open(skills_data_file), object_hook=keys_to_int)
 
-        manifest: str = "../builds/manifests"
+    def generate(self):
+        output: str = os.path.join(".", "artifacts", "tovde.appatch")
+
+        manifest: str = "./builds/manifests"
         assert os.path.isdir(manifest)
 
         artes_input: dict = self.randomize_artes_input([arte_entry for arte_entry in self.generate_artes_input()])
 
         patch_data: dict = {
             'version': '0.1',
-            'seed': 'test',
             'created': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'seed': self.seed,
+            'player': "test",
             'artes': artes_input
         }
 
@@ -79,7 +96,7 @@ class InputTemplate:
 
     @staticmethod
     def generate_artes_input():
-        artes_data: str = os.path.join("..", "artifacts", "artes_api.json")
+        artes_data: str = os.path.join(".", "artifacts", "artes_api.json")
         assert os.path.isfile(artes_data)
 
         return json.load(open(artes_data))
@@ -110,7 +127,7 @@ class InputTemplate:
 
             # Parse Evolve Conditions
             evolve_conditions: list = [self.artes_ids[arte['evolve_base']] if arte['evolve_base'] != 0
-                                       else "N/A"]
+                                       else ""]
             for _ in range(1, 5):
                 condition_id = arte[f'evolve_condition{_}']
                 parameter_id = arte[f'evolve_parameter{_}']
@@ -144,7 +161,7 @@ class InputTemplate:
                                   "Evolve Condition 4", "Evolve Parameter 4",
                                   "Fatal Strike Type"]
 
-        output: str = os.path.join("..", "artifacts", "tovde-report.csv")
+        output: str = os.path.join(".", "artifacts", "tovde-report.csv")
         with open(output, "w+") as f:
             writer = csv.writer(f)
             writer.writerow(field_names)
@@ -159,26 +176,26 @@ class InputTemplate:
         learn_opportunities: list[int] = [0, 0.75, 0.042, 0.8, 0.077]
         learn_type_opportunities: list[list[int]] = [[0, 0], [0.35, 0.05], [0.005, 0.005], [0.75, 0.05], [0.5, 0.5]]
 
-        def _randomize_evolve(target_arte, count):
+        def _randomize_evolve(target_arte, character, count):
             target_arte[f'evolve_condition{count}'] = 3
-            target_arte[f'evolve_parameter{count}'] = random.choice([*self.skill_ids.keys()])
+            target_arte[f'evolve_parameter{count}'] = self.random.choice(self.skills_by_char[character])
 
-        def _randomize_learn(target_arte, arte_data, count):
+        def _randomize_learn(target_arte, character, count):
             condition_pop: list[int] = [_ for _ in range(1 if count <= 1 else 2, 4)]
             condition_chances: list[float] = [0.6] if count <= 1 else []
             condition_chances.extend(learn_type_opportunities[count])
 
             meta: int = 0
 
-            condition: int = random.choices(condition_pop, weights=condition_chances)[0]
+            condition: int = self.random.choices(condition_pop, weights=condition_chances)[0]
             if condition == 1:
-                cap_level: int = random.randint(5, 20)
-                parameter = random.randint(1, cap_level)
+                cap_level: int = self.random.randint(5, 20)
+                parameter = self.random.randint(1, cap_level)
             elif condition == 2:
-                parameter: int = random.choice(self.artes_by_char[arte_data['character_ids'][0]])
-                meta = math.ceil(10 * (random.randrange(10, 100) / 100))
+                parameter: int = self.random.choice(self.artes_by_char[character])
+                meta = math.ceil(10 * (self.random.randrange(10, 100) / 100))
             else:
-                parameter: int = random.choice([*self.skill_ids.keys()])
+                parameter: int = self.random.choice(self.skills_by_char[character])
 
             target_arte[f'learn_condition{count}'] = condition
             target_arte[f'learn_parameter{count}'] = parameter
@@ -194,71 +211,87 @@ class InputTemplate:
         r_learn: int = 0
         for arte in patch:
             # Randomize Candidacy
-            if random.random() <= 0.05:
+            if self.random.random() <= 0.05:
                 continue
 
             r_candidates += 1
             data = self.artes_data_table[int(arte['id'])]
 
             # Randomize TP Cost
-            if random.random() <= 0.4:
+            if self.random.random() <= 0.4:
                 r_tp += 1
-                arte['tp_cost'] = math.ceil(int(arte['tp_cost']) * (random.randrange(10, 200) * 0.01))
+                arte['tp_cost'] = math.ceil(int(arte['tp_cost']) * (self.random.randrange(10, 200) * 0.01))
 
             # Randomize Cast Time
-            if int(arte['cast_time']) > 0 and random.random() >= 0.3:
+            if int(arte['cast_time']) > 0 and self.random.random() >= 0.3:
                 r_cast += 1
-                arte['cast_time'] = math.ceil(int(arte['cast_time']) * (random.randrange(10, 200) * 0.01))
+                arte['cast_time'] = math.ceil(int(arte['cast_time']) *
+                                              (self.random.randrange(10, 200) * 0.01))
 
             # Randomize FS Type
-            if random.random() <= 0.75:
+            if self.random.random() <= 0.75:
                 r_fs += 1
-                arte['fatal_strike_type'] = random.randrange(0, 3)
+                arte['fatal_strike_type'] = self.random.randrange(0, 3)
 
             # Randomize Evolution
+            ## Only Randomize Artes with Evolve Conditions already, since Evolve Base can't seem to be changed for now
             has_evolve: bool = False
-            if random.random() <= 0.258:  # Average Total Artes over Altered Artes Count across all Party Members
-                r_evolve += 1
+            if arte['evolve_base']:
                 has_evolve = True
-                arte['evolve_base'] = random.choice(self.artes_by_char[data['character_ids'][0]])
 
-                continue_iter: bool = True
-                iterations: int = 1
-                while iterations < len(evolve_opportunities):
-                    if continue_iter:
-                        _randomize_evolve(arte, iterations)
-                    else:
-                        arte[f'evolve_condition{iterations}'] = 0
-                        arte[f'evolve_parameter{iterations}'] = 0
+                # Average Total Artes over Altered Artes Count across all Party Members
+                if self.random.random() <= 0.258:
+                    r_evolve += 1
 
-                    if continue_iter and random.random() > evolve_opportunities[iterations]:
-                        continue_iter = False
+                    ## Can't change evolve base for now; this property seems to be for information display only
+                    # arte['evolve_base'] = self.random.choice(self.artes_by_char[data['character_ids'][0]])
 
-                    iterations += 1
+                    continue_iter: bool = True
+                    iterations: int = 1
+                    while iterations < len(evolve_opportunities):
 
-                usage_req: int = random.choice([5, 10])
-                if random.random() <= 0.4: math.ceil(usage_req * (random.randrange(10, 100) / 100))
+                        if continue_iter:
+                            _randomize_evolve(arte, data['character_ids'][0], iterations)
+                        else:
+                            arte[f'evolve_condition{iterations}'] = 0
+                            arte[f'evolve_parameter{iterations}'] = 0
 
-                arte['learn_condition1'] = 2
-                arte['learn_parameter1'] = int(arte['id'])
-                arte['unknown3'] = usage_req
+                        if continue_iter and self.random.random() > evolve_opportunities[iterations]:
+                            continue_iter = False
+
+                        iterations += 1
+
+                    usage_req: int = self.random.choice([5, 10])
+                    if self.random.random() <= 0.4: math.ceil(usage_req *
+                                                              (self.random.randrange(10, 100) / 100))
+
+                    arte['learn_condition1'] = 2
+                    arte['learn_parameter1'] = int(arte['id'])
+                    arte['unknown3'] = usage_req
 
             # Randomize Learn Condition
-            if random.random() < learn_opportunities[has_evolve + 1]:
+            if self.random.random() < learn_opportunities[has_evolve + 1]:
                 r_learn += 1
                 continue_iter: bool = True
                 iterations: int = 2 if has_evolve else 1
                 while iterations < len(learn_opportunities):
-                    if continue_iter: _randomize_learn(arte, data, iterations)
+                    if continue_iter: _randomize_learn(arte, data['character_ids'][0], iterations)
                     else:
                         arte[f"learn_condition{iterations}"] = 0
                         arte[f"learn_parameter{iterations}"] = 0
                         arte[f"unknown{iterations + 2}"] = 0
 
-                    if continue_iter and random.random() > learn_opportunities[iterations]:
+                    if continue_iter and self.random.random() > learn_opportunities[iterations]:
                         continue_iter = False
 
                     iterations += 1
+
+                # If Arte has Evolve Conditions from Vanilla, remove them if Learn Condition is randomized
+                if not has_evolve and arte['evolve_base']:
+                    arte['evolve_base'] = 0
+                    for _ in range(1, 5):
+                        arte[f'evolve_condition{_}'] = 0
+                        arte[f'evolve_parameter{_}'] = 0
 
             new_input[data['entry']] = arte
 

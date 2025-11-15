@@ -94,19 +94,11 @@ class VesperiaPatcher:
 
             header = vtypes.SkillsHeader.from_buffer_copy(mm.read(header_size))
 
-            last_entry: int = -1
-            mm.seek(header_size)
             for entry, patch in patched_data.items():
-                if entry - last_entry != 1:
-                    mm.seek(header_size + (entry * entry_size))
+                mm.seek(header_size + (entry * entry_size))
 
-                skills_data: vtypes.SkillsEntry = SkillsEntry(*patched_data[entry].values())
+                skills_data: vtypes.SkillsEntry = SkillsEntry(*patch.values())
                 mm.write(bytearray(skills_data))
-
-                last_entry = entry
-
-                if mm.tell() >= header.entry_end:
-                    break
 
             mm.flush()
             mm.close()

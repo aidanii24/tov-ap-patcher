@@ -320,7 +320,7 @@ class VesperiaPacker:
         path: str = os.path.join(self.build_dir, "BTL_PACK", "0010")
         assert os.path.isfile(path)
 
-        self.hyouta.extract_svo(path)
+        self.hyouta.extract_svo(path, manifest=os.path.join(self.manifest_dir, "0010"))
 
     def unpack_item(self):
         path: str = os.path.join(self.vesperia_dir, tov_item)
@@ -420,11 +420,10 @@ class VesperiaPacker:
         self.hyouta.pack_svo(path, os.path.join(self.build_dir, "BTL_PACK", "0004"))
 
     def pack_skills(self):
-        base_dir: str = os.path.join(self.build_dir, "BTL_PACK")
-        target: str = os.path.join(base_dir, "0010.ext", "ALL.0000")
-        assert os.path.isfile(target)
+        path: str = os.path.join(self.manifest_dir, "0010.json")
+        assert os.path.isfile(path)
 
-        self.hyouta.pack_svo(base_dir, out=os.path.join(base_dir, "0010"))
+        self.hyouta.pack_svo(path, os.path.join(self.build_dir, "BTL_PACK", "0010"))
 
     def pack_map(self, map_data: str):
         base_dir: str = os.path.join(self.build_dir, "npc")
@@ -480,16 +479,22 @@ class VesperiaPacker:
                   f"Output: {self.output_dir}")
             return
 
-        print("\t> Applying patch...")
+        print("> Applying Patch...")
 
         shutil.copytree(self.output_dir, self.vesperia_dir, dirs_exist_ok=True)
 
+        print("\n[-/-] Patch Finished\n"
+              f"Patch was automatically applied to the game directory.")
+
     def restore_backup(self):
         if not os.path.isdir(self.backup_dir):
-            print("\t> There is no backup to restore.")
+            print("> There is no backup to restore.")
             return
 
+        print("> Restoring Backup...")
         shutil.copytree(self.backup_dir, os.path.join(self.vesperia_dir, "Data64"), dirs_exist_ok=True)
 
         if os.path.isdir(os.path.join(self.vesperia_dir, "Data64", "btl")):
             shutil.rmtree(os.path.join(self.vesperia_dir, "Data64", "btl"))
+
+        print("[-/-] Backup Restored")

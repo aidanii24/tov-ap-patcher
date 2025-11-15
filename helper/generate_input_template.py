@@ -27,6 +27,17 @@ class Symbol(enum.Enum):
     def _missing_(cls, value):
         return cls.FLECK
 
+class Characters(enum.Enum):
+    YURI = 1
+    ESTELLE = 2
+    KAROL = 4
+    RITA = 8
+    RAVEN = 16
+    JUDITH = 32
+    REPEDE = 64
+    FLYNN = 128
+    PATTY = 256
+
 def keys_to_int(x):
     return {int(k): v for k, v in x.items()}
 
@@ -419,6 +430,58 @@ class InputTemplate:
         print("\n")
 
         return new_input
+
+    def randomize_items_input(self, patch):
+        skill_opportunities: list[float] = [0.96, 0.875, 0.61]
+
+        items_file: str = os.path.join("..", "data", "item.json")
+        assert os.path.isfile(items_file), f"File {items_file} does not exist."
+
+        items_data_table: dict = {item['id'] : item for item in json.load(open(items_file))['items']}
+
+        new_input: dict = {}
+
+        r_candidates: int = 0
+        r_price: int = 0
+        r_skills: int = 0
+        for item in patch:
+            # Randomize Candidacy
+            if self.random.random() <= 0.05:
+                continue
+
+            r_candidates += 1
+            data = items_data_table[item['id']]
+
+            characters: list[int] = []
+            for i, index in enumerate(Characters):
+                if item['character_usable'] & index.value > 0:
+                    characters.append(i + 1)
+
+            # Randomize Buy Price
+            if item['buy_price'] and self.random.random() <= 0.95:
+                r_price += 1
+                item['buy_price'] = int(item['buy_price'] * (self.random.randrange(25, 200) / 100))
+
+            # Randomize Weapon Properties
+            ## Main Weapons are Category ID 3, Sub Items are Category ID 4
+            if item['category'] in [3, 4]:
+                valid_skills: list[int] = [*set(skills for char in characters
+                                                for skills in self.skills_by_char[char]
+                                                if char in self.skills_by_char)]
+
+                # Randomize Skills
+                continue_iter: bool = True
+                for i, opp in skill_opportunities:
+                    if continue_iter and self.random.random() < opp:
+                        item[f'skill{i+1}'] = random.choice(valid_skills)
+                        item[f'skill{i+1}_lp'] = self.random.randrange(1, 50)
+                    else:
+                        item[f'skill{i + 1}'] = 0
+                        item[f'skill{i + 1}_lp'] = 0
+
+                    if i == 2:
+                        r_skills += 1
+
 
 if __name__ == "__main__":
     template = InputTemplate()

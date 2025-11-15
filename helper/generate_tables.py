@@ -153,9 +153,9 @@ def generate_items_table():
                          item['skill1'], item['skill1_lp'],
                         item['skill2'], item['skill2_lp'],
                         item['skill3'], item['skill3_lp'],]
-                        for item in data]
+                        for item in data if item['category'] in [3, 4]]
 
-    output: str = os.path.join("..", "artifacts", "items.csv")
+    output: str = os.path.join("..", "artifacts", "weapons.csv")
     with open(output, "w+") as f:
         writer = csv.writer(f)
         writer.writerow(["Name", "ID", "Price",
@@ -225,6 +225,31 @@ def generate_character_equips_table():
         f.flush()
         f.close()
 
+def generate_item_category_table():
+    id_file: str = os.path.join("..", "artifacts", "items_id_table.csv")
+    assert os.path.isfile(id_file)
+
+    json_file: str = os.path.join("..", "builds", "manifests", "item.json")
+    assert os.path.isfile(json_file)
+
+    data: list[dict] = json.load(open(json_file))['items']
+
+    items_per_category: dict = {}
+    for item in data:
+        items_per_category.setdefault(item['category'], []).append(item['id'])
+
+    #     id_to_name: dict = {int(data['ID']): strip_formatting(data['Name'])
+    #                         for data in csv.DictReader(open(id_file))}
+
+    # items_formatted = [[id_to_name[item['id']], item['id'], item['category']] for item in data]
+    # output: str = os.path.join("..", "artifacts", "item_categories.csv")
+    # with open(output, "w+") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["Name", "ID", "Category"])
+    #     writer.writerows(items_formatted)
+    #
+    #     f.close()
+
 class DataTableGenerator:
     strings: dict = {}
 
@@ -239,4 +264,4 @@ class DataTableGenerator:
 
 
 if __name__ == "__main__":
-    generate_skills_table()
+    generate_items_table()

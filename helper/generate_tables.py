@@ -123,18 +123,26 @@ def generate_skills_table():
     json_file: str = os.path.join("..", "builds", "manifests", "skills.json")
     assert os.path.isfile(json_file)
 
+    fields: list[str] = ["name_string_key", "id", "sp_cost", "lp_cost", "symbol", "symbol_weight", "is_equippable"]
+
     data: dict = json.load(open(json_file))["skills"]
-    skills_formatted = [[skill['name_string_key'], skill['id'], skill['sp_cost'], skill['lp_cost'],
-                         skill['symbol'], skill['symbol_weight']]
-                        for skill in data]
 
-    output: str = os.path.join("..", "artifacts", "skills.csv")
+    skills_formatted: list = [{field : skill[field] for field in fields} for skill in data]
+    output: str = os.path.join("..", "artifacts", "skills_api.json")
     with open(output, "w+") as f:
-        writer = csv.writer(f)
-        writer.writerow(["Name", "ID", "SP", "LP", "Symbol", "Symbol Weight"])
-        writer.writerows(skills_formatted)
+        json.dump(skills_formatted, f, indent=4)
 
+        f.flush()
         f.close()
+
+    # skills_formatted = [[skill[field] for field in fields] for skill in data]
+    # output: str = os.path.join("..", "artifacts", "skills.csv")
+    # with open(output, "w+") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["Name", "ID", "SP", "LP", "Symbol", "Symbol Weight"])
+    #     writer.writerows(skills_formatted)
+    #
+    #     f.close()
 
 def generate_items_table():
     json_file: str = os.path.join("..", "builds", "manifests", "item.json")
@@ -231,4 +239,4 @@ class DataTableGenerator:
 
 
 if __name__ == "__main__":
-    generate_character_equips_table()
+    generate_skills_table()

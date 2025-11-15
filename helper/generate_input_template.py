@@ -7,6 +7,7 @@ import json
 import csv
 import os
 
+import utils
 
 class FatalStrikeType(enum.Enum):
     INDIGO = 0
@@ -17,6 +18,16 @@ class FatalStrikeType(enum.Enum):
     @classmethod
     def _missing_(cls, value):
         return cls.NONE
+
+class Symbol(enum.Enum):
+    FLECK = 0
+    ROCKRA = 1
+    STRHIM = 2
+    LAYTOS = 3
+
+    @classmethod
+    def _missing_(cls, value):
+        return cls.FLECK
 
 def keys_to_int(x):
     return {int(k): v for k, v in x.items()}
@@ -37,17 +48,22 @@ class InputTemplate:
     seed: int
     random: random.Random
 
+    patch_output: str = os.path.join(".", "artifacts", "tovde.appatch")
+    report_output: str = os.path.join(".", "artifacts", "tovde-report.csv")
+
     def __init__(self, seed = random.randint(1, 10000)):
         self.seed = uuid.uuid1().int
         self.random = random.Random(seed)
 
         artes_id_table: str = os.path.join('.', 'artifacts', 'artes_id_table.csv')
         skills_id_table: str = os.path.join('.', 'artifacts', 'skills_id_table.csv')
-        artes_data_file: str = os.path.join('.', 'builds', 'manifests', '0004R.json')
-        skills_data_file: str = os.path.join('.', 'artifacts', 'skills_by_char.json')
+        artes_data_file: str = os.path.join('.', 'data', 'artes.json')
+        skills_data_file: str = os.path.join('.', 'data', 'skills.json')
+        skills_char_data_file: str = os.path.join('.', 'artifacts', 'skills_by_char.json')
 
         assert os.path.isfile(artes_data_file), f'{artes_data_file} does not exist'
         assert os.path.isfile(skills_data_file), f'{skills_data_file} does not exist'
+        assert os.path.isfile(skills_char_data_file), f'{skills_char_data_file} does not exist'
         assert os.path.isfile(artes_id_table), f'{artes_id_table} does not exist'
         assert os.path.isfile(skills_id_table), f'{skills_id_table} does not exist'
 
@@ -57,6 +73,7 @@ class InputTemplate:
                           for data in csv.DictReader(open(skills_id_table))}
 
         artes_data = json.load(open(artes_data_file))['artes']
+        skills_data = json.load(open(skills_data_file))['skills']
 
         artes_data_table = {}
         artes_by_char = {}
@@ -69,30 +86,44 @@ class InputTemplate:
                     artes_by_char.setdefault(char, []).append(arte['id'])
 
         self.artes_data_table = artes_data_table
+        self.skills_data_table = {skill['id'] : skill for skill in skills_data}
         self.artes_by_char = artes_by_char
 
-        self.skills_by_char = json.load(open(skills_data_file), object_hook=keys_to_int)
+        self.skills_by_char = json.load(open(skills_char_data_file), object_hook=keys_to_int)
 
-    def generate(self):
-        output: str = os.path.join(".", "artifacts", "tovde.appatch")
+    def random_from_distribution(self, mu: float, sigma: float, range_min: float = -math.inf,
+                                 range_max: float = math.inf):
+        return int(math.ceil(min(max(self.random.gauss(mu, sigma), range_min), range_max)))
+
+
+    def generate(self, *args):
+        output: str = self.patch_output
 
         manifest: str = "./builds/manifests"
         assert os.path.isdir(manifest)
-
-        artes_input: dict = self.randomize_artes_input([arte_entry for arte_entry in self.generate_artes_input()])
 
         patch_data: dict = {
             'version': '0.1',
             'created': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             'seed': self.seed,
             'player': "test",
-            'artes': artes_input
         }
+
+        if os.path.isfile(self.report_output):
+            os.remove(self.report_output)
+
+        if not args or 'artes' in args:
+            artes_input = self.randomize_artes_input([arte_entry for arte_entry in self.generate_artes_input()])
+            patch_data['artes'] = artes_input
+            self.generate_artes_report(artes_input)
+
+        if not args or 'skills' in args:
+            skills_input = self.randomize_skills_input(self.generate_skills_input())
+            patch_data['skills'] = skills_input
+            self.generate_skills_report(skills_input)
 
         with open(output, 'w+') as f:
             json.dump(patch_data, f, indent=4)
-
-        self.generate_artes_report(artes_input)
 
     @staticmethod
     def generate_artes_input():
@@ -100,6 +131,13 @@ class InputTemplate:
         assert os.path.isfile(artes_data)
 
         return json.load(open(artes_data))
+
+    @staticmethod
+    def generate_skills_input() -> dict:
+        skills_data: str = os.path.join(".", "artifacts", "skills_api.json")
+        assert os.path.isfile(skills_data)
+
+        return json.load(open(skills_data))
 
     def generate_artes_report(self, patched_artes: dict):
         report_list: list = []
@@ -161,12 +199,32 @@ class InputTemplate:
                                   "Evolve Condition 4", "Evolve Parameter 4",
                                   "Fatal Strike Type"]
 
-        output: str = os.path.join(".", "artifacts", "tovde-report.csv")
-        with open(output, "w+") as f:
+        with open(self.report_output, "a+") as f:
             writer = csv.writer(f)
             writer.writerow(field_names)
             writer.writerows(report_list)
+            writer.writerow([""])
 
+            f.flush()
+            f.close()
+
+    def generate_skills_report(self, patched_skills: dict):
+        report_list: list = []
+        for skill in [*patched_skills.values()]:
+            report_list.append([
+                self.skill_ids[skill['id']], skill['sp_cost'], skill['lp_cost'], Symbol(skill['symbol']).name,
+                skill['symbol_weight'], 'Yes' if skill['is_equippable'] else 'No'
+            ])
+
+        field_names: list[str] = ["Skill", "SP", "LP", "Symbol", "Symbol Weight", "Equippable"]
+
+        with open(self.report_output, "a+") as f:
+            writer = csv.writer(f)
+            writer.writerow(field_names)
+            writer.writerows(report_list)
+            writer.writerow([""])
+
+            f.flush()
             f.close()
 
     def randomize_artes_input(self, patch):
@@ -304,6 +362,63 @@ class InputTemplate:
         print(f"Randomized Fatal Strike Type: {r_fs} ({r_fs / r_candidates * 100:.2f}%)")
         print(f"Randomized Evolve Conditions: {r_evolve} ({r_evolve / r_candidates * 100:.2f}%)")
         print(f"Randomized Learn Conditions: {r_learn} ({r_learn / r_candidates * 100:.2f}%)")
+        print("\n")
+
+        return new_input
+
+    def randomize_skills_input(self, patch):
+        symbol_distribution: list[float] = [0.28, 0.20, 0.27, 0.25]
+
+        new_input: dict = {}
+
+        r_candidates: int = 0
+        r_sp: int = 0
+        r_lp: int = 0
+        r_sym: int = 0
+        r_sym_w: int = 0
+        for skill in patch:
+            # Randomize Candidacy
+            if self.random.random() <= 0.05:
+                continue
+
+            r_candidates += 1
+            data = self.skills_data_table[skill['id']]
+
+            # Randomize SP Cost
+            if skill['sp_cost'] and self.random.random() <= 0.95:
+                r_sp += 1
+                skill['sp_cost'] = self.random_from_distribution(7.6, 5, 0, 30)
+
+            # Randomize LP
+            if skill['lp_cost']:
+                if self.random.random() <= 0.95:
+                    r_lp += 1
+                    base = self.random_from_distribution(329.16, 226.17, 100, 1600)
+                    skill['lp_cost'] = max(int(math.ceil(base / 100.0)) * 10, 10) if base % 100 != 0 else base / 10
+                else:
+                    skill['lp_cost'] = int(skill['lp_cost'] / 10)
+
+            # Randomize Symbol
+            if self.random.random() <= 0.75:
+                r_sym += 1
+                skill['symbol'] = self.random.choices([_ for _ in range(4)], symbol_distribution)[0]
+
+            # Randomize Symbol Weight
+            if self.random.random() <= 0.75:
+                r_sym_w += 1
+                skill['symbol_weight'] = self.random_from_distribution(3.48, 2.58, 0, 30)
+
+            new_input[data['entry']] = skill
+
+        print("--- Skills Results -------------------")
+        print(f"Total Skills: {len(patch)}")
+
+        print(f"Randomized: {r_candidates} ({r_candidates / len(patch) * 100:.2f}%)")
+        print(f"Randomized SP: {r_sp} ({r_sp / r_candidates * 100:.2f}%)")
+        print(f"Randomized LP: {r_lp} ({r_lp / r_candidates * 100:.2f}%)")
+        print(f"Randomized Symbol: {r_sym} ({r_sym / r_candidates * 100:.2f}%)")
+        print(f"Randomized Symbol Weight: {r_sym_w} ({r_sym_w / r_candidates * 100:.2f}%)")
+        print("\n")
 
         return new_input
 

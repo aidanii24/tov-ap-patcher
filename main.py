@@ -23,6 +23,11 @@ class VesperiaPatcherApp:
         self.patcher = VesperiaPatcher(identifier)
 
     def begin(self):
+        print("--- Tales of Vesperia: Definitive Edition Patcher -------------\n"
+              f"\tPlayer: {self.patch_data['player']}\n"
+              f"\tGeneration Date: {self.patch_data['created']}\n"
+              f"\tSeed: {self.patch_data['seed']}\n")
+
         if 'artes' in self.patch_data or 'skills' in self.patch_data:
             self.patch_btl()
 
@@ -32,11 +37,13 @@ class VesperiaPatcherApp:
         self.packer.unpack_btl()
 
         if 'artes' in self.patch_data:
+            print("> Patching Artes...")
             self.packer.extract_artes()
             self.patcher.patch_artes(self.patch_data['artes'])
             self.packer.pack_artes()
 
         if 'skills' in self.patch_data:
+            print("> Patching Skills...")
             self.packer.extract_skills()
             self.patcher.patch_skills(self.patch_data['skills'])
             self.packer.pack_skills()

@@ -422,4 +422,4 @@ class InputTemplate:
 
 if __name__ == "__main__":
     template = InputTemplate()
-    template.generate('skills')
+    template.generate()

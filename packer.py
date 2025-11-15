@@ -256,7 +256,7 @@ class VesperiaPacker:
         basename: str = os.path.basename(filepath)
         backup_path: str = os.path.join(self.backup_dir, basename)
 
-        if os.path.isfile(backup_path) and self.verify_vesperia_file(filepath):
+        if os.path.isfile(backup_path) and self.verify_vesperia_file(backup_path):
             return backup_path
         elif os.path.isfile(filepath):
             assert self.verify_vesperia_file(filepath), \
@@ -475,13 +475,18 @@ class VesperiaPacker:
         self.hyouta.pack_scenario(main, packed)
 
     def apply_patch(self):
-        if not self.apply_immediately: return
+        if not self.apply_immediately:
+            print("\n[-/-] Patch Finished\n"
+                  f"Output: {self.output_dir}")
+            return
+
+        print("\t> Applying patch...")
 
         shutil.copytree(self.output_dir, self.vesperia_dir, dirs_exist_ok=True)
 
     def restore_backup(self):
         if not os.path.isdir(self.backup_dir):
-            print("There is no backup to restore.")
+            print("\t> There is no backup to restore.")
             return
 
         shutil.copytree(self.backup_dir, os.path.join(self.vesperia_dir, "Data64"), dirs_exist_ok=True)

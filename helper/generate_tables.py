@@ -145,26 +145,36 @@ def generate_skills_table():
     #     f.close()
 
 def generate_items_table():
-    json_file: str = os.path.join("..", "builds", "manifests", "item.json")
+    json_file: str = os.path.join("..", "data", "item.json")
     assert os.path.isfile(json_file)
 
+    fields: list[str] = ["id", "buy_price",
+                         "skill1", "skill1_lp",
+                         "skill2", "skill2_lp",
+                         "skill3", "skill3_lp"]
+
     data: dict = json.load(open(json_file))["items"]
-    items_formatted = [[item['name_string_key'], item['id'], item['buy_price'],
-                         item['skill1'], item['skill1_lp'],
-                        item['skill2'], item['skill2_lp'],
-                        item['skill3'], item['skill3_lp'],]
-                        for item in data if item['category'] in [3, 4]]
+    items_formatted: list = [{field: item[field] for field in fields} for item in data ]
 
-    output: str = os.path.join("..", "artifacts", "weapons.csv")
+    items_input: dict = {
+        'base': items_formatted,
+        # 'custom': []
+    }
+
+    output: str = os.path.join("..", "artifacts", "items_api.json")
     with open(output, "w+") as f:
-        writer = csv.writer(f)
-        writer.writerow(["Name", "ID", "Price",
-                         "Skill 1", "Skill 1 LP",
-                         "Skill 2", "Skill 2 LP",
-                         "Skill 3", "Skill 3 LP"])
-        writer.writerows(items_formatted)
+        json.dump(items_input, f, indent=4)
 
-        f.close()
+    # output: str = os.path.join("..", "artifacts", "weapons.csv")
+    # with open(output, "w+") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["Name", "ID", "Price",
+    #                      "Skill 1", "Skill 1 LP",
+    #                      "Skill 2", "Skill 2 LP",
+    #                      "Skill 3", "Skill 3 LP"])
+    #     writer.writerows(items_formatted)
+    #
+    #     f.close()
 
 def generate_search_points_table():
     json_file: str = os.path.join("..", "builds", "manifests", "search_points.json")

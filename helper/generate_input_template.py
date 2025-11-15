@@ -131,6 +131,11 @@ class InputTemplate:
             patch_data['skills'] = skills_input
             self.generate_skills_report(skills_input)
 
+        if not args or 'items' in args:
+            items_input = self.randomize_items_input(self.generate_items_input())
+            patch_data['items'] = items_input
+            self.generate_items_report(items_input)
+
         with open(output, 'w+') as f:
             json.dump(patch_data, f, indent=4)
 
@@ -147,6 +152,13 @@ class InputTemplate:
         assert os.path.isfile(skills_data)
 
         return json.load(open(skills_data))
+
+    @staticmethod
+    def generate_items_input() -> dict:
+        items_data: str = os.path.join(".", "artifacts", "items_api.json")
+        assert os.path.isfile(items_data)
+
+        return json.load(open(items_data))
 
     def generate_artes_report(self, patched_artes: dict):
         report_list: list = []
@@ -226,6 +238,36 @@ class InputTemplate:
             ])
 
         field_names: list[str] = ["Skill", "SP", "LP", "Symbol", "Symbol Weight", "Equippable"]
+
+        with open(self.report_output, "a+") as f:
+            writer = csv.writer(f)
+            writer.writerow(field_names)
+            writer.writerows(report_list)
+            writer.writerow([""])
+
+            f.flush()
+            f.close()
+
+    def generate_items_report(self, patched_items: dict):
+        id_file: str = os.path.join(".", "artifacts", "items_id_table.csv")
+        assert os.path.isfile(id_file)
+
+        id_table: dict = {int(data['ID']): strip_formatting(data['Name'])
+                            for data in csv.DictReader(open(id_file))}
+
+        report_list: list = []
+        for item in [*patched_items['base'].values()]:
+            entry: list = [id_table[item['id']], item['buy_price']]
+            for _ in range(1, 4):
+                if item[f'skill{_}']:
+                    entry.extend([self.skill_ids[item[f'skill{_}']], item[f'skill{_}_lp']])
+                else:
+                    entry.extend(["", ""])
+
+            report_list.append(entry)
+
+        field_names: list[str] = ["Item", "Price", "Skill 1", "Skill 1 LP", "Skill 2", "Skill 2 LP",
+                                  "Skill 3", "Skill 3 LP",]
 
         with open(self.report_output, "a+") as f:
             writer = csv.writer(f)
@@ -370,8 +412,7 @@ class InputTemplate:
         print(f"Randomized Cast Time: {r_cast} ({r_cast / r_candidates * 100:.2f}%)")
         print(f"Randomized Fatal Strike Type: {r_fs} ({r_fs / r_candidates * 100:.2f}%)")
         print(f"Randomized Evolve Conditions: {r_evolve} ({r_evolve / r_candidates * 100:.2f}%)")
-        print(f"Randomized Learn Conditions: {r_learn} ({r_learn / r_candidates * 100:.2f}%)")
-        print("\n")
+        print(f"Randomized Learn Conditions: {r_learn} ({r_learn / r_candidates * 100:.2f}%)\n")
 
         return new_input
 
@@ -426,25 +467,31 @@ class InputTemplate:
         print(f"Randomized SP: {r_sp} ({r_sp / r_candidates * 100:.2f}%)")
         print(f"Randomized LP: {r_lp} ({r_lp / r_candidates * 100:.2f}%)")
         print(f"Randomized Symbol: {r_sym} ({r_sym / r_candidates * 100:.2f}%)")
-        print(f"Randomized Symbol Weight: {r_sym_w} ({r_sym_w / r_candidates * 100:.2f}%)")
-        print("\n")
+        print(f"Randomized Symbol Weight: {r_sym_w} ({r_sym_w / r_candidates * 100:.2f}%)\n")
 
         return new_input
 
     def randomize_items_input(self, patch):
         skill_opportunities: list[float] = [0.96, 0.875, 0.61]
 
-        items_file: str = os.path.join("..", "data", "item.json")
+        items_file: str = os.path.join(".", "data", "item.json")
         assert os.path.isfile(items_file), f"File {items_file} does not exist."
 
         items_data_table: dict = {item['id'] : item for item in json.load(open(items_file))['items']}
 
         new_input: dict = {}
+        if 'custom' in patch:
+            new_input['custom'] = patch['custom']
+
+        if 'base' not in patch:
+            return new_input
+
+        new_input['base'] = {}
 
         r_candidates: int = 0
         r_price: int = 0
         r_skills: int = 0
-        for item in patch:
+        for item in patch['base']:
             # Randomize Candidacy
             if self.random.random() <= 0.05:
                 continue
@@ -454,33 +501,46 @@ class InputTemplate:
 
             characters: list[int] = []
             for i, index in enumerate(Characters):
-                if item['character_usable'] & index.value > 0:
+                if data['character_usable'] & index.value > 0:
                     characters.append(i + 1)
 
             # Randomize Buy Price
             if item['buy_price'] and self.random.random() <= 0.95:
                 r_price += 1
-                item['buy_price'] = int(item['buy_price'] * (self.random.randrange(25, 200) / 100))
+                item['buy_price'] = int(item['buy_price'] * (self.random.randrange(25, 200, 5) / 100))
 
             # Randomize Weapon Properties
             ## Main Weapons are Category ID 3, Sub Items are Category ID 4
-            if item['category'] in [3, 4]:
+            if data['category'] in [3, 4]:
                 valid_skills: list[int] = [*set(skills for char in characters
                                                 for skills in self.skills_by_char[char]
                                                 if char in self.skills_by_char)]
 
                 # Randomize Skills
                 continue_iter: bool = True
-                for i, opp in skill_opportunities:
+                for i, opp in enumerate(skill_opportunities):
                     if continue_iter and self.random.random() < opp:
                         item[f'skill{i+1}'] = random.choice(valid_skills)
-                        item[f'skill{i+1}_lp'] = self.random.randrange(1, 50)
+                        item[f'skill{i+1}_lp'] = self.random.randrange(10, 100, 10)
                     else:
                         item[f'skill{i + 1}'] = 0
-                        item[f'skill{i + 1}_lp'] = 0
+                        item[f'skill{i + 1}_lp'] = 100
 
-                    if i == 2:
+                        continue_iter = False
+
+                    if i == 0:
                         r_skills += 1
+
+            new_input['base'][data['entry']] = item
+
+        print("--- Items Results -------------------")
+        print(f"Total Items: {len(patch['base'])}")
+
+        print(f"Randomized: {r_candidates} ({r_candidates / len(patch['base']) * 100:.2f}%)")
+        print(f"Randomized Price: {r_price} ({r_price / r_candidates * 100:.2f}%)")
+        print(f"Randomized Skills: {r_skills} ({r_skills / r_candidates * 100:.2f}%)\n")
+
+        return new_input
 
 
 if __name__ == "__main__":

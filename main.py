@@ -37,9 +37,9 @@ class VesperiaPatcherApp:
             self.packer.pack_artes()
 
         if 'skills' in self.patch_data:
-            pass
-            # self.packer.extract_skills()
-            # self.packer.pack_skills()
+            self.packer.extract_skills()
+            self.patcher.patch_skills(self.patch_data['skills'])
+            self.packer.pack_skills()
 
         self.packer.pack_btl()
 

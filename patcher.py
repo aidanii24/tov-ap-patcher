@@ -3,7 +3,8 @@ import mmap
 import json
 import os
 
-from vesperia_types import ArtesHeader, ArtesEntry
+import vesperia_types as vtypes
+from vesperia_types import SkillsEntry
 
 
 class VesperiaPatcher:
@@ -42,9 +43,9 @@ class VesperiaPatcher:
             mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
 
             mm.seek(0)
-            header_size: int = ctypes.sizeof(ArtesHeader)
+            header_size: int = ctypes.sizeof(vtypes.ArtesHeader)
 
-            header: ArtesHeader = ArtesHeader.from_buffer_copy(mm.read(header_size))
+            header: vtypes.ArtesHeader = vtypes.ArtesHeader.from_buffer_copy(mm.read(header_size))
 
             mm.seek(header_size)
             count: int = 0
@@ -55,12 +56,57 @@ class VesperiaPatcher:
                 if arte_entry in patched_data:
                     mm.seek(-8, 1)
 
-                    arte_data: ArtesEntry = ArtesEntry(*patched_data[arte_entry].values())
+                    arte_data: vtypes.ArtesEntry = vtypes.ArtesEntry(*patched_data[arte_entry].values())
                     mm.write(bytearray(arte_data))
                     del patched_data[arte_entry]
                 else:
                     mm.seek(next_entry - 8, 1)
                 count += 1
+
+            mm.flush()
+            mm.close()
+
+    def patch_skills(self, skill_patches: dict):
+        target: str = os.path.join(self.build_dir, "BTL_PACK", "0010.ext", "ALL.0000")
+        assert os.path.isfile(target)
+
+        original_data_file: str = os.path.join(self.data_dir, "skills.json")
+        assert os.path.isfile(original_data_file), f"Cannot find {original_data_file}"
+
+        patches = {int(key): value for key, value in skill_patches.items()}
+        assert patches
+
+        original_data: dict = json.load(open(original_data_file))['skills']
+
+        patched_data: dict = {}
+        for entry, patch in sorted(patches.items()):
+            assert entry < len(original_data), f"Skil Entry {entry} is not a recognized skill"
+            assert entry == original_data[entry]['entry'], f"There was an error resolving patch for Skill Entry {entry}"
+
+            patched_data[entry] = {**original_data[entry], **patch}
+
+        with open(target, 'r+b') as f:
+            mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+            mm.seek(0)
+
+            header_size: int = ctypes.sizeof(vtypes.SkillsHeader)
+            entry_size: int = ctypes.sizeof(vtypes.SkillsEntry)
+
+            header = vtypes.SkillsHeader.from_buffer_copy(mm.read(header_size))
+
+            last_entry: int = -1
+            mm.seek(header_size)
+            for entry, patch in patched_data.items():
+                if entry - last_entry != 1:
+                    mm.seek(header_size + (entry * entry_size))
+
+                skills_data: vtypes.SkillsEntry = SkillsEntry(*patched_data[entry].values())
+                mm.write(bytearray(skills_data))
+
+                last_entry = entry
+
+                if mm.tell() >= header.entry_end:
+                    break
 
             mm.flush()
             mm.close()

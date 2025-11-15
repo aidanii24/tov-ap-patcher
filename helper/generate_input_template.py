@@ -7,8 +7,6 @@ import json
 import csv
 import os
 
-import utils
-
 class FatalStrikeType(enum.Enum):
     INDIGO = 0
     CRIMSON = 1
@@ -394,7 +392,7 @@ class InputTemplate:
                 if self.random.random() <= 0.95:
                     r_lp += 1
                     base = self.random_from_distribution(329.16, 226.17, 100, 1600)
-                    skill['lp_cost'] = max(int(math.ceil(base / 100.0)) * 10, 10) if base % 100 != 0 else base / 10
+                    skill['lp_cost'] = int(max(int(math.ceil(base / 100.0)) * 10, 10) if base % 100 != 0 else base / 10)
                 else:
                     skill['lp_cost'] = int(skill['lp_cost'] / 10)
 
@@ -424,4 +422,4 @@ class InputTemplate:
 
 if __name__ == "__main__":
     template = InputTemplate()
-    template.generate()
+    template.generate('skills')

@@ -1,31 +1,47 @@
-from packer import *
-from patcher import *
+import utils
+import json
+import sys
+import os
+
+from packer import VesperiaPacker
+from patcher import VesperiaPatcher
 
 class VesperiaPatcherApp:
     packer: VesperiaPacker
     patcher: VesperiaPatcher
 
+    patch_data: dict
+    targets: list = []
+
     def __init__(self, patch_data: str, apply_immediately: bool = False):
-        patch_data = json.load(open(patch_file))
-        identifier = f"{patch_data['player']}-{patch_data['created'].split(' ')[0]}-{patch_data['seed']}"
+        self.patch_data = json.load(open(patch_file), object_hook=utils.keys_to_int)
+        identifier = f"{self.patch_data['player']}-{self.patch_data['created'].split(' ')[0]}-{self.patch_data['seed']}"
 
         self.packer = VesperiaPacker(identifier, apply_immediately)
         self.packer.check_dependencies()
 
-        self.patcher = VesperiaPatcher()
+        self.patcher = VesperiaPatcher(identifier)
 
-    def unpack_files(self):
-        self.packer.unpack_btl()
-        self.packer.extract_artes()
-
-    def patch_artes(self):
-        self.patcher.patch_artes()
-
-    def pack_files(self):
-        self.packer.pack_artes()
-        self.packer.pack_btl()
+    def begin(self):
+        if 'artes' in self.patch_data or 'skills' in self.patch_data:
+            self.patch_btl()
 
         self.packer.apply_patch()
+
+    def patch_btl(self):
+        self.packer.unpack_btl()
+
+        if 'artes' in self.patch_data:
+            self.packer.extract_artes()
+            self.patcher.patch_artes(self.patch_data['artes'])
+            self.packer.pack_artes()
+
+        if 'skills' in self.patch_data:
+            pass
+            # self.packer.extract_skills()
+            # self.packer.pack_skills()
+
+        self.packer.pack_btl()
 
 if __name__ == '__main__':
     patch_file: str = ""
@@ -55,6 +71,4 @@ if __name__ == '__main__':
     assert patch_file != "", "No Valid Patch File was provided!"
 
     app = VesperiaPatcherApp(patch_file, apply)
-    app.unpack_files()
-    app.patch_artes()
-    app.pack_files()
+    app.begin()

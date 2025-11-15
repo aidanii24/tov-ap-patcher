@@ -6,20 +6,21 @@ import os
 from vesperia_types import ArtesHeader, ArtesEntry
 
 
-class VesperiaPatcher():
+class VesperiaPatcher:
     build_dir: str = os.path.join(os.getcwd(), "builds")
+    data_dir: str = os.path.join(os.getcwd(), "data")
 
-    def patch_artes(self):
+    def __init__(self, patcher_id: str):
+        self.build_dir = os.path.join(self.build_dir, patcher_id)
+
+    def patch_artes(self, arte_patches: dict):
         target: str = os.path.join(self.build_dir, "BTL_PACK", "0004.ext", "ALL.0000")
         assert os.path.isfile(target)
 
-        original_data_file: str = os.path.join(self.build_dir, "manifests", "0004R.json")
-        assert os.path.isfile(original_data_file)
+        original_data_file: str = os.path.join(self.data_dir, "artes.json")
+        assert os.path.isfile(original_data_file), f"Cannot find {original_data_file}"
 
-        patch_file: str = os.path.join(".", "artifacts", "tovde.appatch")
-        assert os.path.isfile(patch_file)
-
-        patches = {int(key): value for key, value in json.load(open(patch_file))['artes'].items()}
+        patches = {int(key): value for key, value in arte_patches.items()}
         assert patches
 
         original_data: dict = json.load(open(original_data_file))['artes']
@@ -27,6 +28,7 @@ class VesperiaPatcher():
         total_searched: int = 0
         total_patched: int = 0
         patched_data: dict = {}
+
         for arte in original_data:
             if arte['entry'] in patches:
                 patched_data[arte['entry']] = {**arte, **patches[arte['entry']]}

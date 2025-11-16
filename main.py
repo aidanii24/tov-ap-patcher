@@ -31,6 +31,9 @@ class VesperiaPatcherApp:
         if 'artes' in self.patch_data or 'skills' in self.patch_data:
             self.patch_btl()
 
+        if 'items' in self.patch_data:
+            self.patch_items()
+
         self.packer.apply_patch()
 
     def patch_btl(self):
@@ -49,6 +52,11 @@ class VesperiaPatcherApp:
             self.packer.pack_skills()
 
         self.packer.pack_btl()
+
+    def patch_items(self):
+        self.packer.unpack_item()
+        self.patcher.patch_items(self.patch_data['items'])
+        self.packer.copy_to_output('item')
 
 if __name__ == '__main__':
     patch_file: str = ""

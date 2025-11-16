@@ -33,7 +33,8 @@ tov_scenario = os.path.join("Data64", "language", "scenario_ENG.dat")
 # Checksums
 checksums: dict[str, str] = {
     "TOV_DE.exe": "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827",
-    "btl.svo": "bab8c0497665bd5a46f2ffabba5f4d2acc9fcdf0e4e0dd50c1b8199d3f6d7111"
+    "btl.svo": "bab8c0497665bd5a46f2ffabba5f4d2acc9fcdf0e4e0dd50c1b8199d3f6d7111",
+    "item.svo": "d86e4e3d7df4d60c9c752f999e916d495c77b2ae321c18fe281a51464a5d4d25"
 }
 
 
@@ -252,23 +253,23 @@ class VesperiaPacker:
 
         return True
 
-    def check_vesperia_file(self, filepath: str) -> str:
-        basename: str = os.path.basename(filepath)
+    def check_vesperia_file(self, original_path: str) -> str:
+        basename: str = os.path.basename(original_path)
         backup_path: str = os.path.join(self.backup_dir, basename)
 
         if os.path.isfile(backup_path) and self.verify_vesperia_file(backup_path):
             return backup_path
-        elif os.path.isfile(filepath):
-            assert self.verify_vesperia_file(filepath), \
+        elif os.path.isfile(original_path):
+            assert self.verify_vesperia_file(original_path), \
                 f"Invalid File: {basename} may have already been patched, modified, or may be corrupted."
 
             if not os.path.isdir(self.backup_dir):
                 os.makedirs(self.backup_dir)
 
-            shutil.copy2(filepath, backup_path)
+            shutil.copy2(original_path, backup_path)
 
             if self.apply_immediately:
-                os.remove(filepath)
+                os.remove(original_path)
 
             return backup_path
         else:
@@ -323,7 +324,7 @@ class VesperiaPacker:
         self.hyouta.extract_svo(path, manifest=os.path.join(self.manifest_dir, "0010"))
 
     def unpack_item(self):
-        path: str = os.path.join(self.vesperia_dir, tov_item)
+        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_item))
         assert os.path.isfile(path)
 
         base_build: str = os.path.join(self.build_dir, "item")
@@ -472,6 +473,14 @@ class VesperiaPacker:
 
         packed: str = os.path.join(path, "scenario_ENG.dat")
         self.hyouta.pack_scenario(main, packed)
+
+    def copy_to_output(self, dir_name: str, ):
+        target: str = os.path.join(self.build_dir, dir_name)
+        assert os.path.isdir(target), f"Cannot find {dir_name} in the build directory for the patch."
+
+        self.ensure_output_directory()
+
+        shutil.copytree(target, os.path.join(self.output_dir, "Data64", dir_name), dirs_exist_ok=True)
 
     def apply_patch(self):
         if not self.apply_immediately:

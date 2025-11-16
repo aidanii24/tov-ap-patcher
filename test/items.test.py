@@ -88,7 +88,7 @@ def item_from_json():
 
     items: list[ItemEntry] = []
 
-    with open("builds/item.json", "r") as f:
+    with open("../data/item.json", "r") as f:
         data = json.load(f)
 
         items = [ItemEntry(**entry) for entry in data["items"]]
@@ -134,4 +134,4 @@ def patch_item_sort(items: list[ItemEntry]):
 
 
 if __name__ == "__main__":
-    item_to_json()
+    item_from_json()

@@ -39,11 +39,12 @@ class VesperiaPatcher:
             if total_patched >= len(patches):
                 break
 
+        header_size: int = ctypes.sizeof(vtypes.ArtesHeader)
+
         with open(target, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
 
             mm.seek(0)
-            header_size: int = ctypes.sizeof(vtypes.ArtesHeader)
 
             header: vtypes.ArtesHeader = vtypes.ArtesHeader.from_buffer_copy(mm.read(header_size))
 
@@ -81,16 +82,17 @@ class VesperiaPatcher:
         patched_data: dict = {}
         for entry, patch in sorted(patches.items()):
             assert entry < len(original_data), f"Skil Entry {entry} is not a recognized skill"
-            assert entry == original_data[entry]['entry'], f"There was an error resolving patch for Skill Entry {entry}"
+            assert entry == original_data[entry]['entry'], \
+                f"There was an error resolving the patch for Skill Entry {entry}"
 
             patched_data[entry] = {**original_data[entry], **patch}
+
+        header_size: int = ctypes.sizeof(vtypes.SkillsHeader)
+        entry_size: int = ctypes.sizeof(vtypes.SkillsEntry)
 
         with open(target, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
             mm.seek(0)
-
-            header_size: int = ctypes.sizeof(vtypes.SkillsHeader)
-            entry_size: int = ctypes.sizeof(vtypes.SkillsEntry)
 
             header = vtypes.SkillsHeader.from_buffer_copy(mm.read(header_size))
 
@@ -102,3 +104,47 @@ class VesperiaPatcher:
 
             mm.flush()
             mm.close()
+
+    def patch_items(self, item_patches: dict):
+        target: str = os.path.join(self.build_dir, "item", "ITEM.DAT")
+        assert os.path.isfile(target)
+
+        if 'base' in item_patches:
+            self.patch_items_base(target, item_patches['base'])
+
+        if 'custom' in item_patches:
+            self.patch_items_custom(target, item_patches['custom'])
+
+    def patch_items_base(self, target_file: str, item_patches: dict):
+        patches: dict[int, dict] = {int(key): value for key, value in item_patches.items()}
+
+        original_data_file: str = os.path.join(self.data_dir, "item.json")
+        assert os.path.isfile(original_data_file), f"Cannot find {original_data_file}"
+
+        original_data: dict = json.load(open(original_data_file))["items"]
+
+        patched_data: dict = {}
+        for entry, patch in sorted(patches.items()):
+            assert entry < len(original_data), f"Item Entry {entry} is not a recognized item"
+            assert entry == original_data[entry]['entry'], \
+                f"There was an error resolving patch data for Item Entry {entry}"
+
+            patched_data[entry] = {**original_data[entry], **patch}
+
+        entry_size: int = ctypes.sizeof(vtypes.ItemEntry)
+
+        with open(target_file, 'r+b') as f:
+            mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+            mm.seek(0)
+
+            for entry, patch in patched_data.items():
+                mm.seek(entry * entry_size)
+
+                items_data = vtypes.ItemEntry(**patch)
+                mm.write(bytearray(items_data))
+
+            mm.flush()
+            mm.close()
+
+    def patch_items_custom(self, target_file: str, item_patches: dict):
+        pass

@@ -1,4 +1,5 @@
 import utils
+import time
 import json
 import sys
 import os
@@ -23,6 +24,8 @@ class VesperiaPatcherApp:
         self.patcher = VesperiaPatcher(identifier)
 
     def begin(self):
+        start: float = time.time()
+
         print("--- Tales of Vesperia: Definitive Edition Patcher -------------\n"
               f"\tPlayer: {self.patch_data['player']}\n"
               f"\tGeneration Date: {self.patch_data['created']}\n"
@@ -34,7 +37,14 @@ class VesperiaPatcherApp:
         if 'items' in self.patch_data:
             self.patch_items()
 
-        self.packer.apply_patch()
+        self.packer.apply_patch(start)
+        end: float = time.time()
+
+        print(f"\n[-/-] Patch Finished\tTime: {end - start:.2f} seconds")
+        if self.packer.apply_immediately:
+            print("Automatically applied patch to the game directory.")
+        else:
+            print(f"Patch Output: {self.packer.output_dir}")
 
     def patch_btl(self):
         self.packer.unpack_btl()
@@ -54,6 +64,7 @@ class VesperiaPatcherApp:
         self.packer.pack_btl()
 
     def patch_items(self):
+        print("> Patching Items...")
         self.packer.unpack_item()
         self.patcher.patch_items(self.patch_data['items'])
         self.packer.copy_to_output('item')

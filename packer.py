@@ -258,6 +258,9 @@ class VesperiaPacker:
         backup_path: str = os.path.join(self.backup_dir, basename)
 
         if os.path.isfile(backup_path) and self.verify_vesperia_file(backup_path):
+            if os.path.isfile(original_path):
+                os.remove(original_path)
+
             return backup_path
         elif os.path.isfile(original_path):
             assert self.verify_vesperia_file(original_path), \
@@ -482,28 +485,36 @@ class VesperiaPacker:
 
         shutil.copytree(target, os.path.join(self.output_dir, "Data64", dir_name), dirs_exist_ok=True)
 
-    def apply_patch(self):
+    def apply_patch(self, start_time: float):
         if not self.apply_immediately:
-            print("\n[-/-] Patch Finished\n"
-                  f"Output: {self.output_dir}")
             return
 
         print("> Applying Patch...")
 
         shutil.copytree(self.output_dir, self.vesperia_dir, dirs_exist_ok=True)
 
-        print("\n[-/-] Patch Finished\n"
-              f"Patch was automatically applied to the game directory.")
+    def clean_game(self, quiet: bool = True):
+        detected_patches: list[str] = []
+
+        if os.path.isdir(os.path.join(self.vesperia_dir, "Data64", "btl")):
+            detected_patches.append(os.path.join(self.vesperia_dir, "Data64", "btl"))
+
+        if os.path.isdir(os.path.join(self.vesperia_dir, "Data64", "item")):
+            detected_patches.append(os.path.join(self.vesperia_dir, "Data64", "item"))
+
+        if detected_patches:
+            if not quiet: print("> Removing active patches...")
+            for patches in detected_patches:
+                shutil.rmtree(patches)
 
     def restore_backup(self):
         if not os.path.isdir(self.backup_dir):
             print("> There is no backup to restore.")
             return
 
+        self.clean_game()
+
         print("> Restoring Backup...")
         shutil.copytree(self.backup_dir, os.path.join(self.vesperia_dir, "Data64"), dirs_exist_ok=True)
-
-        if os.path.isdir(os.path.join(self.vesperia_dir, "Data64", "btl")):
-            shutil.rmtree(os.path.join(self.vesperia_dir, "Data64", "btl"))
 
         print("[-/-] Backup Restored")

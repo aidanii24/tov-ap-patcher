@@ -302,7 +302,7 @@ class InputTemplate:
                 parameter = self.random.randint(1, cap_level)
             elif condition == 2:
                 parameter: int = self.random.choice(self.artes_by_char[character])
-                meta = math.ceil(10 * (self.random.randrange(10, 100) / 100))
+                meta = int(math.ceil(10 * (self.random.randrange(10, 200) / 100)))
             else:
                 parameter: int = self.random.choice(self.skills_by_char[character])
 
@@ -370,13 +370,15 @@ class InputTemplate:
 
                         iterations += 1
 
-                    usage_req: int = self.random.choice([5, 10])
+                    usage_req: int = self.random.randrange(5, 20)
                     if self.random.random() <= 0.4: math.ceil(usage_req *
                                                               (self.random.randrange(10, 100) / 100))
 
                     arte['learn_condition1'] = 2
                     arte['learn_parameter1'] = int(arte['id'])
                     arte['unknown3'] = usage_req
+                else:
+                    arte['unknown3'] = self.random.randrange(5, 20)
 
             # Randomize Learn Condition
             if self.random.random() < learn_opportunities[has_evolve + 1]:
@@ -545,4 +547,4 @@ class InputTemplate:
 
 if __name__ == "__main__":
     template = InputTemplate()
-    template.generate('items')
+    template.generate()

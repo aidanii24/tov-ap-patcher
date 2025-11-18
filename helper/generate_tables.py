@@ -248,8 +248,8 @@ def generate_item_category_table():
     for item in data:
         items_per_category.setdefault(item['category'], []).append(item['id'])
 
-    #     id_to_name: dict = {int(data['ID']): strip_formatting(data['Name'])
-    #                         for data in csv.DictReader(open(id_file))}
+        # id_to_name: dict = {int(data['ID']): strip_formatting(data['Name'])
+        #                     for data in csv.DictReader(open(id_file))}
 
     # items_formatted = [[id_to_name[item['id']], item['id'], item['category']] for item in data]
     # output: str = os.path.join("..", "artifacts", "item_categories.csv")
@@ -259,6 +259,64 @@ def generate_item_category_table():
     #     writer.writerows(items_formatted)
     #
     #     f.close()
+
+def generate_shop_items_table(generate_csv: bool = True):
+    json_file: str = os.path.join("..", "builds", "manifests", "shop_items.json")
+    assert os.path.isfile(json_file)
+
+    id_file: str = os.path.join("..", "artifacts", "items_id_table.csv")
+    assert os.path.isfile(id_file)
+
+    fields: list[str] = ["shop_id", "item_id"]
+
+    id_to_name: dict = {int(data['ID']): strip_formatting(data['Name'])
+                        for data in csv.DictReader(open(id_file))}
+
+    data: list[dict] = json.load(open(json_file))
+
+    items_cleaned: list = []
+    items_formatted: list = []
+    by_shop_id: dict[int, list[int]] = {}
+    by_shop_id_formatted: dict[int, list[str]] = {}
+    for item in data:
+        item_name = id_to_name[item['item_id']] if item['item_id'] in id_to_name else item['item_id']
+
+        items_cleaned.append({field : item[field] for field in fields})
+        items_formatted.append([item['shop_id'], item_name])
+        by_shop_id.setdefault(item['shop_id'], []).append(item['item_id'])
+        by_shop_id_formatted.setdefault(item['shop_id'], []).append(item_name)
+
+    if generate_csv:
+        output: str = os.path.join("..", "artifacts", "shop_items.csv")
+        with open(output, "w+") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Shop", "Item"])
+            writer.writerows(items_formatted)
+
+            f.close()
+
+        output: str = os.path.join("..", "artifacts", "items_by_shop.csv")
+        with open(output, "w+") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Shop", "Items"])
+            writer.writerows([[shop, *items] for shop, items in by_shop_id_formatted.items()])
+
+            f.close()
+
+    output: str = os.path.join("..", "artifacts", "shop_items.json")
+    with open(output, "w+") as f:
+        json.dump(items_cleaned, f, indent=4)
+
+        f.close()
+
+    output: str = os.path.join("..", "artifacts", "items_by_shop.json")
+    with open(output, "w+") as f:
+        json.dump(by_shop_id, f, indent=4)
+
+        f.close()
+
+    for item in sorted(by_shop_id.keys()):
+        print(item)
 
 class DataTableGenerator:
     strings: dict = {}
@@ -274,4 +332,4 @@ class DataTableGenerator:
 
 
 if __name__ == "__main__":
-    generate_items_table()
+    generate_shop_items_table()

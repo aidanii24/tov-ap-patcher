@@ -13,3 +13,4 @@ config.json
 
 # Helper Artifacts
 /artifacts/*
+/global.json

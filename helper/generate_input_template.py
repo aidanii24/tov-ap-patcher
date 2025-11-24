@@ -7,6 +7,9 @@ import json
 import csv
 import os
 
+import utils
+
+
 class FatalStrikeType(enum.Enum):
     INDIGO = 0
     CRIMSON = 1
@@ -39,7 +42,7 @@ class Characters(enum.Enum):
     PATTY = 256
 
 def keys_to_int(x):
-    return {int(k): v for k, v in x.items()}
+    return {int(k) if (k).isdigit() else k : v for k, v in x.items()}
 
 def strip_formatting(string: str) -> str:
     return string.replace("\n", "").replace("\t", "").replace("\r", "")
@@ -136,6 +139,11 @@ class InputTemplate:
             patch_data['items'] = items_input
             self.generate_items_report(items_input)
 
+        if not args or 'shop' in args:
+            shop_input = self.randomize_shops_input(self.generate_shop_items_input())
+            patch_data['shop'] = shop_input
+            self.generate_shop_items_report(shop_input)
+
         with open(output, 'w+') as f:
             json.dump(patch_data, f, indent=4)
 
@@ -159,6 +167,13 @@ class InputTemplate:
         assert os.path.isfile(items_data)
 
         return json.load(open(items_data))
+
+    @staticmethod
+    def generate_shop_items_input() -> dict:
+        shop_items_data: str = os.path.join(".", "artifacts", "shop_items_api.json")
+        assert os.path.isfile(shop_items_data)
+
+        return json.load(open(shop_items_data), object_hook=keys_to_int)
 
     def generate_artes_report(self, patched_artes: dict):
         report_list: list = []
@@ -277,6 +292,97 @@ class InputTemplate:
 
             f.flush()
             f.close()
+
+    def generate_shop_items_report(self, patched_items: dict):
+        data_file: str = os.path.join(".", "artifacts", "shop_items_data.json")
+        assert os.path.isfile(data_file)
+
+        id_file: str = os.path.join(".", "artifacts", "items_id_table.csv")
+        assert os.path.isfile(id_file)
+
+        missable_shops_ids: set[int] = {1, 27, 28, 29, 34, 36, 39}
+        shop_to_name: dict = {
+            1: "Dummy",
+            7: "Fortune's Market (Imperial Capital) I",
+            8: "Vendor's Stall \"Vega\"",
+            9: "General Store \"Regulu\" I",
+            10: "Fortune's Market (Aspio)",
+            11: "Fortune's Market (Nor) I",
+            12: "Fortune's Market (Torim) I",
+            13: "Fortune's Market (Heliord) I",
+            14: "Fortune's Market (Dahngrest) I",
+            15: "Fortune's Market (Dahngrest) II",
+            16: "Fortune's Market (Nordopolica) I",
+            17: "Fortune's Market (Mantaic) I",
+            18: "General Store \"Polaris\"",
+            19: "Fortune's Market (Nordopolica) II",
+            20: "General Store \"Deneb\"",
+            21: "Fortune's Market (Nor) II",
+            22: "Fortune's Market (Torim) II",
+            23: "General Store \"Regulu\" II",
+            24: "Fortune's Market (Imperial Capital) II",
+            25: "Fortune's Market (Nordopolica) III",
+            26: "Fortune's Market I",
+            27: "Vendor's Stall \"Capella\" I",
+            28: "Vendor's Stall \"Capella\" II",
+            29: "Vendor's Stall \"Capella\" III",
+            31: "Fortune's Market (Yumanju)",
+            32: "Fortune's Market II",
+            33: "Fortune's Market (Aurnion 2)",
+            34: "Supply Depot \"Adecor\"",
+            35: "Fortune's Market (Heliord) II",
+            36: "Fortune's Market (1)",
+            37: "Fortune's Market (Dahngrest) III",
+            38: "Fortune's Market (Aurnion 1)",
+            39: "Vendor's Stall \"Mallow\"",
+            40: "Guild Gormet Banquet",
+            41: "Fortune's Market (Mantaic) II",
+        }
+
+        groupings: dict = json.load(open(data_file), object_hook=utils.keys_to_int)['groups']
+        id_table: dict = {int(data['ID']): strip_formatting(data['Name'])
+                          for data in csv.DictReader(open(id_file))}
+
+        processed_groups: set[int] = set()
+
+        items_by_shop: dict = {}
+        for groups in patched_items['commons']:
+            processed_groups.update(groups['shops'])
+            for shop in groups['shops']:
+                items_by_shop.setdefault(shop, []).extend(groups['items'])
+
+        for shop, items in patched_items['uniques'].items():
+            processed_groups.add(shop)
+            items_by_shop.setdefault(shop, []).extend(items)
+
+        max_count: int = 0
+        for shop, items in items_by_shop.items():
+            if len(items) > max_count: max_count = len(items)
+            items_by_shop[shop] = [*sorted(items)]
+
+        sorted_keys: list[int] = [*sorted(items_by_shop.keys())]
+        fields: list[str] = [shop_to_name[shop] for shop in sorted_keys if shop > 6]
+        report_list: list = [[] for _ in range(max_count)]
+        for _ in range(max_count):
+            for shop in sorted_keys:
+                if shop < 7: continue
+
+                if _ < len(items_by_shop[shop]):
+                    report_list[_].append(id_table[items_by_shop[shop][_]])
+                else:
+                    report_list[_].append("")
+
+        with open(self.report_output, "a+") as f:
+            writer = csv.writer(f)
+            writer.writerow(fields)
+            writer.writerows(report_list)
+            writer.writerow([""])
+
+            f.flush()
+            f.close()
+
+        print(len(processed_groups), processed_groups)
+        print(f"Missing: {set(shop_to_name.keys()).difference(processed_groups)}")
 
     def randomize_artes_input(self, patch):
         # Based on average amount of character artes with evolve conditions
@@ -544,7 +650,97 @@ class InputTemplate:
 
         return new_input
 
+    def randomize_shops_input(self, patch):
+        new_input: dict = {}
+
+        if 'custom' in patch:
+            new_input['custom'] = patch['custom']
+
+        if 'commons' not in patch and 'uniques' not in patch:
+            return new_input
+
+        items_file: str = os.path.join(".", "data", "item.json")
+        assert os.path.isfile(items_file), f"File {items_file} does not exist."
+
+        item_to_category: dict = {}
+        item_by_category: dict = {}
+        eligible_items: list[int] = []
+
+        for item in json.load(open(items_file))['items']:
+            item_to_category[item['id']] = item['category']
+            item_by_category.setdefault(item['category'], []).append(item['id'])
+
+            if 1 < item['category'] < 10:
+                eligible_items.append(item['id'])
+
+        def _randomize_item(item, blacklist) -> int:
+            category: int = item_to_category[item]
+
+            new_item: int = item
+
+            # Consumables should rarely be randomized, but guarantee randomization if duplicated
+
+            if category == 2:
+                if item in blacklist:
+                    candidacy_chance = 2.00
+                    same_category_chance = 2.00
+                else:
+                    candidacy_chance = 0.15
+                    same_category_chance = 0.6
+            else:
+                same_category_chance = 0.25
+                if item in blacklist:
+                    candidacy_chance = 2.00
+                else:
+                    candidacy_chance = 0.85
+
+            if self.random.random() <= candidacy_chance:
+                # Randomize to an item of the same category
+                category_candidates = [*set(item_by_category[category]).difference(blacklist)]
+                if category_candidates and self.random.random() <= same_category_chance:
+                    new_item = random.choice(category_candidates)
+                # Randomize to any eligible item
+                else:
+                    new_item = random.choice([*set(eligible_items).difference(blacklist)])
+
+            return new_item
+
+        items_cache: dict[int, list[int]] = {}
+        new_input['commons'] = []
+        for grouping in patch['commons']:
+            new_grouping: dict[str, list] = grouping
+            already_present: list[int] = items_cache.get(new_grouping['shops'][0], [])
+            new_items = []
+            for item in grouping['items']:
+                # Do not randomize dummy items, Key Items and DLC
+                if item not in eligible_items:
+                    new_items.append(item)
+                    continue
+
+                new_items.append(_randomize_item(item, {*new_items, *already_present}))
+
+            new_grouping['items'] = new_items
+            new_input['commons'].append(new_grouping)
+
+            for ev_shop in new_grouping['shops']:
+                items_cache.setdefault(ev_shop, []).extend(new_items)
+
+        new_input['uniques'] = {}
+        for shop, items in patch['uniques'].items():
+            new_items = []
+            already_present: list[int] = items_cache.get(shop, [])
+            for item in items:
+                # Do not randomize dummy items, Key Items and DLC
+                if item not in eligible_items:
+                    new_items.append(item)
+                    continue
+
+                new_items.append(_randomize_item(item, {*new_items, *already_present}))
+
+            new_input['uniques'][shop] = new_items
+
+        return new_input
 
 if __name__ == "__main__":
     template = InputTemplate()
-    template.generate()
+    template.generate('shop')

@@ -16,8 +16,8 @@ def test_structure(sample_struct):
             as_hex = hex(struct.unpack('<I', struct.pack('<f', value))[0])
         elif type(bytes):
             if "Array" in type(value).__name__:
-                print(type(type(value)))
-                print("Array Test:", issubclass(type(value), ctypes.Array))
+                # print(type(type(value)))
+                # print("Array Test:", issubclass(type(value), ctypes.Array))
                 value = [*value]
                 as_hex = [hex(arte_id) for arte_id in value]
             else:
@@ -29,7 +29,7 @@ def test_structure(sample_struct):
 
     print(json.dumps(sample_struct, cls=VesperiaStructureEncoder, indent=4))
     as_bytes = bytearray(sample_struct)
-    format_bytes(as_bytes)
+    # format_bytes(as_bytes)
 
 def format_bytes(as_bytes: bytes):
     print(as_bytes)

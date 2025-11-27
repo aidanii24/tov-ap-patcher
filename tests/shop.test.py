@@ -11,6 +11,8 @@ import debug
 item_start: int = 0x980
 base_shop_items: int = 1521
 
+from debug import test_structure
+
 def to_json():
     file: str = "../builds/scenario/0/0.dec"
     assert os.path.isfile(file)
@@ -39,6 +41,8 @@ def to_json():
         json.dump(item_entries, f, cls=VesperiaStructureEncoder, indent=4)
 
         f.close()
+
+    test_structure(item_entries[0])
 
     end: float = time.time()
     print(f"[Shop Data Extraction] Time Taken: {end - start} seconds")

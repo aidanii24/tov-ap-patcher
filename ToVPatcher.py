@@ -37,7 +37,10 @@ class VesperiaPatcherApp:
         if 'items' in self.patch_data:
             self.patch_items()
 
-        self.packer.apply_patch(start)
+        if 'shops' in self.patch_data:
+            self.patch_scenario()
+
+        self.packer.apply_patch()
         end: float = time.time()
 
         print(f"\n[-/-] Patch Finished\tTime: {end - start:.2f} seconds")
@@ -69,6 +72,16 @@ class VesperiaPatcherApp:
         self.patcher.patch_items(self.patch_data['items'])
         self.packer.copy_to_output('item')
 
+    def patch_scenario(self):
+        self.packer.extract_scenario()
+
+        if 'shops' in self.patch_data:
+            print("> Patching Shops...")
+            self.packer.decompress_scenario('0')
+            self.patcher.patch_shops(self.patch_data['shops'])
+
+        self.packer.pack_scenario()
+
 if __name__ == '__main__':
     patch_file: str = ""
     apply: bool = False
@@ -76,7 +89,7 @@ if __name__ == '__main__':
     for arg in sys.argv[1:]:
         if arg in ("-h", "--help"):
             print(
-                "Usage: main.py [ -a | --apply ] <patch file>"
+                "Usage: ToVPatcher.py [ -a | --apply ] [ -r | --restore-backup ] <patch file>"
                 "\n\tPatcher for Tales of Vesperia: Definitive Edition on PC/Steam."
                 "\n\n\tOptions:"
                 "\n\t\t-a | --apply-immediately\tImmediately apply the patched files into the game directory, "

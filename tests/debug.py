@@ -29,7 +29,7 @@ def test_structure(sample_struct):
 
     print(json.dumps(sample_struct, cls=VesperiaStructureEncoder, indent=4))
     as_bytes = bytearray(sample_struct)
-    # format_bytes(as_bytes)
+    format_bytes(as_bytes)
 
 def format_bytes(as_bytes: bytes):
     print(as_bytes)

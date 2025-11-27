@@ -34,7 +34,8 @@ tov_scenario = os.path.join("Data64", "language", "scenario_ENG.dat")
 checksums: dict[str, str] = {
     "TOV_DE.exe": "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827",
     "btl.svo": "bab8c0497665bd5a46f2ffabba5f4d2acc9fcdf0e4e0dd50c1b8199d3f6d7111",
-    "item.svo": "d86e4e3d7df4d60c9c752f999e916d495c77b2ae321c18fe281a51464a5d4d25"
+    "item.svo": "d86e4e3d7df4d60c9c752f999e916d495c77b2ae321c18fe281a51464a5d4d25",
+    "scenario_ENG.dat": "90a1e41ae829ba7f05e289aaba87cb4699e3ed27acc9448985f6f91261da8e2d"
 }
 
 
@@ -255,10 +256,11 @@ class VesperiaPacker:
 
     def check_vesperia_file(self, original_path: str) -> str:
         basename: str = os.path.basename(original_path)
-        backup_path: str = os.path.join(self.backup_dir, basename)
+        basedir: str = os.path.splitroot(original_path.split('Data64', maxsplit=1)[-1])[-1]
+        backup_path: str = os.path.join(self.backup_dir, basedir)
 
         if os.path.isfile(backup_path) and self.verify_vesperia_file(backup_path):
-            if os.path.isfile(original_path):
+            if self.apply_immediately and os.path.isfile(original_path):
                 os.remove(original_path)
 
             return backup_path
@@ -268,6 +270,9 @@ class VesperiaPacker:
 
             if not os.path.isdir(self.backup_dir):
                 os.makedirs(self.backup_dir)
+
+            if not os.path.isdir(os.path.dirname(backup_path)):
+                os.makedirs(os.path.dirname(backup_path))
 
             shutil.copy2(original_path, backup_path)
 
@@ -378,31 +383,32 @@ class VesperiaPacker:
 
         self.hyouta.extract_svo(path, work_dir)
 
-    def extract_scenario(self):
-        path: str = os.path.join(self.vesperia_dir, tov_scenario)
+    def extract_scenario(self, lang = "ENG"):
+        target: str = f"scenario_{lang}.dat"
+        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_scenario))
         assert os.path.isfile(path)
 
-        work_dir: str = os.path.join(self.build_dir, "scenario")
+        work_dir: str = os.path.join(self.build_dir, "language")
         if not os.path.isdir(work_dir): os.mkdir(work_dir)
 
-        extract_dir: str = os.path.join(work_dir, "ENG")
+        extract_dir: str = os.path.join(work_dir, "." + lang)
         if not os.path.isdir(extract_dir): os.mkdir(extract_dir)
 
         self.hyouta.extract_scenario(path, extract_dir)
 
-    def decompress_scenario(self, file: str):
+    def decompress_scenario(self, file: str, lang: str = "ENG"):
         assert file
 
-        work_dir: str = os.path.join(self.build_dir, "scenario")
+        work_dir: str = os.path.join(self.build_dir, "language")
         if not os.path.isdir(work_dir): os.mkdir(work_dir)
 
-        extract_dir: str = os.path.join(work_dir, "ENG")
+        extract_dir: str = os.path.join(work_dir, "." + lang)
         if not os.path.isdir(extract_dir): os.mkdir(extract_dir)
 
         target: str = os.path.join(extract_dir, file)
         assert os.path.isfile(target)
 
-        decompress_dir: str = os.path.join(work_dir, file)
+        decompress_dir: str = os.path.join(work_dir, f".{lang}.dec")
         if not os.path.isdir(decompress_dir): os.mkdir(decompress_dir)
 
         self.comptoe_decompress(target, os.path.join(decompress_dir, file + ".dec"))
@@ -457,25 +463,31 @@ class VesperiaPacker:
 
         self.hyouta.compress_tlzc(file, out)
 
-    def pack_scenario(self):
-        path: str = os.path.join(self.build_dir, "scenario")
-        main: str = os.path.join(path, "ENG")
+    def pack_scenario(self, lang = "ENG"):
+        path: str = os.path.join(self.build_dir, "language")
+        main: str = os.path.join(path, "." + lang)
+        dec: str = main + ".dec"
         assert os.path.isdir(path)
         assert os.path.isdir(main)
+        assert os.path.isdir(dec)
 
-        dirs: list[str] = [F for F in os.listdir(path)
-                           if os.path.isdir(os.path.join(path, F))
-                           and F.isdigit()]
+        for dec_file in os.listdir(dec):
+            file: str = os.path.join(dec, f"{dec_file}")
+            out: str = os.path.join(main, dec_file.split(".")[0])
 
-        for directory in dirs:
-            file: str = os.path.join(path, directory, f"{directory}.dec")
-            out: str = os.path.join(main, directory)
             if not os.path.isfile(file): continue
 
             self.comptoe_compress(file, out)
 
-        packed: str = os.path.join(path, "scenario_ENG.dat")
-        self.hyouta.pack_scenario(main, packed)
+        self.ensure_output_directory()
+        output_dir: str = os.path.join(self.output_dir, "Data64", "language")
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+
+        shutil.copytree(path, output_dir, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".*"))
+
+        output: str = os.path.join(output_dir, "scenario_ENG.dat")
+        self.hyouta.pack_scenario(main, output)
 
     def copy_to_output(self, dir_name: str, ):
         target: str = os.path.join(self.build_dir, dir_name)
@@ -485,7 +497,7 @@ class VesperiaPacker:
 
         shutil.copytree(target, os.path.join(self.output_dir, "Data64", dir_name), dirs_exist_ok=True)
 
-    def apply_patch(self, start_time: float):
+    def apply_patch(self):
         if not self.apply_immediately:
             return
 

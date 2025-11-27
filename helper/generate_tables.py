@@ -355,9 +355,6 @@ def generate_shop_items_table(generate_csv: bool = True):
 
         f.close()
 
-    # for item in sorted(by_shop_id.keys()):
-    #     print(item)
-
 def generate_shops_similarities():
     missable_shops_ids: set[int] = {27, 28, 29, 34, 36, 39}
 
@@ -422,11 +419,13 @@ def generate_shops_similarities():
     for shop, items in by_shop.items():
         if shop not in shop_relationships:
             uniques[shop] = items
+            cache.setdefault(shop, []).extend(items)
             continue
         elif shop in searched and cache:
             diffs: list[int] = [*set(items).difference(cache[shop])]
             if diffs:
                 uniques[shop] = diffs
+                cache.setdefault(shop, []).extend(diffs)
             continue
 
         evolutions: list[int] = sorted(_get_evolutions(shop))
@@ -439,12 +438,13 @@ def generate_shops_similarities():
             'items': [*base_commons]
         })
 
-        for i in range(1, len(evolutions) - 1):
+        for i in range(len(evolutions) - 1):
             ev_uniques = set(by_shop[evolutions[i]]).difference(*[by_shop[ev_shop] for ev_shop in evolutions
                                                                   if ev_shop != evolutions[i]])
 
             if ev_uniques:
                 uniques[evolutions[i]] = [*ev_uniques]
+                cache.setdefault(evolutions[i], []).extend([*ev_uniques])
 
             if len(evolutions) < 2 and i < 1: continue
             ev_shops = evolutions[i:i + 2]
@@ -456,7 +456,7 @@ def generate_shops_similarities():
             })
 
             for ev_shop in ev_shops:
-                cache.setdefault(ev_shop, []).extend(base_commons)
+                cache.setdefault(ev_shop, []).extend(ev_commons)
 
         searched.update(evolutions)
         for ev_shop in evolutions:
@@ -469,6 +469,7 @@ def generate_shops_similarities():
 
     data: dict = {
         'groups': groups,
+        'missables': sorted(missable_shops_ids),
         'items': {
             'commons': commons,
             'uniques': uniques,

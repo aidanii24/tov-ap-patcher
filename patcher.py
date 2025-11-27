@@ -3,6 +3,7 @@ import mmap
 import json
 import os
 
+import utils
 import vesperia_types as vtypes
 from vesperia_types import SkillsEntry
 
@@ -148,3 +149,66 @@ class VesperiaPatcher:
 
     def patch_items_custom(self, target_file: str, item_patches: dict):
         pass
+
+    def patch_shops(self, shop_patches: dict, lang: str = "ENG"):
+        target: str = os.path.join(self.build_dir, "language", f".{lang}.dec", "0.dec")
+        assert os.path.isfile(target)
+
+        if 'commons' in shop_patches or 'uniques' in shop_patches:
+            patches: dict = {}
+            if 'commons' in shop_patches:
+                patches['commons'] = shop_patches['commons']
+            if 'uniques' in shop_patches:
+                patches['uniques'] = shop_patches['uniques']
+
+            self.patch_shops_precise(target, patches)
+
+    def patch_shops_precise(self, target_file: str, patches: dict):
+        original_data_file: str = os.path.join(self.data_dir, "shop_items.json")
+        assert os.path.isfile(original_data_file), f"Cannot find {original_data_file}"
+
+        original_data: dict = json.load(open(original_data_file), object_hook=utils.keys_to_int)
+
+        shop_items: dict = {}
+        if 'commons' in patches:
+            for entry in patches['commons']:
+                for shop in entry['shops']:
+                    shop_items.setdefault(shop, set()).update(entry['items'])
+
+            for entry in original_data['items']['commons']:
+                m_shops: list = [shop for shop in entry['shops'] if shop in original_data['missables']]
+                if not m_shops: continue
+                for shop in m_shops:
+                    shop_items.setdefault(shop, set()).update(entry['items'])
+
+        if 'uniques' in patches:
+            for shop, items in patches['uniques'].items():
+                shop_items.setdefault(shop, set()).update(items)
+
+            for shop in original_data['missables']:
+                if shop not in original_data['items']['uniques']: continue
+                shop_items.setdefault(shop, set()).update(original_data['items']['uniques'][shop])
+
+        for shop, items in (shop_items.items()):
+            shop_items[shop] = sorted(items)
+
+        shop_items = dict(sorted(shop_items.items()))
+
+        item_start: int = 0x980
+        item_count: int = 1521
+
+        with open(target_file, 'r+b') as f:
+            mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+            mm.seek(item_start)
+
+            count: int = 0
+            for shop, items in shop_items.items():
+                if count >= item_count: break
+                for item in items:
+                    shop_entry_data = vtypes.ShopItemEntry(shop, item)
+                    mm.write(bytearray(shop_entry_data))
+
+                count += 1
+
+            mm.flush()
+            mm.close()

@@ -139,9 +139,9 @@ class InputTemplate:
             patch_data['items'] = items_input
             self.generate_items_report(items_input)
 
-        if not args or 'shop' in args:
+        if not args or 'shops' in args:
             shop_input = self.randomize_shops_input(self.generate_shop_items_input())
-            patch_data['shop'] = shop_input
+            patch_data['shops'] = shop_input
             self.generate_shop_items_report(shop_input)
 
         with open(output, 'w+') as f:
@@ -237,6 +237,7 @@ class InputTemplate:
 
         with open(self.report_output, "a+") as f:
             writer = csv.writer(f)
+            writer.writerow(["ARTES"])
             writer.writerow(field_names)
             writer.writerows(report_list)
             writer.writerow([""])
@@ -256,6 +257,7 @@ class InputTemplate:
 
         with open(self.report_output, "a+") as f:
             writer = csv.writer(f)
+            writer.writerow(["SKILLS"])
             writer.writerow(field_names)
             writer.writerows(report_list)
             writer.writerow([""])
@@ -286,6 +288,7 @@ class InputTemplate:
 
         with open(self.report_output, "a+") as f:
             writer = csv.writer(f)
+            writer.writerow(["ITEMS"])
             writer.writerow(field_names)
             writer.writerows(report_list)
             writer.writerow([""])
@@ -374,15 +377,13 @@ class InputTemplate:
 
         with open(self.report_output, "a+") as f:
             writer = csv.writer(f)
+            writer.writerow(["SHOP ITEMS"])
             writer.writerow(fields)
             writer.writerows(report_list)
             writer.writerow([""])
 
             f.flush()
             f.close()
-
-        print(len(processed_groups), processed_groups)
-        print(f"Missing: {set(shop_to_name.keys()).difference(processed_groups)}")
 
     def randomize_artes_input(self, patch):
         # Based on average amount of character artes with evolve conditions
@@ -673,38 +674,47 @@ class InputTemplate:
             if 1 < item['category'] < 10:
                 eligible_items.append(item['id'])
 
-        def _randomize_item(item, blacklist) -> int:
-            category: int = item_to_category[item]
+        def _randomize_item(itm, blacklist, stats_struct) -> int:
+            category: int = item_to_category[itm]
 
-            new_item: int = item
+            stats_struct['total'] += 1
+            new_item: int = itm
 
             # Consumables should rarely be randomized, but guarantee randomization if duplicated
-
             if category == 2:
-                if item in blacklist:
+                if itm in blacklist:
                     candidacy_chance = 2.00
                     same_category_chance = 2.00
                 else:
-                    candidacy_chance = 0.15
-                    same_category_chance = 0.6
+                    candidacy_chance = 0.3
+                    same_category_chance = 0.4
             else:
                 same_category_chance = 0.25
-                if item in blacklist:
+                if itm in blacklist:
                     candidacy_chance = 2.00
                 else:
-                    candidacy_chance = 0.85
+                    candidacy_chance = 0.9
 
             if self.random.random() <= candidacy_chance:
+                stats_struct['candidates'] += 1
                 # Randomize to an item of the same category
                 category_candidates = [*set(item_by_category[category]).difference(blacklist)]
                 if category_candidates and self.random.random() <= same_category_chance:
+                    stats_struct['sameCategory'] += 1
                     new_item = random.choice(category_candidates)
                 # Randomize to any eligible item
                 else:
+                    stats_struct['fullRandom'] += 1
                     new_item = random.choice([*set(eligible_items).difference(blacklist)])
 
             return new_item
 
+        stats: dict[str, int] = {
+            'total' : 0,
+            'candidates': 0,
+            'sameCategory': 0,
+            'fullRandom': 0,
+        }
         items_cache: dict[int, list[int]] = {}
         new_input['commons'] = []
         for grouping in patch['commons']:
@@ -717,7 +727,7 @@ class InputTemplate:
                     new_items.append(item)
                     continue
 
-                new_items.append(_randomize_item(item, {*new_items, *already_present}))
+                new_items.append(_randomize_item(item, {*new_items, *already_present}, stats))
 
             new_grouping['items'] = new_items
             new_input['commons'].append(new_grouping)
@@ -735,12 +745,21 @@ class InputTemplate:
                     new_items.append(item)
                     continue
 
-                new_items.append(_randomize_item(item, {*new_items, *already_present}))
+                new_items.append(_randomize_item(item, {*new_items, *already_present}, stats))
 
             new_input['uniques'][shop] = new_items
+
+        print("--- Shop Items Results -------------------")
+        print(f"Total Shop Items: {stats['total']}")
+
+        print(f"Randomized: {stats['candidates']} ({stats['candidates'] / stats['total'] * 100:.2f}%)")
+        print(f"Randomized by Same Category: "
+              f"{stats['sameCategory']} ({stats['sameCategory'] / stats['candidates'] * 100:.2f}%)")
+        print(f"Randomized against any Item: "
+              f"{stats['fullRandom']} ({stats['fullRandom'] / stats['candidates'] * 100:.2f}%)\n")
 
         return new_input
 
 if __name__ == "__main__":
     template = InputTemplate()
-    template.generate('shop')
+    template.generate()

@@ -384,7 +384,7 @@ class VesperiaPacker:
         self.hyouta.extract_svo(path, work_dir)
 
     def extract_scenario(self, lang = "ENG"):
-        target: str = f"scenario_{lang}.dat"
+        # target: str = f"scenario_{lang}.dat"
         path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_scenario))
         assert os.path.isfile(path)
 

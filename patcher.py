@@ -95,8 +95,6 @@ class VesperiaPatcher:
             mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
             mm.seek(0)
 
-            header = vtypes.SkillsHeader.from_buffer_copy(mm.read(header_size))
-
             for entry, patch in patched_data.items():
                 mm.seek(header_size + (entry * entry_size))
 

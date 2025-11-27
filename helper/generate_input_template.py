@@ -1,4 +1,3 @@
-import enum
 import datetime
 import random
 import math
@@ -9,41 +8,10 @@ import csv
 import sys
 import os
 
-from odfdo import Document, Table, Row, Column
+from odfdo import Document, Table, Row
 
 from utils import keys_to_int, strip_formatting
-
-
-class FatalStrikeType(enum.Enum):
-    INDIGO = 0
-    CRIMSON = 1
-    VIRIDIAN = 2
-    NONE = 3
-
-    @classmethod
-    def _missing_(cls, value):
-        return cls.NONE
-
-class Symbol(enum.Enum):
-    FLECK = 0
-    ROCKRA = 1
-    STRHIM = 2
-    LAYTOS = 3
-
-    @classmethod
-    def _missing_(cls, value):
-        return cls.FLECK
-
-class Characters(enum.Enum):
-    YURI = 1
-    ESTELLE = 2
-    KAROL = 4
-    RITA = 8
-    RAVEN = 16
-    JUDITH = 32
-    REPEDE = 64
-    FLYNN = 128
-    PATTY = 256
+from data.enums import Characters, Symbol, FatalStrikeType
 
 class InputTemplate:
     artes_data_table: dict
@@ -286,7 +254,8 @@ class InputTemplate:
 
         return report
 
-    def generate_shop_items_report(self, patched_items: dict) -> Table:
+    @staticmethod
+    def generate_shop_items_report(patched_items: dict) -> Table:
         data_file: str = os.path.join(".", "artifacts", "shop_items_data.json")
         assert os.path.isfile(data_file)
 
@@ -617,8 +586,8 @@ class InputTemplate:
             data = items_data_table[item['id']]
 
             characters: list[int] = []
-            for i, index in enumerate(Characters):
-                if data['character_usable'] & index.value > 0:
+            for i, character in enumerate(Characters):
+                if data['character_usable'] & character.value > 0:
                     characters.append(i + 1)
 
             # Randomize Buy Price
@@ -770,29 +739,29 @@ class InputTemplate:
         return new_input
 
 if __name__ == "__main__":
-    targets: list[str] = []
-    spoil: bool = False
+    target_list: list[str] = []
+    create_spoiler: bool = False
 
     scanning_content: int = 0
-    for i, arg in enumerate(sys.argv[1:]):
+    for index, arg in enumerate(sys.argv[1:]):
         if arg in ("-t", "--targets"):
-            scanning_content = i + 1
+            scanning_content = index + 1
         elif arg in ("-s", "--spoil"):
             if scanning_content:
-                targets = sys.argv[scanning_content:i + 2]
+                target_list = sys.argv[scanning_content:index + 2]
                 scanning_content = 0
 
-            spoil = True
+            create_spoiler = True
 
     start: float = time.time()
 
     template = InputTemplate()
-    template.generate(targets, spoil)
+    template.generate(target_list, create_spoiler)
 
     total: float = time.time() - start
 
     print(f"\n[-/-] Patch Generation Finished\tTime: {total:.2f} seconds")
     print(f"Patch File: {os.path.abspath(template.patch_output)}")
 
-    if spoil:
+    if create_spoiler:
         print(f"Spoiler File: {os.path.abspath(template.report_output)}")

@@ -4,10 +4,14 @@ import random
 import math
 import uuid
 import json
+import time
 import csv
+import sys
 import os
 
-import utils
+from odfdo import Document, Table, Row, Column
+
+from utils import keys_to_int, strip_formatting
 
 
 class FatalStrikeType(enum.Enum):
@@ -41,12 +45,6 @@ class Characters(enum.Enum):
     FLYNN = 128
     PATTY = 256
 
-def keys_to_int(x):
-    return {int(k) if (k).isdigit() else k : v for k, v in x.items()}
-
-def strip_formatting(string: str) -> str:
-    return string.replace("\n", "").replace("\t", "").replace("\r", "")
-
 class InputTemplate:
     artes_data_table: dict
     skills_data_table: dict
@@ -61,11 +59,13 @@ class InputTemplate:
     random: random.Random
 
     patch_output: str = os.path.join(".", "artifacts", "tovde.appatch")
-    report_output: str = os.path.join(".", "artifacts", "tovde-report.csv")
+    report_output: str = os.path.join(".", "artifacts", "tovde-spoiler.ods")
 
     def __init__(self, seed = random.randint(1, 10000)):
         self.seed = uuid.uuid1().int
         self.random = random.Random(seed)
+
+        self.report_output = os.path.join(".", "artifacts", f"tovde-spoiler-{self.seed}.ods")
 
         artes_id_table: str = os.path.join('.', 'artifacts', 'artes_id_table.csv')
         skills_id_table: str = os.path.join('.', 'artifacts', 'skills_id_table.csv')
@@ -108,7 +108,7 @@ class InputTemplate:
         return int(math.ceil(min(max(self.random.gauss(mu, sigma), range_min), range_max)))
 
 
-    def generate(self, *args):
+    def generate(self, targets: list, spoil: bool = False):
         output: str = self.patch_output
 
         manifest: str = "./builds/manifests"
@@ -124,25 +124,24 @@ class InputTemplate:
         if os.path.isfile(self.report_output):
             os.remove(self.report_output)
 
-        if not args or 'artes' in args:
+        if not targets or 'artes' in targets:
             artes_input = self.randomize_artes_input([arte_entry for arte_entry in self.generate_artes_input()])
             patch_data['artes'] = artes_input
-            self.generate_artes_report(artes_input)
 
-        if not args or 'skills' in args:
+        if not targets or 'skills' in targets:
             skills_input = self.randomize_skills_input(self.generate_skills_input())
             patch_data['skills'] = skills_input
-            self.generate_skills_report(skills_input)
 
-        if not args or 'items' in args:
+        if not targets or 'items' in targets:
             items_input = self.randomize_items_input(self.generate_items_input())
             patch_data['items'] = items_input
-            self.generate_items_report(items_input)
 
-        if not args or 'shops' in args:
+        if not targets or 'shops' in targets:
             shop_input = self.randomize_shops_input(self.generate_shop_items_input())
             patch_data['shops'] = shop_input
-            self.generate_shop_items_report(shop_input)
+
+        if spoil:
+            self.generate_spoiler_file(dict(item for item in [*patch_data.items()][4:]))
 
         with open(output, 'w+') as f:
             json.dump(patch_data, f, indent=4)
@@ -175,7 +174,7 @@ class InputTemplate:
 
         return json.load(open(shop_items_data), object_hook=keys_to_int)
 
-    def generate_artes_report(self, patched_artes: dict):
+    def generate_artes_report(self, patched_artes: dict) -> Table:
         report_list: list = []
         for arte in [*patched_artes.values()]:
             learn_conditions: list = []
@@ -235,17 +234,14 @@ class InputTemplate:
                                   "Evolve Condition 4", "Evolve Parameter 4",
                                   "Fatal Strike Type"]
 
-        with open(self.report_output, "a+") as f:
-            writer = csv.writer(f)
-            writer.writerow(["ARTES"])
-            writer.writerow(field_names)
-            writer.writerows(report_list)
-            writer.writerow([""])
+        report: Table = Table("ARTES")
+        report.set_row_values(0, field_names)
+        for i, row in enumerate(report_list):
+            report.set_row_values(i + 1, row)
 
-            f.flush()
-            f.close()
+        return report
 
-    def generate_skills_report(self, patched_skills: dict):
+    def generate_skills_report(self, patched_skills: dict) -> Table:
         report_list: list = []
         for skill in [*patched_skills.values()]:
             report_list.append([
@@ -255,17 +251,14 @@ class InputTemplate:
 
         field_names: list[str] = ["Skill", "SP", "LP", "Symbol", "Symbol Weight", "Equippable"]
 
-        with open(self.report_output, "a+") as f:
-            writer = csv.writer(f)
-            writer.writerow(["SKILLS"])
-            writer.writerow(field_names)
-            writer.writerows(report_list)
-            writer.writerow([""])
+        report: Table = Table("SKILLS")
+        report.set_row_values(0, field_names)
+        for i, row in enumerate(report_list):
+            report.set_row_values(i + 1, row)
 
-            f.flush()
-            f.close()
+        return report
 
-    def generate_items_report(self, patched_items: dict):
+    def generate_items_report(self, patched_items: dict) -> Table:
         id_file: str = os.path.join(".", "artifacts", "items_id_table.csv")
         assert os.path.isfile(id_file)
 
@@ -286,24 +279,21 @@ class InputTemplate:
         field_names: list[str] = ["Item", "Price", "Skill 1", "Skill 1 LP", "Skill 2", "Skill 2 LP",
                                   "Skill 3", "Skill 3 LP",]
 
-        with open(self.report_output, "a+") as f:
-            writer = csv.writer(f)
-            writer.writerow(["ITEMS"])
-            writer.writerow(field_names)
-            writer.writerows(report_list)
-            writer.writerow([""])
+        report: Table = Table("ITEMS")
+        report.set_row_values(0, field_names)
+        for i, row in enumerate(report_list):
+            report.set_row_values(i + 1, row)
 
-            f.flush()
-            f.close()
+        return report
 
-    def generate_shop_items_report(self, patched_items: dict):
+    def generate_shop_items_report(self, patched_items: dict) -> Table:
         data_file: str = os.path.join(".", "artifacts", "shop_items_data.json")
         assert os.path.isfile(data_file)
 
         id_file: str = os.path.join(".", "artifacts", "items_id_table.csv")
         assert os.path.isfile(id_file)
 
-        missable_shops_ids: set[int] = {1, 27, 28, 29, 34, 36, 39}
+        # missable_shops_ids: set[int] = {1, 27, 28, 29, 34, 36, 39}
         shop_to_name: dict = {
             1: "Dummy",
             7: "Fortune's Market (Imperial Capital) I",
@@ -342,7 +332,7 @@ class InputTemplate:
             41: "Fortune's Market (Mantaic) II",
         }
 
-        groupings: dict = json.load(open(data_file), object_hook=utils.keys_to_int)['groups']
+        # groupings: dict = json.load(open(data_file), object_hook=utils.keys_to_int)['groups']
         id_table: dict = {int(data['ID']): strip_formatting(data['Name'])
                           for data in csv.DictReader(open(id_file))}
 
@@ -360,30 +350,45 @@ class InputTemplate:
 
         max_count: int = 0
         for shop, items in items_by_shop.items():
-            if len(items) > max_count: max_count = len(items)
+            max_count = max(max_count, len(items))
             items_by_shop[shop] = [*sorted(items)]
 
-        sorted_keys: list[int] = [*sorted(items_by_shop.keys())]
-        fields: list[str] = [shop_to_name[shop] for shop in sorted_keys if shop > 6]
-        report_list: list = [[] for _ in range(max_count)]
+        max_count += 1
+
+        report: Table = Table("SHOPS")
+
         for _ in range(max_count):
-            for shop in sorted_keys:
-                if shop < 7: continue
+            report.append_row(Row(len(items_by_shop.keys())))
 
-                if _ < len(items_by_shop[shop]):
-                    report_list[_].append(id_table[items_by_shop[shop][_]])
-                else:
-                    report_list[_].append("")
+        count: int = 0
+        for shop, items in items_by_shop.items():
+            if shop < 7: continue
+            report.set_column_values(count, [shop_to_name[shop],
+                                             *[id_table[i] for i in items],
+                                             *["" for _ in range(max_count - (len(items) + 1))]])
+            count += 1
 
-        with open(self.report_output, "a+") as f:
-            writer = csv.writer(f)
-            writer.writerow(["SHOP ITEMS"])
-            writer.writerow(fields)
-            writer.writerows(report_list)
-            writer.writerow([""])
+        return report
 
-            f.flush()
-            f.close()
+    def generate_spoiler_file(self, patch_data: dict):
+        print("> Generating Spoiler...")
+        reports: list[Table] = []
+
+        for entry, data in patch_data.items():
+            if entry == "artes":
+                reports.append(self.generate_artes_report(data))
+            elif entry == "skills":
+                reports.append(self.generate_skills_report(data))
+            elif entry == "items":
+                reports.append(self.generate_items_report(data))
+            elif entry == "shops":
+                reports.append(self.generate_shop_items_report(data))
+
+
+        spoiler: Document = Document("spreadsheet")
+        spoiler.body.clear()
+        spoiler.body.extend(reports)
+        spoiler.save(self.report_output)
 
     def randomize_artes_input(self, patch):
         # Based on average amount of character artes with evolve conditions
@@ -417,6 +422,7 @@ class InputTemplate:
             target_arte[f'learn_parameter{count}'] = parameter
             target_arte[f'unknown{count + 2}'] = meta
 
+        print("> Randomizing Artes...")
         new_input = {}
 
         r_candidates: int = 0
@@ -528,6 +534,7 @@ class InputTemplate:
     def randomize_skills_input(self, patch):
         symbol_distribution: list[float] = [0.28, 0.20, 0.27, 0.25]
 
+        print("> Randomizing Skills...")
         new_input: dict = {}
 
         r_candidates: int = 0
@@ -595,6 +602,7 @@ class InputTemplate:
         if 'base' not in patch:
             return new_input
 
+        print("> Randomizing Items...")
         new_input['base'] = {}
 
         r_candidates: int = 0
@@ -709,6 +717,7 @@ class InputTemplate:
 
             return new_item
 
+        print("> Randomizing Shop Items...")
         stats: dict[str, int] = {
             'total' : 0,
             'candidates': 0,
@@ -761,5 +770,29 @@ class InputTemplate:
         return new_input
 
 if __name__ == "__main__":
+    targets: list[str] = []
+    spoil: bool = False
+
+    scanning_content: int = 0
+    for i, arg in enumerate(sys.argv[1:]):
+        if arg in ("-t", "--targets"):
+            scanning_content = i + 1
+        elif arg in ("-s", "--spoil"):
+            if scanning_content:
+                targets = sys.argv[scanning_content:i + 2]
+                scanning_content = 0
+
+            spoil = True
+
+    start: float = time.time()
+
     template = InputTemplate()
-    template.generate()
+    template.generate(targets, spoil)
+
+    total: float = time.time() - start
+
+    print(f"\n[-/-] Patch Generation Finished\tTime: {total:.2f} seconds")
+    print(f"Patch File: {os.path.abspath(template.patch_output)}")
+
+    if spoil:
+        print(f"Spoiler File: {os.path.abspath(template.report_output)}")

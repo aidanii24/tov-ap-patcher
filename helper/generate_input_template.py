@@ -851,11 +851,11 @@ class InputTemplate:
                 if self.random.random() <= 0.5 and base_amount > 100:
                     new_amt = math.ceil(new_amt * self.random.randrange(1, 15) / 10)
                 else:
-                    new_amt = math.ceil(new_amt * self.random.randrange(2, 5) / 10)
+                    new_amt = math.ceil(new_amt * self.random.randrange(2, 10))
 
             return new_amt
 
-        print("> Randomizing Shop Items...")
+        print("> Randomizing Chest Items...")
         stats: dict[str, int] = {
             'total': 0,
             'candidates': 0,
@@ -891,7 +891,7 @@ class InputTemplate:
 
 
 if __name__ == "__main__":
-    target_list: list[str] = []
+    target_list: list[str] = ['chests']
     create_spoiler: bool = False
 
     scanning_content: int = 0

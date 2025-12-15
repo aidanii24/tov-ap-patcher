@@ -257,15 +257,9 @@ class InputTemplate:
         return report
 
     def generate_items_report(self, patched_items: dict) -> Table:
-        id_file: str = os.path.join(".", "artifacts", "items_id_table.csv")
-        assert os.path.isfile(id_file)
-
-        id_table: dict = {int(data['ID']): strip_formatting(data['Name'])
-                            for data in csv.DictReader(open(id_file))}
-
         report_list: list = []
         for item in [*patched_items['base'].values()]:
-            entry: list = [id_table[item['id']], item['buy_price']]
+            entry: list = [self.item_ids[item['id']], item['buy_price']]
             for _ in range(1, 4):
                 if item[f'skill{_}']:
                     entry.extend([self.skill_ids[item[f'skill{_}']], item[f'skill{_}_lp']])
@@ -284,13 +278,9 @@ class InputTemplate:
 
         return report
 
-    @staticmethod
-    def generate_shop_items_report(patched_items: dict) -> Table:
-        data_file: str = os.path.join(".", "artifacts", "shop_items_data.json")
-        assert os.path.isfile(data_file)
-
-        id_file: str = os.path.join(".", "artifacts", "items_id_table.csv")
-        assert os.path.isfile(id_file)
+    def generate_shop_items_report(self, patched_items: dict) -> Table:
+        # data_file: str = os.path.join(".", "artifacts", "shop_items_data.json")
+        # assert os.path.isfile(data_file)
 
         # missable_shops_ids: set[int] = {1, 27, 28, 29, 34, 36, 39}
         shop_to_name: dict = {
@@ -332,8 +322,6 @@ class InputTemplate:
         }
 
         # groupings: dict = json.load(open(data_file), object_hook=utils.keys_to_int)['groups']
-        id_table: dict = {int(data['ID']): strip_formatting(data['Name'])
-                          for data in csv.DictReader(open(id_file))}
 
         processed_groups: set[int] = set()
 
@@ -363,7 +351,7 @@ class InputTemplate:
         for shop, items in items_by_shop.items():
             if shop < 7: continue
             report.set_column_values(count, [shop_to_name[shop],
-                                             *[id_table[i] for i in items],
+                                             *[self.item_ids[i] for i in items],
                                              *["" for _ in range(max_count - (len(items) + 1))]])
             count += 1
 
@@ -625,10 +613,7 @@ class InputTemplate:
     def randomize_items_input(self, patch):
         skill_opportunities: list[float] = [0.96, 0.875, 0.61]
 
-        items_file: str = os.path.join(".", "data", "item.json")
-        assert os.path.isfile(items_file), f"File {items_file} does not exist."
-
-        items_data_table: dict = {item['id'] : item for item in json.load(open(items_file))['items']}
+        items_data_table: dict = {item['id'] : item for item in self.items_list}
 
         new_input: dict = {}
         if 'custom' in patch:
@@ -703,14 +688,11 @@ class InputTemplate:
         if 'commons' not in patch and 'uniques' not in patch:
             return new_input
 
-        items_file: str = os.path.join(".", "data", "item.json")
-        assert os.path.isfile(items_file), f"File {items_file} does not exist."
-
         item_to_category: dict = {}
         item_by_category: dict = {}
         eligible_items: list[int] = []
 
-        for item in json.load(open(items_file))['items']:
+        for item in self.items_list:
             item_to_category[item['id']] = item['category']
             item_by_category.setdefault(item['category'], []).append(item['id'])
 
@@ -909,7 +891,7 @@ class InputTemplate:
 
 
 if __name__ == "__main__":
-    target_list: list[str] = ["chests"]
+    target_list: list[str] = []
     create_spoiler: bool = False
 
     scanning_content: int = 0

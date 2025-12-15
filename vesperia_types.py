@@ -611,6 +611,9 @@ class ChestItemEntry(ctypes.Structure):
         ("amount", ctypes.c_uint32),
     ]
 
+    def to_dict(self):
+        return {"item_id": self.item_id, "amount": self.amount}
+
 class TSSHeader(ctypes.Structure):
     _pack_ = 1
     _fields_ = [

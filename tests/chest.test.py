@@ -1,5 +1,6 @@
 import ctypes
 import mmap
+import json
 import csv
 import os
 
@@ -102,19 +103,26 @@ def generate_chest_table(game_maps: list[str]):
         file_name: str = file.split("/")[-3]
         if file_name == "NPC": continue
         print(f"Processing {file_name}")
-        chests[file_name] = get_chests(file)
 
-    output: str = os.path.join(".", "artifacts", "chest_table.csv")
+        entries: dict = {chest : [i.to_dict() for i in items]
+                         for chest, items in get_chests(file).items()}
+        chests[file_name] = entries
+
+    output: str = os.path.join("..", "artifacts", "chests.json")
     with open(output, "w+") as f:
-        writer = csv.writer(f)
-        writer.writerow(["Chest ID", "Amount", "Item"])
+        json.dump(chests, f, indent=4)
 
-        for game_map, contents in chests.items():
-            writer.writerow([game_map])
-            for chest, items in contents.items():
-                writer.writerow([chest, items[0].amount, items[0].item_id])
-                if len(items) > 1:
-                    writer.writerows([["", item.amount, item.item_id] for item in items[1:]])
+    # output: str = os.path.join(".", "artifacts", "chest_table.csv")
+    # with open(output, "w+") as f:
+    #     writer = csv.writer(f)
+    #     writer.writerow(["Chest ID", "Amount", "Item"])
+    #
+    #     for game_map, contents in chests.items():
+    #         writer.writerow([game_map])
+    #         for chest, items in contents.items():
+    #             writer.writerow([chest, items[0].amount, items[0].item_id])
+    #             if len(items) > 1:
+    #                 writer.writerows([["", item.amount, item.item_id] for item in items[1:]])
 
     # output: str = os.path.join("..", "helper", "artifacts", "chests.txt")
     # with open(output, "w+") as f:
@@ -161,4 +169,5 @@ def get_chests(target) -> dict:
 if __name__ == "__main__":
     maps: list[str] = get_chest_maps()
     generate_maps(maps)
+    generate_chest_table(maps)
 

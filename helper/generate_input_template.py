@@ -17,11 +17,13 @@ class InputTemplate:
     artes_data_table: dict
     skills_data_table: dict
 
-    arte_ids: dict
+    artes_ids: dict
     skill_ids: dict
+    item_ids: dict
 
     artes_by_char: dict[int, list[int]]
     skills_by_char: dict[int, list[int]]
+    items_list: dict
 
     seed: int
     random: random.Random
@@ -29,47 +31,64 @@ class InputTemplate:
     patch_output: str = os.path.join(".", "artifacts", "tovde.appatch")
     report_output: str = os.path.join(".", "artifacts", "tovde-spoiler.ods")
 
-    def __init__(self, seed = random.randint(1, 10000)):
+    def __init__(self, targets: list[str], seed = random.randint(1, 0xFFFFFFFF)):
         self.seed = uuid.uuid1().int
         self.random = random.Random(seed)
 
         self.report_output = os.path.join(".", "artifacts", f"tovde-spoiler-{self.seed}.ods")
 
-        artes_id_table: str = os.path.join('.', 'artifacts', 'artes_id_table.csv')
-        skills_id_table: str = os.path.join('.', 'artifacts', 'skills_id_table.csv')
-        artes_data_file: str = os.path.join('.', 'data', 'artes.json')
-        skills_data_file: str = os.path.join('.', 'data', 'skills.json')
-        skills_char_data_file: str = os.path.join('.', 'artifacts', 'skills_by_char.json')
+        if not targets or 'artes' in targets:
+            artes_id_table: str = os.path.join('.', 'artifacts', 'artes_id_table.csv')
+            artes_data_file: str = os.path.join('.', 'data', 'artes.json')
+            assert os.path.isfile(artes_id_table), f'{artes_id_table} does not exist'
+            assert os.path.isfile(artes_data_file), f'{artes_data_file} does not exist'
 
-        assert os.path.isfile(artes_data_file), f'{artes_data_file} does not exist'
-        assert os.path.isfile(skills_data_file), f'{skills_data_file} does not exist'
-        assert os.path.isfile(skills_char_data_file), f'{skills_char_data_file} does not exist'
-        assert os.path.isfile(artes_id_table), f'{artes_id_table} does not exist'
-        assert os.path.isfile(skills_id_table), f'{skills_id_table} does not exist'
+            self.artes_ids = {int(data['ID']): strip_formatting(data['Name'])
+                              for data in csv.DictReader(open(artes_id_table))}
 
-        self.artes_ids = {int(data['ID']) : strip_formatting(data['Name'])
-                          for data in csv.DictReader(open(artes_id_table))}
-        self.skill_ids = {int(data['ID']) : strip_formatting(data['Name'])
-                          for data in csv.DictReader(open(skills_id_table))}
+            artes_data = json.load(open(artes_data_file))['artes']
 
-        artes_data = json.load(open(artes_data_file))['artes']
-        skills_data = json.load(open(skills_data_file))['skills']
+            artes_data_table = {}
+            artes_by_char = {}
+            for arte in artes_data:
+                artes_data_table[int(arte['id'])] = arte
 
-        artes_data_table = {}
-        artes_by_char = {}
-        for arte in artes_data:
-            artes_data_table[int(arte['id'])] = arte
+                for char in arte['character_ids']:
+                    if arte['arte_type'] not in [12, 14, 15] and any(0 < chara < 10 for chara in arte['character_ids']) \
+                            and arte['tp_cost'] > 0:
+                        artes_by_char.setdefault(char, []).append(arte['id'])
 
-            for char in arte['character_ids']:
-                if arte['arte_type'] not in [12, 14, 15] and any(0 < chara < 10 for chara in arte['character_ids'])\
-                        and arte['tp_cost'] > 0:
-                    artes_by_char.setdefault(char, []).append(arte['id'])
+            self.artes_data_table = artes_data_table
+            self.artes_by_char = artes_by_char
 
-        self.artes_data_table = artes_data_table
-        self.skills_data_table = {skill['id'] : skill for skill in skills_data}
-        self.artes_by_char = artes_by_char
+        if not targets or {'artes', 'skills', 'items'}.intersection(targets):
+            skills_id_table: str = os.path.join('.', 'artifacts', 'skills_id_table.csv')
+            skills_data_file: str = os.path.join('.', 'data', 'skills.json')
+            skills_char_data_file: str = os.path.join('.', 'artifacts', 'skills_by_char.json')
 
-        self.skills_by_char = json.load(open(skills_char_data_file), object_hook=keys_to_int)
+            assert os.path.isfile(skills_data_file), f'{skills_data_file} does not exist'
+            assert os.path.isfile(skills_char_data_file), f'{skills_char_data_file} does not exist'
+            assert os.path.isfile(skills_id_table), f'{skills_id_table} does not exist'
+
+            self.skill_ids = {int(data['ID']): strip_formatting(data['Name'])
+                              for data in csv.DictReader(open(skills_id_table))}
+
+            skills_data = json.load(open(skills_data_file))['skills']
+
+            self.skills_data_table = {skill['id']: skill for skill in skills_data}
+
+            self.skills_by_char = json.load(open(skills_char_data_file), object_hook=keys_to_int)
+
+        if not targets or {'items', 'shops', 'chests'}.intersection(targets):
+            id_file: str = os.path.join(".", "artifacts", "items_id_table.csv")
+            items_file: str = os.path.join(".", "data", "item.json")
+            assert os.path.isfile(id_file)
+            assert os.path.isfile(items_file), f"File {items_file} does not exist."
+
+            self.item_ids = {int(data['ID']): strip_formatting(data['Name'])
+                              for data in csv.DictReader(open(id_file))}
+
+            self.items_list = json.load(open(items_file))['items']
 
     def random_from_distribution(self, mu: float, sigma: float, range_min: float = -math.inf,
                                  range_max: float = math.inf):
@@ -108,6 +127,10 @@ class InputTemplate:
             shop_input = self.randomize_shops_input(self.generate_shop_items_input())
             patch_data['shops'] = shop_input
 
+        if not targets or 'chests' in targets:
+            chests_input = self.randomize_chests_input(self.generate_chests_input())
+            patch_data['chests'] = chests_input
+
         if spoil:
             self.generate_spoiler_file(dict(item for item in [*patch_data.items()][4:]))
 
@@ -141,6 +164,13 @@ class InputTemplate:
         assert os.path.isfile(shop_items_data)
 
         return json.load(open(shop_items_data), object_hook=keys_to_int)
+
+    @staticmethod
+    def generate_chests_input() -> dict:
+        chests_data: str = os.path.join(".", "artifacts", "chests.json")
+        assert os.path.isfile(chests_data)
+
+        return json.load(open(chests_data))
 
     def generate_artes_report(self, patched_artes: dict) -> Table:
         report_list: list = []
@@ -339,6 +369,39 @@ class InputTemplate:
 
         return report
 
+    def generate_chests_report(self, patched_items: dict) -> Table:
+        def _get_item_name(item_id: int) -> str:
+            if item_id == 0xFFFFFFFE:
+                return "Gald"
+            elif item_id in self.item_ids:
+                return self.item_ids[item_id]
+            else:
+                return str(item_id)
+
+        name_file: str = "./artifacts/named_npc_maps.json"
+        assert os.path.isfile(name_file), f"'{name_file}' not found"
+
+        id_to_name: dict[str, str] = json.load(open(name_file))
+
+        report_list = []
+        for area, chests in sorted(patched_items.items()):
+            report_list.append([id_to_name.get(area, area)])
+            for chest, contents in chests.items():
+                report_list.append([(id_to_name.get(chest, chest)),
+                                    _get_item_name(contents[0]['item_id']),
+                                    contents[0]['amount']])
+                for content in contents[1:]:
+                    report_list.append(["", _get_item_name(content['item_id']), content['amount']])
+
+        field_names: list[str] = ["Chest", "Item", "Amount"]
+
+        report: Table = Table("CHESTS")
+        report.set_row_values(0, field_names)
+        for i, row in enumerate(report_list):
+            report.set_row_values(i + 1, row)
+
+        return report
+
     def generate_spoiler_file(self, patch_data: dict):
         print("> Generating Spoiler...")
         reports: list[Table] = []
@@ -352,7 +415,10 @@ class InputTemplate:
                 reports.append(self.generate_items_report(data))
             elif entry == "shops":
                 reports.append(self.generate_shop_items_report(data))
+            elif entry == "chests":
+                reports.append(self.generate_chests_report(data))
 
+        if not reports or None in reports: return
 
         spoiler: Document = Document("spreadsheet")
         spoiler.body.clear()
@@ -738,8 +804,112 @@ class InputTemplate:
 
         return new_input
 
+    def randomize_chests_input(self, patch):
+        new_input: dict = {}
+
+        gald_id: int = 0xFFFFFFFE
+
+        item_to_category: dict = {}
+        item_by_category: dict = {}
+        eligible_items: list[int] = [gald_id]
+
+        for item in self.items_list:
+            item_to_category[item['id']] = item['category']
+            item_by_category.setdefault(item['category'], []).append(item['id'])
+
+            if 1 < item['category'] < 10:
+                eligible_items.append(item['id'])
+
+        def _randomize_entry(itm, stats_struct) -> dict[str, int]:
+            category: int = item_to_category.get(itm['item_id'], 0) if itm['item_id'] != gald_id else -1
+
+            if category != -1 and (category <= 1 or category >= 10): return itm
+            stats_struct['total'] += 1
+
+            new_item: int = itm['item_id']
+            new_amt: int = item['amount']
+
+            # Consumables should rarely be randomized, but guarantee randomization if duplicated
+            candidacy_chance : float = 0.85
+            same_category_chance : float = 0.2 if not category == -1 else 0.85
+
+            if self.random.random() <= candidacy_chance:
+                stats_struct['candidates'] += 1
+                # Randomize to an item of the same category
+                if self.random.random() <= same_category_chance:
+                    if category != -1:
+                        stats_struct['sameCategory'] += 1
+                        new_item = random.choice(item_by_category[category])
+                # Randomize to any eligible item
+                else:
+                    stats_struct['fullRandom'] += 1
+                    new_item = random.choice(eligible_items)
+
+            if new_item != gald_id and self.random.random() <= 0.1:
+                stats_struct['amount'] += 1
+                new_amt = self.random.randrange(1, 15)
+            elif new_item == gald_id:
+                stats_struct['gald_amount'] += 1
+                new_amt = _randomize_gald_amount(new_amt)
+
+            new_item: dict = {
+                'item_id': new_item,
+                'amount': new_amt,
+            }
+
+            if new_item == gald_id:
+                new_item['amount'] = _randomize_gald_amount(new_amt)
+
+            return new_item
+
+        def _randomize_gald_amount(base_amount: int) -> int:
+            new_amt: int = base_amount
+
+            if self.random.random() <= 0.9:
+                if self.random.random() <= 0.5 and base_amount > 100:
+                    new_amt = math.ceil(new_amt * self.random.randrange(1, 15) / 10)
+                else:
+                    new_amt = math.ceil(new_amt * self.random.randrange(2, 5) / 10)
+
+            return new_amt
+
+        print("> Randomizing Shop Items...")
+        stats: dict[str, int] = {
+            'total': 0,
+            'candidates': 0,
+            'sameCategory': 0,
+            'fullRandom': 0,
+            'gald_amount': 0,
+            'amount': 0
+        }
+        for area, chests in patch.items():
+            new_input[area] = {}
+            for chest, items in chests.items():
+                new_input[area][chest] = []
+                for item in items:
+                    if item['item_id'] == gald_id or 1 < item_to_category.get(item['item_id'], 0) < 10:
+                        new_input[area][chest].append(_randomize_entry(item, stats))
+                    else:
+                        new_input[area][chest].append(item)
+
+        print("--- Chests Results -------------------")
+        print(f"Total Shop Items: {stats['total']}")
+
+        print(f"Randomized: {stats['candidates']} ({stats['candidates'] / stats['total'] * 100:.2f}%)")
+        print(f"Randomized by Same Category: "
+              f"{stats['sameCategory']} ({stats['sameCategory'] / stats['candidates'] * 100:.2f}%)")
+        print(f"Randomized against any Item: "
+              f"{stats['fullRandom']} ({stats['fullRandom'] / stats['candidates'] * 100:.2f}%)")
+        print(f"Randomized Amount: "
+              f"{stats['amount']} ({stats['amount'] / stats['candidates'] * 100:.2f}%)")
+        print(f"Randomized Gald: "
+              f"{stats['gald_amount']} ({stats['gald_amount'] / stats['candidates'] * 100:.2f}%)\n")
+
+        return new_input
+
+
 if __name__ == "__main__":
-    target_list: list[str] = []
+    target_list: list[str] = ["chests"]
     create_spoiler: bool = False
 
     scanning_content: int = 0
@@ -755,12 +925,12 @@ if __name__ == "__main__":
 
     start: float = time.time()
 
-    template = InputTemplate()
+    template = InputTemplate(target_list)
     template.generate(target_list, create_spoiler)
 
     total: float = time.time() - start
 
-    print(f"\n[-/-] Patch Generation Finished\tTime: {total:.2f} seconds")
+    print(f"\n[-/-] Patch Generation Finished\t\tTime: {total:.2f} seconds")
     print(f"Patch File: {os.path.abspath(template.patch_output)}")
 
     if create_spoiler:

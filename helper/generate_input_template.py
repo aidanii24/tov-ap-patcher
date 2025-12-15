@@ -808,8 +808,8 @@ class InputTemplate:
             if category != -1 and (category <= 1 or category >= 10): return itm
             stats_struct['total'] += 1
 
-            new_item: int = itm['item_id']
-            new_amt: int = item['amount']
+            new_id: int = itm['item_id']
+            new_amt: int = itm['amount']
 
             # Consumables should rarely be randomized, but guarantee randomization if duplicated
             candidacy_chance : float = 0.85
@@ -821,26 +821,24 @@ class InputTemplate:
                 if self.random.random() <= same_category_chance:
                     if category != -1:
                         stats_struct['sameCategory'] += 1
-                        new_item = random.choice(item_by_category[category])
+                        new_id = random.choice(item_by_category[category])
                 # Randomize to any eligible item
                 else:
                     stats_struct['fullRandom'] += 1
-                    new_item = random.choice(eligible_items)
+                    new_id = random.choice(eligible_items)
 
-            if new_item != gald_id and self.random.random() <= 0.1:
+
+            if new_id != gald_id and self.random.random() <= 0.1:
                 stats_struct['amount'] += 1
                 new_amt = self.random.randrange(1, 15)
-            elif new_item == gald_id:
+            elif new_id == gald_id:
                 stats_struct['gald_amount'] += 1
                 new_amt = _randomize_gald_amount(new_amt)
 
             new_item: dict = {
-                'item_id': new_item,
+                'item_id': new_id,
                 'amount': new_amt,
             }
-
-            if new_item == gald_id:
-                new_item['amount'] = _randomize_gald_amount(new_amt)
 
             return new_item
 

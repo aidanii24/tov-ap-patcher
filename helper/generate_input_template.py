@@ -873,7 +873,7 @@ class InputTemplate:
                         new_input[area][chest].append(item)
 
         print("--- Chests Results -------------------")
-        print(f"Total Shop Items: {stats['total']}")
+        print(f"Total Chest Items: {stats['total']}")
 
         print(f"Randomized: {stats['candidates']} ({stats['candidates'] / stats['total'] * 100:.2f}%)")
         print(f"Randomized by Same Category: "

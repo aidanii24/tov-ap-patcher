@@ -66,17 +66,21 @@ def get_chest_maps() -> list[str]:
 
     game_maps: list[str] = []
     npc_files = os.listdir(npc)
-    for npc_file in npc_files:
-        file_name: str = npc_file.strip(".DAT")
+
+    for npc_file in sorted(npc_files):
+        print(f"> Processing {npc_file}")
+        file_name: str = npc_file.rstrip(".DAT")
         if not os.path.isdir(os.path.join(work_dir, file_name)):
             packer.extract_map(npc_file)
 
         chests_file: str = os.path.join(work_dir, file_name, f"{file_name}.tlzc.ext", "0004")
         if not os.path.isfile(chests_file):
+            print(f"<!> No chest file! Expected at {chests_file}")
             continue
 
         extracted_file: str = chests_file + ".tlzc"
         game_maps.append(extracted_file)
+        print(f"[-/-] Successfully extracted.")
         if not os.path.isfile(extracted_file):
             packer.decompress_data(chests_file)
 
@@ -112,17 +116,17 @@ def generate_chest_table(game_maps: list[str]):
     with open(output, "w+") as f:
         json.dump(chests, f, indent=4)
 
-    # output: str = os.path.join(".", "artifacts", "chest_table.csv")
-    # with open(output, "w+") as f:
-    #     writer = csv.writer(f)
-    #     writer.writerow(["Chest ID", "Amount", "Item"])
-    #
-    #     for game_map, contents in chests.items():
-    #         writer.writerow([game_map])
-    #         for chest, items in contents.items():
-    #             writer.writerow([chest, items[0].amount, items[0].item_id])
-    #             if len(items) > 1:
-    #                 writer.writerows([["", item.amount, item.item_id] for item in items[1:]])
+    output: str = os.path.join("..", "artifacts", "chest_table.csv")
+    with open(output, "w+") as f:
+        writer = csv.writer(f)
+        writer.writerow(["Chest ID", "Amount", "Item"])
+
+        for game_map, contents in chests.items():
+            writer.writerow([game_map])
+            for chest, items in contents.items():
+                writer.writerow([chest, items[0]['amount'], items[0]['item_id']])
+                if len(items) > 1:
+                    writer.writerows([["", item['amount'], item['item_id']] for item in items[1:]])
 
     # output: str = os.path.join("..", "helper", "artifacts", "chests.txt")
     # with open(output, "w+") as f:

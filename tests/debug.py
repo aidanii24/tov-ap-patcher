@@ -41,3 +41,9 @@ def format_bytes(as_bytes: bytes):
             final += chunk[_ * 8: _ * 8 + 8] + " "
 
         print(final.upper())
+
+import os
+if __name__ == "__main__":
+    test: str = "../dependencies/comptoe"
+
+    print(os.access(test, os.X_OK))

@@ -5,7 +5,7 @@ import os
 
 import utils
 import vesperia_types as vtypes
-from vesperia_types import SkillsEntry
+from vesperia_types import SkillsEntry, ChestHeader, ChestEntry, ChestItemEntry
 
 
 class VesperiaPatcher:
@@ -207,6 +207,51 @@ class VesperiaPatcher:
                     mm.write(bytearray(shop_entry_data))
 
                 count += 1
+
+            mm.flush()
+            mm.close()
+
+    def patch_chests(self, target_file: str, patches: dict):
+        path: str = os.path.join(self.build_dir, "maps", target_file, "0004.tlzc")
+        assert os.path.isfile(path), f"Cannot find {path}"
+
+        header_size: int = ctypes.sizeof(ChestHeader)
+        chest_size: int = ctypes.sizeof(ChestEntry)
+        item_size: int = ctypes.sizeof(ChestItemEntry)
+
+        with open(path, 'r+b') as f:
+            mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+
+            header = ChestHeader.from_buffer_copy(mm.read(header_size))
+
+            chest_entries: list[dict] = []
+
+            mm.seek(header.chest_start)
+            for _ in range(header.chest_entries):
+                chest_id: int = int.from_bytes(mm.read(4), byteorder="little")
+
+                mm.seek(0x38, 1)
+                item_count: int = int.from_bytes(mm.read(4), byteorder="little")
+
+                chest_entries.append({
+                    "chest_id": chest_id,
+                    "item_count": item_count,
+                })
+
+            position: int = header.item_start
+            for chest in chest_entries:
+                if chest['chest_id'] in patches:
+                    mm.seek(position)
+                    for i, item in enumerate(patches[chest['chest_id']]):
+                        item = ChestItemEntry(*item.values())
+                        mm.write(bytearray(item))
+
+                        # Break in case of mismatched item count and prevent writing to other chest's item data
+                        if i - 1 >= chest['item_count']:
+                            break
+
+                # Correct position in case a chest/item is missing from the patch data
+                position += chest['item_count'] * item_size
 
             mm.flush()
             mm.close()

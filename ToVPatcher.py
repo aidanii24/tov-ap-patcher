@@ -40,6 +40,9 @@ class VesperiaPatcherApp:
         if 'shops' in self.patch_data:
             self.patch_scenario()
 
+        if 'chests' in self.patch_data:
+            self.patch_npc()
+
         self.packer.apply_patch()
         end: float = time.time()
 
@@ -81,6 +84,32 @@ class VesperiaPatcherApp:
             self.patcher.patch_shops(self.patch_data['shops'])
 
         self.packer.pack_scenario()
+
+    def patch_npc(self):
+        self.packer.unpack_npc()
+
+        if 'chests' in self.patch_data:
+            print("> Patching Chests...")
+            base_dir: str = os.path.join(self.packer.build_dir, "maps")
+            for area in self.patch_data['chests'].keys():
+                work_dir: str = os.path.join(base_dir, area)
+                chest_data: str = os.path.join(work_dir, area + ".tlzc.ext", "0004")
+
+                self.packer.extract_map(area)
+                self.packer.decompress_data(chest_data, os.path.join(work_dir, "0004"))
+
+            for area, chests in self.patch_data['chests'].items():
+                self.patcher.patch_chests(area, chests)
+
+            for area in self.patch_data['chests'].keys():
+                work_dir: str = os.path.join(base_dir, area)
+                dec_data: str = os.path.join(work_dir, "0004.tlzc")
+                chest_data: str = os.path.join(work_dir, area + ".tlzc.ext", "0004")
+
+                self.packer.compress_data(dec_data, chest_data)
+                self.packer.pack_map(area)
+
+        self.packer.copy_to_output('npc')
 
 if __name__ == '__main__':
     patch_file: str = ""

@@ -35,6 +35,7 @@ checksums: dict[str, str] = {
     "TOV_DE.exe": "ee3212432d063c3551f8d5eb9c8dde6d55a22240912ae9ea3411b3808bfb3827",
     "btl.svo": "bab8c0497665bd5a46f2ffabba5f4d2acc9fcdf0e4e0dd50c1b8199d3f6d7111",
     "item.svo": "d86e4e3d7df4d60c9c752f999e916d495c77b2ae321c18fe281a51464a5d4d25",
+    "npc.svo": "71a7d13dc3254b6981cf88b0f6142ea3a0603e21784bfce956982a37afba1333",
     "scenario_ENG.dat": "90a1e41ae829ba7f05e289aaba87cb4699e3ed27acc9448985f6f91261da8e2d"
 }
 
@@ -342,8 +343,8 @@ class VesperiaPacker:
         self.hyouta.extract_svo(path, base_build)
 
     def unpack_npc(self):
-        path: str = os.path.join(self.vesperia_dir, tov_npc)
-        base_build: str = os.path.join(self.build_dir, "npc", "npc")
+        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_npc))
+        base_build: str = os.path.join(self.build_dir, "npc")
         assert os.path.isfile(path)
 
         self.hyouta.extract_svo(path, base_build)
@@ -352,27 +353,22 @@ class VesperiaPacker:
         data_name: str = map_data if not map_data.endswith(".DAT") else map_data.replace(".DAT", "")
         data_file: str = data_name + ".DAT"
 
-        base: str = os.path.join(self.build_dir, "npc")
-        assert os.path.isdir(base)
+        path: str = os.path.join(self.build_dir, "npc", data_file)
+        assert os.path.isfile(path), f"Cannot find {path}"
 
-        path: str = os.path.join(base, "npc", data_file)
-        assert os.path.isfile(path)
-
-        work_dir: str = os.path.join(base, data_name)
-        if not os.path.isdir(work_dir): os.mkdir(work_dir)
+        work_dir: str = os.path.join(self.build_dir, "maps", data_name)
+        if not os.path.isdir(work_dir): os.makedirs(work_dir)
 
         decompress_name: str = f"{data_name}.tlzc"
         field_decompress: str = os.path.join(work_dir, decompress_name)
         self.hyouta.decompress_tlzc(path, field_decompress)
         self.hyouta.extract_svo(field_decompress, "", os.path.join(self.manifest_dir, decompress_name))
 
-        return field_decompress + ".ext"
+    def decompress_data(self, file: str, out: str = ""):
+        assert os.path.isfile(file), f"Cannot find {file}"
 
-    def decompress_data(self, file: str):
-        assert os.path.isfile(file)
-
-        out: str = file + ".tlzc"
-        self.hyouta.decompress_tlzc(file, out)
+        output: str = file if not out else out + ".tlzc"
+        self.hyouta.decompress_tlzc(file, output)
 
     def unpack_ui(self):
         path: str = os.path.join(self.vesperia_dir, tov_ui)
@@ -436,7 +432,7 @@ class VesperiaPacker:
         self.hyouta.pack_svo(path, os.path.join(self.build_dir, "BTL_PACK", "0010"))
 
     def pack_map(self, map_data: str):
-        base_dir: str = os.path.join(self.build_dir, "npc")
+        base_dir: str = os.path.join(self.build_dir, "maps")
         assert os.path.isdir(base_dir)
 
         data_name: str = map_data if not map_data.endswith(".DAT") else map_data.replace(".DAT", "")
@@ -450,18 +446,21 @@ class VesperiaPacker:
         map_decompressed: str = os.path.join(work_dir, data_name + ".tlzc")
         self.hyouta.pack_svo(manifest, os.path.join(work_dir, data_name + ".tlzc"))
 
-        data_file: str = os.path.join(base_dir, "npc", data_name + ".DAT")
+        data_file: str = os.path.join(self.build_dir, "npc", data_name + ".DAT")
         self.hyouta.compress_tlzc(map_decompressed, data_file)
 
-    def compress_data(self, file: str):
+    def compress_data(self, file: str, out: str = ""):
         assert os.path.isfile(file)
-        if file.endswith(".tlzc"):
-            out: str = file.replace(".tlzc", "")
+        if not out:
+            if file.endswith(".tlzc"):
+                output: str = file.replace(".tlzc", "")
+            else:
+                output: str = file
+                file = file + ".tlzc"
         else:
-            out: str = file
-            file = file + ".tlzc"
+            output: str = out
 
-        self.hyouta.compress_tlzc(file, out)
+        self.hyouta.compress_tlzc(file, output)
 
     def pack_scenario(self, lang = "ENG"):
         path: str = os.path.join(self.build_dir, "language")
@@ -513,6 +512,9 @@ class VesperiaPacker:
 
         if os.path.isdir(os.path.join(self.vesperia_dir, "Data64", "item")):
             detected_patches.append(os.path.join(self.vesperia_dir, "Data64", "item"))
+
+        if os.path.isdir(os.path.join(self.vesperia_dir, "Data64", "npc")):
+            detected_patches.append(os.path.join(self.vesperia_dir, "Data64", "npc"))
 
         if detected_patches:
             if not quiet: print("> Removing active patches...")

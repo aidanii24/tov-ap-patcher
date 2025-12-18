@@ -168,7 +168,7 @@ class VesperiaPacker:
         if not os.path.isfile(dependencies):
             VesperiaPacker.generate_config()
             print("> Please provide the paths to the dependencies in the config.json file, then try again.")
-            exit(0)
+            sys.exit(0)
         else:
             with open(dependencies, 'r+') as file:
                 data = json.load(file)
@@ -285,7 +285,7 @@ class VesperiaPacker:
                       "Try re-downloading the application then try again.")
 
         if err:
-            exit(1)
+            sys.exit(1)
 
     @staticmethod
     def verify_vesperia_file(filepath: str) -> bool:

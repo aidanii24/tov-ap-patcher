@@ -908,7 +908,7 @@ if __name__ == "__main__":
                 "\n\n\tTargets: \"artes\" | \"skills\" | \"items\" | \"shops\" | \"chests\""
                 "\n\tSpecifies targets to randomize. When left unspecified, will randomize all targets."
             )
-            exit(0)
+            sys.exit(0)
         elif arg in ("-s", "--spoil"):
             create_spoiler = True
         elif str(arg).lower() in targets:

@@ -150,7 +150,7 @@ if __name__ == '__main__':
                 "\n\t\t-r | --restore-backup\t\tRestore Backups of the original unmodified files if present "
                 "and remove all instances of patched files in the game directory"
             )
-            exit(0)
+            sys.exit(0)
         elif arg in ("-t", "--threads"):
             if len(sys.argv) - 1 - i > 1 and sys.argv[i + 2].isdigit():
                 threads = max(1, int(sys.argv[i + 2]))
@@ -160,7 +160,7 @@ if __name__ == '__main__':
         elif arg in ("-r", "--restore-backup"):
             packer = VesperiaPacker()
             packer.restore_backup()
-            exit(0)
+            sys.exit(0)
         elif os.path.isfile(arg) and arg.endswith(".appatch"):
             patch_file = arg
 

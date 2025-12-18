@@ -175,7 +175,7 @@ class VesperiaPacker:
 
                 if dependency_vesperia in data and data[dependency_vesperia]:
                     self.vesperia_dir = data[dependency_vesperia]
-                    self.backup_dir = os.path.join(self.vesperia_dir, "Data64", "_backup")
+                    self.backup_dir = os.path.join(self.vesperia_dir, "Data64", ".backup")
 
                 if dependency_dotnet in data and data[dependency_dotnet]:
                     dotnet_dir = data[dependency_dotnet]

@@ -146,7 +146,7 @@ if __name__ == '__main__':
                 "\n\n\tOptions:"
                 "\n\t\t-t | --threads <number of threads>\tThe number of threads to use. Default: 4."
                 "\n\t\t-a | --apply-immediately\tImmediately apply the patched files into the game directory, "
-                "and move the affected original files to a backup directory (<game_directory>/Data64/_backup)."
+                "and move the affected original files to a backup directory (<game_directory>/Data64/.backup)."
                 "\n\t\t-r | --restore-backup\t\tRestore Backups of the original unmodified files if present "
                 "and remove all instances of patched files in the game directory"
             )

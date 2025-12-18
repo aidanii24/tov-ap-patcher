@@ -13,6 +13,8 @@ from utils import keys_to_int
 from dataclass.enums import Characters, Symbol, FatalStrikeType
 
 
+wd: str = os.path.dirname(__file__)
+
 targets: list[str] = [
     'artes',
     'skills',
@@ -46,8 +48,8 @@ class InputTemplate:
         self.report_output = os.path.join(".", "patches", f"tovde-spoiler-{self.seed}.ods")
 
         if not targets or 'artes' in targets:
-            artes_ids_file: str = os.path.join('.', 'data', 'artes_id_table.json')
-            artes_data_file: str = os.path.join('.', 'data', 'artes.json')
+            artes_ids_file: str = os.path.join(wd, 'data', 'artes_id_table.json')
+            artes_data_file: str = os.path.join(wd, 'data', 'artes.json')
 
             assert os.path.isfile(artes_ids_file), f'{artes_ids_file} does not exist'
             assert os.path.isfile(artes_data_file), f'{artes_data_file} does not exist'
@@ -69,9 +71,9 @@ class InputTemplate:
             self.artes_by_char = artes_by_char
 
         if not targets or {'artes', 'skills', 'items'}.intersection(targets):
-            skills_ids_file: str = os.path.join('.', 'data', 'skills_id_table.json')
-            skills_data_file: str = os.path.join('.', 'data', 'skills.json')
-            skills_char_data_file: str = os.path.join('.', 'data', 'skills_by_char.json')
+            skills_ids_file: str = os.path.join(wd, 'data', 'skills_id_table.json')
+            skills_data_file: str = os.path.join(wd, 'data', 'skills.json')
+            skills_char_data_file: str = os.path.join(wd, 'data', 'skills_by_char.json')
 
             assert os.path.isfile(skills_data_file), f'{skills_ids_file} does not exist'
             assert os.path.isfile(skills_data_file), f'{skills_data_file} does not exist'
@@ -85,8 +87,8 @@ class InputTemplate:
             self.skills_by_char = json.load(open(skills_char_data_file), object_hook=keys_to_int)
 
         if not targets or {'items', 'shops', 'chests'}.intersection(targets):
-            items_ids_file: str = os.path.join(".", "data", "items_id_table.json")
-            items_file: str = os.path.join(".", "data", "item.json")
+            items_ids_file: str = os.path.join(wd, "data", "items_id_table.json")
+            items_file: str = os.path.join(wd, "data", "item.json")
 
             assert os.path.isfile(items_ids_file), f"File {items_file} does not exist."
             assert os.path.isfile(items_file), f"File {items_file} does not exist."
@@ -143,35 +145,35 @@ class InputTemplate:
 
     @staticmethod
     def generate_artes_input():
-        artes_data: str = os.path.join(".", "data", "templates", "artes_api.json")
+        artes_data: str = os.path.join(wd, "data", "templates", "artes_api.json")
         assert os.path.isfile(artes_data)
 
         return json.load(open(artes_data))
 
     @staticmethod
     def generate_skills_input() -> dict:
-        skills_data: str = os.path.join(".", "data", "templates", "skills_api.json")
+        skills_data: str = os.path.join(wd, "data", "templates", "skills_api.json")
         assert os.path.isfile(skills_data)
 
         return json.load(open(skills_data))
 
     @staticmethod
     def generate_items_input() -> dict:
-        items_data: str = os.path.join(".", "data", "templates", "items_api.json")
+        items_data: str = os.path.join(wd, "data", "templates", "items_api.json")
         assert os.path.isfile(items_data)
 
         return json.load(open(items_data))
 
     @staticmethod
     def generate_shop_items_input() -> dict:
-        shop_items_data: str = os.path.join(".", "data", "templates", "shop_items_api.json")
+        shop_items_data: str = os.path.join(wd, "data", "templates", "shop_items_api.json")
         assert os.path.isfile(shop_items_data)
 
         return json.load(open(shop_items_data), object_hook=keys_to_int)
 
     @staticmethod
     def generate_chests_input() -> dict:
-        chests_data: str = os.path.join(".", "data", "chests.json")
+        chests_data: str = os.path.join(wd, "data", "chests.json")
         assert os.path.isfile(chests_data)
 
         return json.load(open(chests_data))
@@ -370,7 +372,7 @@ class InputTemplate:
             else:
                 return str(item_id)
 
-        name_file: str = os.path.join(".", "data", "named_npc_maps.json")
+        name_file: str = os.path.join(wd, "data", "named_npc_maps.json")
         assert os.path.isfile(name_file), f"'{name_file}' not found"
 
         id_to_name: dict[str, str] = json.load(open(name_file))

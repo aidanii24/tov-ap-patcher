@@ -10,7 +10,7 @@ from vesperia_types import SkillsEntry, ChestHeader, ChestEntry, ChestItemEntry
 
 class VesperiaPatcher:
     build_dir: str = os.path.join(os.getcwd(), "builds")
-    data_dir: str = os.path.join(os.getcwd(), "data")
+    data_dir: str = os.path.join(os.path.dirname(__file__), "data")
 
     def __init__(self, patcher_id: str):
         self.build_dir = os.path.join(self.build_dir, patcher_id)

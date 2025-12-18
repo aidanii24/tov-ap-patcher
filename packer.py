@@ -18,7 +18,7 @@ dependency_hyouta = "hyouta"
 dependencies_comptoe = "comptoe"
 
 default_vesperia: str = os.path.join("steam", "steamapps", "common", "Tales of Vesperia Definitive Edition")
-default_backup: str = os.path.join(default_vesperia, "Data64", "_backup")
+default_backup: str = os.path.join(default_vesperia, "Data64", ".backup")
 default_dotnet: str = "dotnet"
 default_hyouta: str = os.path.join("HyoutaToolsCLI", "HyoutaToolsCLI.dll")
 default_comptoe: str = "comptoe"

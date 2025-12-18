@@ -14,3 +14,8 @@ config.json
 # Helper Artifacts
 /artifacts/*
 /global.json
+
+# Compile
+/build/
+/dist/
+*spec

@@ -171,7 +171,7 @@ class VesperiaPacker:
             os.makedirs(build_path)
 
         self.build_dir = build_path
-        self.manifest_dir = os.path.join(build_path, "manifests")
+        self.manifest_dir = os.path.join(build_path, ".manifests")
 
         if not os.path.isdir(self.manifest_dir):
             os.makedirs(self.manifest_dir)

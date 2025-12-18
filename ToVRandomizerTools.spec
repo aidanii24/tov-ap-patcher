@@ -1,9 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
-
+from PyInstaller.utils.hooks import collect_data_files
 from PyInstaller.utils.hooks import copy_metadata
 
-datas = [('data', 'data')]
-datas += copy_metadata('odfdo')\
+datas = [('data', '.')]
+datas += collect_data_files('odfdo')
+datas += copy_metadata('odfdo')
 
 
 patcher_a = Analysis(

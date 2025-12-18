@@ -43,7 +43,7 @@ class InputTemplate:
         self.seed = uuid.uuid1().int
         self.random = random.Random(seed)
 
-        self.report_output = os.path.join(".", "artifacts", f"tovde-spoiler-{self.seed}.ods")
+        self.report_output = os.path.join(".", "patches", f"tovde-spoiler-{self.seed}.ods")
 
         if not targets or 'artes' in targets:
             artes_ids_file: str = os.path.join('.', 'data', 'artes_id_table.json')

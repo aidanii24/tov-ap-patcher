@@ -23,7 +23,6 @@ class VesperiaPatcherApp:
         identifier = f"{self.patch_data['player']}-{self.patch_data['created'].split(' ')[0]}-{self.patch_data['seed']}"
 
         self.packer = VesperiaPacker(identifier, apply_immediately)
-        self.packer.check_dependencies()
 
         self.patcher = VesperiaPatcher(identifier)
 

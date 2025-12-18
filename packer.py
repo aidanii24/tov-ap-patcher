@@ -1,4 +1,5 @@
 import subprocess
+import platform
 import hashlib
 import shutil
 import sys
@@ -45,31 +46,51 @@ class Hyouta:
     dotnet: str = default_dotnet
     path: str = default_hyouta
 
-    def __init__(self, dotnet:str, path: str):
-        self.dotnet = dotnet
-        self.path = path
+    def __init__(self, path: str, dotnet = "dotnet"):
+        self.path: str = path
+        self.dotnet: str = dotnet
+
+        self.use_dotnet: bool = True
 
     def check_dependencies(self) -> bool:
         err: bool = False
 
-        try:
-            version = subprocess.check_output([self.dotnet, "--version"])
+        if platform.system() == "Windows" or self.path.endswith(".dll"):
+            print("Using dotnet!")
+            try:
+                version = subprocess.check_output([self.dotnet, "--version"])
 
-            assert version.decode('utf-8')[0] == "6"
-        except AssertionError:
-            err = True
-            print("Wrong Dependency: The installed .NET is incompatible with HyoutaToolsCLI. Please install .NET 6.0.")
-        except FileNotFoundError:
-            err = True
-            print("Missing Dependency: .NET 6.0 is not installed, or is not present in the provided path.")
-        except subprocess.CalledProcessError as e:
-            err = True
-            if e.returncode != 255:
-                print("Runtime Error: There was a problem calling .NET 6.0. "
-                      "Try re-installing the application then try again.")
+                assert version.decode('utf-8')[0] == "6"
+            except AssertionError:
+                err = True
+                print(
+                    "Wrong Dependency: The installed .NET is incompatible with HyoutaToolsCLI. Please install .NET 6.0.")
+            except FileNotFoundError:
+                err = True
+                print("Missing Dependency: .NET 6.0 is not installed, or is not present in the provided path.")
+            except subprocess.CalledProcessError as e:
+                err = True
+                if e.returncode != 255:
+                    print("Runtime Error: There was a problem calling .NET 6.0. "
+                          "Try re-installing the application then try again.")
+            except AssertionError:
+                err = True
+        else:
+            print("Using Compiled Binary!")
+            self.use_dotnet: bool = False
 
         try:
-            subprocess.check_output([self.dotnet, self.path])
+            if self.use_dotnet:
+                assert self.path.endswith(".dll"), \
+                    "Missing Dependency: The specified HyoutaToolsCLI file must be a DLL file."
+                command = [self.dotnet, self.path]
+            else:
+                executable: bool = os.access(self.path, os.X_OK)
+                assert executable, "Access Error: HyoutaToolsCLI does not have permission to be executed."
+
+                command: list = [self.path]
+
+            subprocess.check_output(command)
         except FileNotFoundError:
             err = True
             print("Missing Dependency: HyoutaToolsCLI was not found.")
@@ -78,11 +99,24 @@ class Hyouta:
                 err = True
                 print("Runtime Error: There was a problem calling HyoutaToolsCLI. "
                       "Try re-installing the application then try again.")
+        except AssertionError:
+            err = True
 
         return err
 
+    def build_base_command(self, *args) -> list[str]:
+        if self.use_dotnet:
+            command = [self.dotnet, self.path]
+        else:
+            command = [self.path]
+
+        command.extend(args)
+
+        return command
+
     def extract_svo(self, file: str, out: str="", manifest:str = ""):
-        command: list[str] = [self.dotnet, self.path, "ToVfps4e", file]
+        command: list[str] = self.build_base_command("ToVfps4e", file)
+
         if out:
             command.append(out)
 
@@ -92,29 +126,30 @@ class Hyouta:
         subprocess.check_output(command)
 
     def decompress_tlzc(self, file: str, out: str=""):
-        command: list[str] = [self.dotnet, self.path, "tlzc", "-d", file, out]
+        command: list[str] = self.build_base_command("tlzc", "-d", file, out)
 
         subprocess.check_output(command)
 
     def extract_scenario(self, file: str, dir_out: str=""):
-        command: list[str] = [self.dotnet, self.path, "Tales.Vesperia.Scenario.Extract", file, dir_out]
+        command: list[str] = self.build_base_command("Tales.Vesperia.Scenario.Extract", file, dir_out)
 
         subprocess.check_output(command)
 
     def pack_svo(self, manifest_file: str, out: str=""):
-        command: list[str] = [self.dotnet, self.path, "ToVfps4p", manifest_file]
+        command: list[str] = self.build_base_command("ToVfps4p", manifest_file)
+
         if out:
             command.append(out)
 
         subprocess.check_output(command)
 
     def compress_tlzc(self, file: str, out: str=""):
-        command: list[str] = [self.dotnet, self.path, "tlzc", "-c", file, out]
+        command: list[str] = self.build_base_command("tlzc", "-c", file, out)
 
         subprocess.check_output(command)
 
     def pack_scenario(self, file: str, dir_out: str=""):
-        command: list[str] = [self.dotnet, self.path, "Tales.Vesperia.Scenario.Pack", file, dir_out]
+        command: list[str] = self.build_base_command("Tales.Vesperia.Scenario.Pack", file, dir_out)
 
         subprocess.check_output(command)
 
@@ -154,7 +189,7 @@ class VesperiaPacker:
                     self.comptoe = data[dependencies_comptoe]
 
                 if hyouta_dir and dotnet_dir:
-                    self.hyouta = Hyouta(dotnet_dir, hyouta_dir)
+                    self.hyouta = Hyouta(hyouta_dir, dotnet_dir)
 
                 file.close()
 
@@ -221,7 +256,7 @@ class VesperiaPacker:
             err = True
             print("Missing Dependency: The game was not found in the provided path.")
 
-        err = err and self.hyouta.check_dependencies()
+        err = self.hyouta.check_dependencies() and err
 
         try:
             subprocess.check_output([self.comptoe])
@@ -232,7 +267,7 @@ class VesperiaPacker:
             if c.returncode != 255:
                 err = True
                 print("Runtime Error: There was a problem calling comptoe."
-                      "Try re-installing the application then try again.")
+                      "Try re-downloading the application then try again.")
 
         if err:
             exit(1)

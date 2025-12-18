@@ -50,7 +50,7 @@ class Hyouta:
         self.path: str = path
         self.dotnet: str = dotnet
 
-        self.use_dotnet: bool = True
+        self.use_dotnet: bool = bool(dotnet)
 
     def check_dependencies(self) -> bool:
         err: bool = False
@@ -72,8 +72,6 @@ class Hyouta:
                 if e.returncode != 255:
                     print("Runtime Error: There was a problem calling .NET 6.0. "
                           "Try re-installing the application then try again.")
-            except AssertionError:
-                err = True
         else:
             self.use_dotnet: bool = False
 
@@ -179,6 +177,8 @@ class VesperiaPacker:
 
                 if dependency_dotnet in data and data[dependency_dotnet]:
                     dotnet_dir = data[dependency_dotnet]
+                else:
+                    dotnet_dir = ""
 
                 if dependency_hyouta in data and data[dependency_hyouta]:
                     hyouta_dir = data[dependency_hyouta]
@@ -186,13 +186,13 @@ class VesperiaPacker:
                 if dependencies_comptoe in data and data[dependencies_comptoe]:
                     self.comptoe = data[dependencies_comptoe]
 
-                if hyouta_dir and dotnet_dir:
+                if hyouta_dir:
                     self.hyouta = Hyouta(hyouta_dir, dotnet_dir)
 
                 file.close()
 
         # Enforce use of dotnet6.x with a global.json
-        if not os.path.isfile(os.path.join(os.getcwd(), "global.json")):
+        if self.hyouta.use_dotnet and not os.path.isfile(os.path.join(os.getcwd(), "global.json")):
             self.generate_global()
 
         self.check_dependencies()
@@ -228,12 +228,20 @@ class VesperiaPacker:
         elif sys.platform == "win32":
             vesperia = os.path.join("C:", "Program Files (x86)", default_vesperia)
 
+        dotnet_required: bool = platform.system() == "Windows"
+
+        dotnet: str = default_dotnet if dotnet_required  else ""
+        hyouta: str = default_hyouta if dotnet_required else default_hyouta.rstrip(".dll")
+
         config = {
             dependency_vesperia : vesperia,
-            dependency_dotnet : default_dotnet,
-            dependency_hyouta : default_hyouta,
             dependencies_comptoe: default_comptoe,
         }
+
+        if dotnet_required:
+            config[dependency_dotnet] = dotnet
+
+        config[dependency_hyouta] = hyouta
 
         with open(dependencies, "x+") as file:
             json.dump(config, file, indent=4)
@@ -250,7 +258,7 @@ class VesperiaPacker:
         }
 
         global_file: str = "global.json"
-        with open(global_file, "w+") as file:
+        with open(global_file, "w") as file:
             json.dump(dotnet_global, file, indent=4)
 
     def check_dependencies(self):
@@ -277,7 +285,8 @@ class VesperiaPacker:
             subprocess.check_output([self.comptoe])
         except FileNotFoundError:
             err = True
-            print("Missing Dependency: comptoe was not found.")
+            print("Missing Dependency: comptoe was not found."
+                  f"\nExpected at: {self.comptoe}")
         except subprocess.CalledProcessError as c:
             if c.returncode != 255:
                 err = True

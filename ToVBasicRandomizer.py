@@ -36,8 +36,8 @@ class InputTemplate:
     seed: int
     random: random.Random
 
-    patch_output: str = os.path.join(".", "artifacts", "tovde.appatch")
-    report_output: str = os.path.join(".", "artifacts", "tovde-spoiler.ods")
+    patch_output: str = os.path.join(".", "patches", "tovde.appatch")
+    report_output: str = os.path.join(".", "patches", "tovde-spoiler.ods")
 
     def __init__(self, targets: list[str], seed = random.randint(1, 0xFFFFFFFF)):
         self.seed = uuid.uuid1().int
@@ -94,6 +94,9 @@ class InputTemplate:
             self.item_ids = json.load(open(items_ids_file), object_hook=keys_to_int)
             self.items_list = json.load(open(items_file))['items']
 
+        if not os.path.isdir("patches"):
+            os.makedirs("patches")
+
     def random_from_distribution(self, mu: float, sigma: float, range_min: float = -math.inf,
                                  range_max: float = math.inf):
         return int(math.ceil(min(max(self.random.gauss(mu, sigma), range_min), range_max)))
@@ -101,9 +104,6 @@ class InputTemplate:
 
     def generate(self, targets: list, spoil: bool = False):
         output: str = self.patch_output
-
-        manifest: str = "./builds/manifests"
-        assert os.path.isdir(manifest)
 
         patch_data: dict = {
             'version': '0.1',
@@ -138,7 +138,7 @@ class InputTemplate:
         if spoil:
             self.generate_spoiler_file(dict(item for item in [*patch_data.items()][4:]))
 
-        with open(output, 'w+') as f:
+        with open(output, 'w') as f:
             json.dump(patch_data, f, indent=4)
 
     @staticmethod

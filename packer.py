@@ -56,7 +56,6 @@ class Hyouta:
         err: bool = False
 
         if platform.system() == "Windows" or self.path.endswith(".dll"):
-            print("Using dotnet!")
             try:
                 version = subprocess.check_output([self.dotnet, "--version"])
 
@@ -76,7 +75,6 @@ class Hyouta:
             except AssertionError:
                 err = True
         else:
-            print("Using Compiled Binary!")
             self.use_dotnet: bool = False
 
         try:
@@ -193,6 +191,10 @@ class VesperiaPacker:
 
                 file.close()
 
+        # Enforce use of dotnet6.x with a global.json
+        if not os.path.isfile(os.path.join(os.getcwd(), "global.json")):
+            self.generate_global()
+
         self.check_dependencies()
 
         if patch_id == "singleton":
@@ -237,6 +239,19 @@ class VesperiaPacker:
             json.dump(config, file, indent=4)
 
             file.close()
+
+    @classmethod
+    def generate_global(cls):
+        dotnet_global: dict = {
+            'sdk': {
+                'rollForward': "latestMinor",
+                "version": "6.0.0"
+            }
+        }
+
+        global_file: str = "global.json"
+        with open(global_file, "w+") as file:
+            json.dump(dotnet_global, file, indent=4)
 
     def check_dependencies(self):
         err: bool = False

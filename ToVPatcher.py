@@ -142,7 +142,7 @@ if __name__ == '__main__':
 
         if arg in ("-h", "--help"):
             print(
-                "Usage: ToVPatcher.py [OPTIONS] <patch_file>"
+                "Usage:\tToVPatcher [OPTIONS] <patch_file>"
                 "\n\tPatcher for Tales of Vesperia: Definitive Edition on PC/Steam."
                 "\n\n\tOptions:"
                 "\n\t\t-t | --threads <number of threads>\tThe number of threads to use. Default: 4."

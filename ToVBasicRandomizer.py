@@ -13,6 +13,15 @@ from odfdo import Document, Table, Row
 from utils import keys_to_int, strip_formatting
 from data.enums import Characters, Symbol, FatalStrikeType
 
+
+targets: list[str] = [
+    'artes',
+    'skills',
+    'items',
+    'shops',
+    'chests'
+]
+
 class InputTemplate:
     artes_data_table: dict
     skills_data_table: dict
@@ -890,14 +899,20 @@ if __name__ == "__main__":
 
     scanning_content: int = 0
     for index, arg in enumerate(sys.argv[1:]):
-        if arg in ("-t", "--targets"):
-            scanning_content = index + 1
+        if arg in ("-h", "--help"):
+            print(
+                "Usage:\tToVBasicRandomizer [OPTIONS] [TARGETS]"
+                "\n\tA basic randomizer for use with ToVPatcher."
+                "\n\n\tOptions:"
+                "\n\t\t-s | --spoil\tCreate spoiler file."
+                "\n\n\tTargets: \"artes\" | \"skills\" | \"items\" | \"shops\" | \"chests\""
+                "\n\tSpecifies targets to randomize. When left unspecified, will randomize all targets."
+            )
+            exit(0)
         elif arg in ("-s", "--spoil"):
-            if scanning_content:
-                target_list = sys.argv[scanning_content:index + 2]
-                scanning_content = 0
-
             create_spoiler = True
+        elif str(arg).lower() in targets:
+            target_list.append(str(arg).lower())
 
     start: float = time.time()
 

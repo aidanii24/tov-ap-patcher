@@ -38,14 +38,13 @@ class InputTemplate:
         self.report_output = os.path.join(".", "artifacts", f"tovde-spoiler-{self.seed}.ods")
 
         if not targets or 'artes' in targets:
-            artes_id_table: str = os.path.join('.', 'artifacts', 'artes_id_table.csv')
+            artes_ids_file: str = os.path.join('.', 'data', 'artes_id_table.json')
             artes_data_file: str = os.path.join('.', 'data', 'artes.json')
-            assert os.path.isfile(artes_id_table), f'{artes_id_table} does not exist'
+
+            assert os.path.isfile(artes_ids_file), f'{artes_ids_file} does not exist'
             assert os.path.isfile(artes_data_file), f'{artes_data_file} does not exist'
 
-            self.artes_ids = {int(data['ID']): strip_formatting(data['Name'])
-                              for data in csv.DictReader(open(artes_id_table))}
-
+            self.artes_ids = json.load(open(artes_ids_file), object_hook=keys_to_int)
             artes_data = json.load(open(artes_data_file))['artes']
 
             artes_data_table = {}
@@ -62,32 +61,29 @@ class InputTemplate:
             self.artes_by_char = artes_by_char
 
         if not targets or {'artes', 'skills', 'items'}.intersection(targets):
-            skills_id_table: str = os.path.join('.', 'artifacts', 'skills_id_table.csv')
+            skills_ids_file: str = os.path.join('.', 'data', 'skills_id_table.json')
             skills_data_file: str = os.path.join('.', 'data', 'skills.json')
-            skills_char_data_file: str = os.path.join('.', 'artifacts', 'skills_by_char.json')
+            skills_char_data_file: str = os.path.join('.', 'data', 'skills_by_char.json')
 
+            assert os.path.isfile(skills_data_file), f'{skills_ids_file} does not exist'
             assert os.path.isfile(skills_data_file), f'{skills_data_file} does not exist'
             assert os.path.isfile(skills_char_data_file), f'{skills_char_data_file} does not exist'
-            assert os.path.isfile(skills_id_table), f'{skills_id_table} does not exist'
 
-            self.skill_ids = {int(data['ID']): strip_formatting(data['Name'])
-                              for data in csv.DictReader(open(skills_id_table))}
+            self.skill_ids = json.load(open(skills_ids_file), object_hook=keys_to_int)
 
-            skills_data = json.load(open(skills_data_file))['skills']
-
-            self.skills_data_table = {skill['id']: skill for skill in skills_data}
+            self.skills_data_table = {int(skill['id']) : skill
+                                      for skill in json.load(open(skills_data_file))['skills']}
 
             self.skills_by_char = json.load(open(skills_char_data_file), object_hook=keys_to_int)
 
         if not targets or {'items', 'shops', 'chests'}.intersection(targets):
-            id_file: str = os.path.join(".", "artifacts", "items_id_table.csv")
+            items_ids_file: str = os.path.join(".", "data", "items_id_table.json")
             items_file: str = os.path.join(".", "data", "item.json")
-            assert os.path.isfile(id_file)
+
+            assert os.path.isfile(items_ids_file), f"File {items_file} does not exist."
             assert os.path.isfile(items_file), f"File {items_file} does not exist."
 
-            self.item_ids = {int(data['ID']): strip_formatting(data['Name'])
-                              for data in csv.DictReader(open(id_file))}
-
+            self.item_ids = json.load(open(items_ids_file), object_hook=keys_to_int)
             self.items_list = json.load(open(items_file))['items']
 
     def random_from_distribution(self, mu: float, sigma: float, range_min: float = -math.inf,
@@ -139,35 +135,35 @@ class InputTemplate:
 
     @staticmethod
     def generate_artes_input():
-        artes_data: str = os.path.join(".", "artifacts", "artes_api.json")
+        artes_data: str = os.path.join(".", "data", "templates", "artes_api.json")
         assert os.path.isfile(artes_data)
 
         return json.load(open(artes_data))
 
     @staticmethod
     def generate_skills_input() -> dict:
-        skills_data: str = os.path.join(".", "artifacts", "skills_api.json")
+        skills_data: str = os.path.join(".", "data", "templates", "skills_api.json")
         assert os.path.isfile(skills_data)
 
         return json.load(open(skills_data))
 
     @staticmethod
     def generate_items_input() -> dict:
-        items_data: str = os.path.join(".", "artifacts", "items_api.json")
+        items_data: str = os.path.join(".", "data", "templates", "items_api.json")
         assert os.path.isfile(items_data)
 
         return json.load(open(items_data))
 
     @staticmethod
     def generate_shop_items_input() -> dict:
-        shop_items_data: str = os.path.join(".", "artifacts", "shop_items_api.json")
+        shop_items_data: str = os.path.join(".", "data", "templates", "shop_items_api.json")
         assert os.path.isfile(shop_items_data)
 
         return json.load(open(shop_items_data), object_hook=keys_to_int)
 
     @staticmethod
     def generate_chests_input() -> dict:
-        chests_data: str = os.path.join(".", "artifacts", "chests.json")
+        chests_data: str = os.path.join(".", "data", "chests.json")
         assert os.path.isfile(chests_data)
 
         return json.load(open(chests_data))
@@ -366,7 +362,7 @@ class InputTemplate:
             else:
                 return str(item_id)
 
-        name_file: str = "./artifacts/named_npc_maps.json"
+        name_file: str = os.path.join(".", "data", "named_npc_maps.json")
         assert os.path.isfile(name_file), f"'{name_file}' not found"
 
         id_to_name: dict[str, str] = json.load(open(name_file))
@@ -889,7 +885,7 @@ class InputTemplate:
 
 
 if __name__ == "__main__":
-    target_list: list[str] = ['chests']
+    target_list: list[str] = []
     create_spoiler: bool = False
 
     scanning_content: int = 0

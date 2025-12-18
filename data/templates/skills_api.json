@@ -1,0 +1,3719 @@
+[
+    {
+        "name_string_key": 50002,
+        "id": 1,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50004,
+        "id": 2,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50006,
+        "id": 3,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50008,
+        "id": 96,
+        "sp_cost": 10,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50010,
+        "id": 236,
+        "sp_cost": 11,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50012,
+        "id": 4,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50014,
+        "id": 5,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50016,
+        "id": 6,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50018,
+        "id": 197,
+        "sp_cost": 10,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50020,
+        "id": 237,
+        "sp_cost": 11,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50022,
+        "id": 90,
+        "sp_cost": 3,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50024,
+        "id": 8,
+        "sp_cost": 3,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50026,
+        "id": 105,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50028,
+        "id": 108,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50030,
+        "id": 169,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50032,
+        "id": 170,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50034,
+        "id": 238,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50036,
+        "id": 403,
+        "sp_cost": 10,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50038,
+        "id": 404,
+        "sp_cost": 20,
+        "lp_cost": 800,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50040,
+        "id": 109,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50042,
+        "id": 168,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50044,
+        "id": 231,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50046,
+        "id": 268,
+        "sp_cost": 10,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50048,
+        "id": 324,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50050,
+        "id": 167,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50052,
+        "id": 166,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50054,
+        "id": 164,
+        "sp_cost": 7,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50056,
+        "id": 365,
+        "sp_cost": 22,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50058,
+        "id": 131,
+        "sp_cost": 6,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 10,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50060,
+        "id": 132,
+        "sp_cost": 6,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 10,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50062,
+        "id": 321,
+        "sp_cost": 8,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50064,
+        "id": 232,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50066,
+        "id": 7,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50068,
+        "id": 204,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50070,
+        "id": 9,
+        "sp_cost": 3,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50072,
+        "id": 325,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50074,
+        "id": 202,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50076,
+        "id": 203,
+        "sp_cost": 10,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50078,
+        "id": 199,
+        "sp_cost": 8,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50080,
+        "id": 200,
+        "sp_cost": 12,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50082,
+        "id": 201,
+        "sp_cost": 16,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50084,
+        "id": 263,
+        "sp_cost": 4,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50086,
+        "id": 264,
+        "sp_cost": 6,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50088,
+        "id": 265,
+        "sp_cost": 8,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50090,
+        "id": 280,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50092,
+        "id": 262,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50094,
+        "id": 233,
+        "sp_cost": 11,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50096,
+        "id": 234,
+        "sp_cost": 15,
+        "lp_cost": 700,
+        "symbol": 0,
+        "symbol_weight": 7,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50098,
+        "id": 375,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50100,
+        "id": 293,
+        "sp_cost": 4,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50102,
+        "id": 59,
+        "sp_cost": 10,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 10,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50104,
+        "id": 114,
+        "sp_cost": 14,
+        "lp_cost": 900,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50106,
+        "id": 115,
+        "sp_cost": 18,
+        "lp_cost": 1200,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50108,
+        "id": 421,
+        "sp_cost": 8,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50110,
+        "id": 98,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50112,
+        "id": 107,
+        "sp_cost": 4,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50114,
+        "id": 171,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50116,
+        "id": 174,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50118,
+        "id": 366,
+        "sp_cost": 14,
+        "lp_cost": 700,
+        "symbol": 0,
+        "symbol_weight": 7,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50120,
+        "id": 172,
+        "sp_cost": 14,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50122,
+        "id": 165,
+        "sp_cost": 20,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50124,
+        "id": 173,
+        "sp_cost": 8,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50126,
+        "id": 230,
+        "sp_cost": 20,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50128,
+        "id": 97,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50130,
+        "id": 99,
+        "sp_cost": 2,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50132,
+        "id": 100,
+        "sp_cost": 3,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50134,
+        "id": 101,
+        "sp_cost": 4,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50136,
+        "id": 102,
+        "sp_cost": 2,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50138,
+        "id": 103,
+        "sp_cost": 4,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50140,
+        "id": 104,
+        "sp_cost": 5,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50142,
+        "id": 359,
+        "sp_cost": 9,
+        "lp_cost": 700,
+        "symbol": 0,
+        "symbol_weight": 7,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50144,
+        "id": 367,
+        "sp_cost": 5,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50146,
+        "id": 368,
+        "sp_cost": 7,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50148,
+        "id": 370,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50150,
+        "id": 371,
+        "sp_cost": 8,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50152,
+        "id": 380,
+        "sp_cost": 10,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50154,
+        "id": 381,
+        "sp_cost": 12,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50156,
+        "id": 10,
+        "sp_cost": 3,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50158,
+        "id": 405,
+        "sp_cost": 6,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50160,
+        "id": 406,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50162,
+        "id": 416,
+        "sp_cost": 22,
+        "lp_cost": 1000,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50164,
+        "id": 13,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50166,
+        "id": 11,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50168,
+        "id": 12,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50170,
+        "id": 446,
+        "sp_cost": 6,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50172,
+        "id": 291,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50174,
+        "id": 89,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50176,
+        "id": 358,
+        "sp_cost": 9,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50178,
+        "id": 292,
+        "sp_cost": 6,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 18,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50180,
+        "id": 409,
+        "sp_cost": 15,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50182,
+        "id": 348,
+        "sp_cost": 5,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50184,
+        "id": 106,
+        "sp_cost": 3,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50186,
+        "id": 326,
+        "sp_cost": 14,
+        "lp_cost": 600,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50188,
+        "id": 15,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50190,
+        "id": 17,
+        "sp_cost": 10,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50192,
+        "id": 16,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50194,
+        "id": 18,
+        "sp_cost": 10,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50196,
+        "id": 111,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 0,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50198,
+        "id": 390,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50200,
+        "id": 391,
+        "sp_cost": 5,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50202,
+        "id": 392,
+        "sp_cost": 8,
+        "lp_cost": 500,
+        "symbol": 0,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50204,
+        "id": 411,
+        "sp_cost": 4,
+        "lp_cost": 400,
+        "symbol": 0,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50206,
+        "id": 19,
+        "sp_cost": 1,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50208,
+        "id": 20,
+        "sp_cost": 1,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50210,
+        "id": 21,
+        "sp_cost": 1,
+        "lp_cost": 100,
+        "symbol": 0,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50212,
+        "id": 22,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50214,
+        "id": 23,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 0,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50216,
+        "id": 24,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50218,
+        "id": 25,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50220,
+        "id": 26,
+        "sp_cost": 6,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50222,
+        "id": 135,
+        "sp_cost": 8,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50224,
+        "id": 242,
+        "sp_cost": 7,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50226,
+        "id": 27,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50228,
+        "id": 28,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50230,
+        "id": 29,
+        "sp_cost": 6,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50232,
+        "id": 136,
+        "sp_cost": 8,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50234,
+        "id": 243,
+        "sp_cost": 7,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50236,
+        "id": 30,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50238,
+        "id": 137,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50240,
+        "id": 31,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50242,
+        "id": 270,
+        "sp_cost": 6,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50244,
+        "id": 269,
+        "sp_cost": 7,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50246,
+        "id": 33,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50248,
+        "id": 134,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50250,
+        "id": 43,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50252,
+        "id": 40,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50254,
+        "id": 144,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50256,
+        "id": 396,
+        "sp_cost": 5,
+        "lp_cost": 500,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50258,
+        "id": 146,
+        "sp_cost": 6,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50260,
+        "id": 147,
+        "sp_cost": 10,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50262,
+        "id": 32,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50264,
+        "id": 239,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50266,
+        "id": 38,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50268,
+        "id": 349,
+        "sp_cost": 6,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50270,
+        "id": 140,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50272,
+        "id": 141,
+        "sp_cost": 9,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50274,
+        "id": 395,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50276,
+        "id": 177,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50278,
+        "id": 41,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50280,
+        "id": 42,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50282,
+        "id": 36,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50284,
+        "id": 331,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50286,
+        "id": 333,
+        "sp_cost": 9,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50288,
+        "id": 138,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50290,
+        "id": 397,
+        "sp_cost": 10,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50292,
+        "id": 37,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50294,
+        "id": 34,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50296,
+        "id": 35,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50298,
+        "id": 39,
+        "sp_cost": 3,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50300,
+        "id": 244,
+        "sp_cost": 15,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50302,
+        "id": 145,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50304,
+        "id": 362,
+        "sp_cost": 13,
+        "lp_cost": 700,
+        "symbol": 1,
+        "symbol_weight": 7,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50306,
+        "id": 210,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50308,
+        "id": 112,
+        "sp_cost": 8,
+        "lp_cost": 500,
+        "symbol": 1,
+        "symbol_weight": 10,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50310,
+        "id": 426,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50312,
+        "id": 352,
+        "sp_cost": 8,
+        "lp_cost": 500,
+        "symbol": 1,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50314,
+        "id": 354,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50316,
+        "id": 206,
+        "sp_cost": 26,
+        "lp_cost": 1400,
+        "symbol": 1,
+        "symbol_weight": 7,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50318,
+        "id": 425,
+        "sp_cost": 24,
+        "lp_cost": 800,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50320,
+        "id": 142,
+        "sp_cost": 9,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50322,
+        "id": 208,
+        "sp_cost": 16,
+        "lp_cost": 700,
+        "symbol": 1,
+        "symbol_weight": 7,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50324,
+        "id": 271,
+        "sp_cost": 28,
+        "lp_cost": 600,
+        "symbol": 1,
+        "symbol_weight": 12,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50326,
+        "id": 294,
+        "sp_cost": 24,
+        "lp_cost": 600,
+        "symbol": 1,
+        "symbol_weight": 30,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50328,
+        "id": 113,
+        "sp_cost": 30,
+        "lp_cost": 1600,
+        "symbol": 1,
+        "symbol_weight": 21,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50330,
+        "id": 272,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50332,
+        "id": 44,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50334,
+        "id": 46,
+        "sp_cost": 3,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50336,
+        "id": 45,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50338,
+        "id": 47,
+        "sp_cost": 3,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50340,
+        "id": 139,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50342,
+        "id": 148,
+        "sp_cost": 18,
+        "lp_cost": 500,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50344,
+        "id": 175,
+        "sp_cost": 10,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50346,
+        "id": 178,
+        "sp_cost": 9,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50348,
+        "id": 179,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50350,
+        "id": 180,
+        "sp_cost": 7,
+        "lp_cost": 500,
+        "symbol": 1,
+        "symbol_weight": 10,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50352,
+        "id": 207,
+        "sp_cost": 3,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50354,
+        "id": 240,
+        "sp_cost": 10,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50356,
+        "id": 241,
+        "sp_cost": 14,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 9,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50358,
+        "id": 245,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50360,
+        "id": 273,
+        "sp_cost": 6,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50362,
+        "id": 274,
+        "sp_cost": 6,
+        "lp_cost": 200,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50364,
+        "id": 350,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50366,
+        "id": 353,
+        "sp_cost": 10,
+        "lp_cost": 500,
+        "symbol": 1,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50368,
+        "id": 398,
+        "sp_cost": 7,
+        "lp_cost": 600,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50370,
+        "id": 399,
+        "sp_cost": 5,
+        "lp_cost": 400,
+        "symbol": 1,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50372,
+        "id": 328,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50374,
+        "id": 329,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50376,
+        "id": 327,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 1,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50378,
+        "id": 330,
+        "sp_cost": 15,
+        "lp_cost": 500,
+        "symbol": 1,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50380,
+        "id": 48,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50382,
+        "id": 49,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 1,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50384,
+        "id": 50,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50386,
+        "id": 51,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50388,
+        "id": 52,
+        "sp_cost": 6,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50390,
+        "id": 295,
+        "sp_cost": 8,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50392,
+        "id": 402,
+        "sp_cost": 6,
+        "lp_cost": 700,
+        "symbol": 2,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50394,
+        "id": 305,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50396,
+        "id": 57,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50398,
+        "id": 389,
+        "sp_cost": 6,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50400,
+        "id": 306,
+        "sp_cost": 16,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50402,
+        "id": 248,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50404,
+        "id": 53,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50406,
+        "id": 346,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50408,
+        "id": 253,
+        "sp_cost": 4,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50410,
+        "id": 252,
+        "sp_cost": 12,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50412,
+        "id": 449,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50414,
+        "id": 54,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50416,
+        "id": 277,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50418,
+        "id": 410,
+        "sp_cost": 5,
+        "lp_cost": 700,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50420,
+        "id": 447,
+        "sp_cost": 5,
+        "lp_cost": 700,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50422,
+        "id": 308,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50424,
+        "id": 307,
+        "sp_cost": 12,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50426,
+        "id": 299,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50428,
+        "id": 296,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50430,
+        "id": 297,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50432,
+        "id": 183,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50434,
+        "id": 278,
+        "sp_cost": 5,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50436,
+        "id": 279,
+        "sp_cost": 6,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50438,
+        "id": 275,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50440,
+        "id": 276,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50442,
+        "id": 281,
+        "sp_cost": 6,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50444,
+        "id": 284,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50446,
+        "id": 283,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50448,
+        "id": 282,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50450,
+        "id": 215,
+        "sp_cost": 12,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50452,
+        "id": 56,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50454,
+        "id": 149,
+        "sp_cost": 10,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50456,
+        "id": 150,
+        "sp_cost": 12,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50458,
+        "id": 151,
+        "sp_cost": 14,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50460,
+        "id": 14,
+        "sp_cost": 7,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50462,
+        "id": 260,
+        "sp_cost": 10,
+        "lp_cost": 800,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50464,
+        "id": 261,
+        "sp_cost": 24,
+        "lp_cost": 1000,
+        "symbol": 2,
+        "symbol_weight": 7,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50466,
+        "id": 249,
+        "sp_cost": 11,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50468,
+        "id": 251,
+        "sp_cost": 10,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50470,
+        "id": 376,
+        "sp_cost": 8,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50472,
+        "id": 218,
+        "sp_cost": 10,
+        "lp_cost": 700,
+        "symbol": 2,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50474,
+        "id": 217,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50476,
+        "id": 220,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50478,
+        "id": 221,
+        "sp_cost": 12,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50480,
+        "id": 222,
+        "sp_cost": 15,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50482,
+        "id": 211,
+        "sp_cost": 4,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50484,
+        "id": 213,
+        "sp_cost": 5,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50486,
+        "id": 212,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50488,
+        "id": 216,
+        "sp_cost": 4,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50490,
+        "id": 219,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50492,
+        "id": 414,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50494,
+        "id": 58,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50496,
+        "id": 223,
+        "sp_cost": 4,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50498,
+        "id": 155,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50500,
+        "id": 214,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50502,
+        "id": 120,
+        "sp_cost": 8,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50504,
+        "id": 123,
+        "sp_cost": 10,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50506,
+        "id": 372,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50508,
+        "id": 373,
+        "sp_cost": 7,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50510,
+        "id": 422,
+        "sp_cost": 4,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50512,
+        "id": 415,
+        "sp_cost": 6,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50514,
+        "id": 116,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50516,
+        "id": 121,
+        "sp_cost": 12,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50518,
+        "id": 122,
+        "sp_cost": 15,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50520,
+        "id": 117,
+        "sp_cost": 12,
+        "lp_cost": 800,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50522,
+        "id": 118,
+        "sp_cost": 13,
+        "lp_cost": 900,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50524,
+        "id": 119,
+        "sp_cost": 14,
+        "lp_cost": 1000,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50526,
+        "id": 382,
+        "sp_cost": 8,
+        "lp_cost": 700,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50528,
+        "id": 383,
+        "sp_cost": 9,
+        "lp_cost": 800,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50530,
+        "id": 384,
+        "sp_cost": 10,
+        "lp_cost": 900,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50532,
+        "id": 363,
+        "sp_cost": 11,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50534,
+        "id": 55,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 8,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50536,
+        "id": 246,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 8,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50538,
+        "id": 379,
+        "sp_cost": 8,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50540,
+        "id": 181,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50542,
+        "id": 184,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50544,
+        "id": 185,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50546,
+        "id": 302,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50548,
+        "id": 125,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50550,
+        "id": 126,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50552,
+        "id": 303,
+        "sp_cost": 12,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50554,
+        "id": 304,
+        "sp_cost": 18,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50556,
+        "id": 388,
+        "sp_cost": 8,
+        "lp_cost": 700,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50558,
+        "id": 127,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50560,
+        "id": 186,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50562,
+        "id": 182,
+        "sp_cost": 12,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 9,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50564,
+        "id": 300,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50566,
+        "id": 301,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 2,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50568,
+        "id": 298,
+        "sp_cost": 9,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50570,
+        "id": 334,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 2,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50572,
+        "id": 335,
+        "sp_cost": 9,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50574,
+        "id": 448,
+        "sp_cost": 14,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50576,
+        "id": 413,
+        "sp_cost": 14,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50578,
+        "id": 407,
+        "sp_cost": 12,
+        "lp_cost": 400,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50580,
+        "id": 412,
+        "sp_cost": 18,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50582,
+        "id": 423,
+        "sp_cost": 9,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50584,
+        "id": 424,
+        "sp_cost": 7,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50586,
+        "id": 450,
+        "sp_cost": 5,
+        "lp_cost": 600,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50588,
+        "id": 408,
+        "sp_cost": 10,
+        "lp_cost": 500,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50590,
+        "id": 429,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50592,
+        "id": 430,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50594,
+        "id": 431,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50596,
+        "id": 432,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50598,
+        "id": 433,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50600,
+        "id": 434,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50602,
+        "id": 60,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50604,
+        "id": 61,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 2,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50606,
+        "id": 62,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50608,
+        "id": 63,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50610,
+        "id": 64,
+        "sp_cost": 6,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50612,
+        "id": 187,
+        "sp_cost": 12,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50614,
+        "id": 65,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50616,
+        "id": 66,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50618,
+        "id": 67,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50620,
+        "id": 226,
+        "sp_cost": 7,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50622,
+        "id": 316,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50624,
+        "id": 317,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50626,
+        "id": 343,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50628,
+        "id": 344,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50630,
+        "id": 229,
+        "sp_cost": 3,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50632,
+        "id": 309,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50634,
+        "id": 310,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50636,
+        "id": 311,
+        "sp_cost": 4,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50638,
+        "id": 385,
+        "sp_cost": 16,
+        "lp_cost": 1000,
+        "symbol": 3,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50640,
+        "id": 318,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50642,
+        "id": 319,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50644,
+        "id": 312,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50646,
+        "id": 285,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50648,
+        "id": 159,
+        "sp_cost": 12,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50650,
+        "id": 189,
+        "sp_cost": 12,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50652,
+        "id": 191,
+        "sp_cost": 7,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50654,
+        "id": 156,
+        "sp_cost": 9,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50656,
+        "id": 194,
+        "sp_cost": 8,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50658,
+        "id": 195,
+        "sp_cost": 6,
+        "lp_cost": 500,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50660,
+        "id": 196,
+        "sp_cost": 7,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50662,
+        "id": 228,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50664,
+        "id": 161,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50666,
+        "id": 224,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50668,
+        "id": 227,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50670,
+        "id": 81,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50672,
+        "id": 82,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50674,
+        "id": 87,
+        "sp_cost": 12,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50676,
+        "id": 88,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50678,
+        "id": 377,
+        "sp_cost": 11,
+        "lp_cost": 500,
+        "symbol": 3,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50680,
+        "id": 378,
+        "sp_cost": 14,
+        "lp_cost": 600,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50682,
+        "id": 86,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50684,
+        "id": 427,
+        "sp_cost": 10,
+        "lp_cost": 500,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50686,
+        "id": 73,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50688,
+        "id": 417,
+        "sp_cost": 7,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50690,
+        "id": 418,
+        "sp_cost": 9,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50692,
+        "id": 419,
+        "sp_cost": 10,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50694,
+        "id": 163,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50696,
+        "id": 160,
+        "sp_cost": 6,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50698,
+        "id": 364,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50700,
+        "id": 225,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50702,
+        "id": 320,
+        "sp_cost": 14,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50704,
+        "id": 72,
+        "sp_cost": 22,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50706,
+        "id": 162,
+        "sp_cost": 24,
+        "lp_cost": 500,
+        "symbol": 3,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50708,
+        "id": 420,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50710,
+        "id": 400,
+        "sp_cost": 12,
+        "lp_cost": 800,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50712,
+        "id": 401,
+        "sp_cost": 18,
+        "lp_cost": 1000,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50714,
+        "id": 130,
+        "sp_cost": 3,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 8,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50716,
+        "id": 157,
+        "sp_cost": 5,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 8,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50718,
+        "id": 256,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50720,
+        "id": 255,
+        "sp_cost": 11,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50722,
+        "id": 289,
+        "sp_cost": 12,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50724,
+        "id": 290,
+        "sp_cost": 12,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50726,
+        "id": 84,
+        "sp_cost": 12,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50728,
+        "id": 85,
+        "sp_cost": 14,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50730,
+        "id": 351,
+        "sp_cost": 20,
+        "lp_cost": 600,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50732,
+        "id": 386,
+        "sp_cost": 23,
+        "lp_cost": 700,
+        "symbol": 3,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50734,
+        "id": 387,
+        "sp_cost": 26,
+        "lp_cost": 900,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50736,
+        "id": 355,
+        "sp_cost": 16,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50738,
+        "id": 356,
+        "sp_cost": 20,
+        "lp_cost": 700,
+        "symbol": 3,
+        "symbol_weight": 7,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50740,
+        "id": 357,
+        "sp_cost": 26,
+        "lp_cost": 800,
+        "symbol": 3,
+        "symbol_weight": 8,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50742,
+        "id": 360,
+        "sp_cost": 5,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50744,
+        "id": 361,
+        "sp_cost": 8,
+        "lp_cost": 500,
+        "symbol": 3,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50746,
+        "id": 393,
+        "sp_cost": 7,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50748,
+        "id": 394,
+        "sp_cost": 8,
+        "lp_cost": 500,
+        "symbol": 3,
+        "symbol_weight": 5,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50750,
+        "id": 336,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50752,
+        "id": 337,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50754,
+        "id": 68,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50756,
+        "id": 69,
+        "sp_cost": 2,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 1,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50758,
+        "id": 70,
+        "sp_cost": 3,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50760,
+        "id": 71,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50762,
+        "id": 257,
+        "sp_cost": 3,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50764,
+        "id": 286,
+        "sp_cost": 14,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50766,
+        "id": 314,
+        "sp_cost": 7,
+        "lp_cost": 600,
+        "symbol": 3,
+        "symbol_weight": 6,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50768,
+        "id": 74,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50770,
+        "id": 75,
+        "sp_cost": 5,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50772,
+        "id": 79,
+        "sp_cost": 12,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50774,
+        "id": 80,
+        "sp_cost": 16,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50776,
+        "id": 76,
+        "sp_cost": 11,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50778,
+        "id": 77,
+        "sp_cost": 11,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50780,
+        "id": 78,
+        "sp_cost": 8,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50782,
+        "id": 192,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50784,
+        "id": 259,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 8,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50786,
+        "id": 345,
+        "sp_cost": 13,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50788,
+        "id": 91,
+        "sp_cost": 1,
+        "lp_cost": 500,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50790,
+        "id": 190,
+        "sp_cost": 8,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50792,
+        "id": 254,
+        "sp_cost": 5,
+        "lp_cost": 100,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50794,
+        "id": 313,
+        "sp_cost": 4,
+        "lp_cost": 200,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50796,
+        "id": 338,
+        "sp_cost": 8,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50798,
+        "id": 340,
+        "sp_cost": 6,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50800,
+        "id": 428,
+        "sp_cost": 4,
+        "lp_cost": 400,
+        "symbol": 3,
+        "symbol_weight": 4,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50802,
+        "id": 444,
+        "sp_cost": 1,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50804,
+        "id": 93,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50806,
+        "id": 94,
+        "sp_cost": 4,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 2,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50808,
+        "id": 347,
+        "sp_cost": 3,
+        "lp_cost": 300,
+        "symbol": 3,
+        "symbol_weight": 3,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50810,
+        "id": 435,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50812,
+        "id": 436,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50814,
+        "id": 437,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50816,
+        "id": 438,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50818,
+        "id": 439,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50820,
+        "id": 440,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50822,
+        "id": 441,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50824,
+        "id": 442,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    },
+    {
+        "name_string_key": 50826,
+        "id": 443,
+        "sp_cost": 0,
+        "lp_cost": 0,
+        "symbol": 0,
+        "symbol_weight": 0,
+        "is_equippable": 1
+    }
+]

@@ -4,14 +4,13 @@ import math
 import uuid
 import json
 import time
-import csv
 import sys
 import os
 
 from odfdo import Document, Table, Row
 
-from utils import keys_to_int, strip_formatting
-from data.enums import Characters, Symbol, FatalStrikeType
+from utils import keys_to_int
+from dataclass.enums import Characters, Symbol, FatalStrikeType
 
 
 targets: list[str] = [

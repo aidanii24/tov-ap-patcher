@@ -19,3 +19,4 @@ config.json
 /build/
 /dist/
 *spec
+!ToVRandomizerTools.spec

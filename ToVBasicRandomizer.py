@@ -15,7 +15,7 @@ from dataclass.enums import Characters, Symbol, FatalStrikeType
 
 wd: str = os.path.dirname(__file__)
 
-targets: list[str] = [
+VALID_TARGETS: list[str] = [
     'artes',
     'skills',
     'items',
@@ -38,14 +38,16 @@ class InputTemplate:
     seed: int
     random: random.Random
 
-    patch_output: str = os.path.join(".", "patches", "tovde.appatch")
+    patch_output: str = os.path.join(".", "patches", "randomizer.tovdepatch")
     report_output: str = os.path.join(".", "patches", "tovde-spoiler.ods")
 
     def __init__(self, targets: list[str], seed = random.randint(1, 0xFFFFFFFF)):
         self.seed = uuid.uuid1().int
         self.random = random.Random(seed)
 
-        self.report_output = os.path.join(".", "patches", f"tovde-spoiler-{self.seed}.ods")
+        patch_name: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")
+        self.patch_output = os.path.join(".", "patches", f"{patch_name}.tovdepatch")
+        self.report_output = os.path.join(".", "patches", f"tovde-spoiler-{patch_name}.ods")
 
         if not targets or 'artes' in targets:
             artes_ids_file: str = os.path.join(wd, 'data', 'artes_id_table.json')
@@ -912,7 +914,7 @@ if __name__ == "__main__":
             sys.exit(0)
         elif arg in ("-s", "--spoil"):
             create_spoiler = True
-        elif str(arg).lower() in targets:
+        elif str(arg).lower() in VALID_TARGETS:
             target_list.append(str(arg).lower())
 
     start: float = time.time()

@@ -161,7 +161,7 @@ if __name__ == '__main__':
             packer = VesperiaPacker()
             packer.restore_backup()
             sys.exit(0)
-        elif os.path.isfile(arg) and arg.endswith(".appatch"):
+        elif os.path.isfile(arg) and arg.endswith(".tovdepatch"):
             patch_file = arg
 
     assert patch_file != "", "No Valid Patch File was provided!"

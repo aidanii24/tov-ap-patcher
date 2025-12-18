@@ -5,7 +5,7 @@ import os
 
 import utils
 import vesperia_types as vtypes
-from vesperia_types import SkillsEntry, ChestHeader, ChestEntry, ChestItemEntry
+from vesperia_types import SkillsEntry, ChestHeader, ChestItemEntry
 
 
 class VesperiaPatcher:
@@ -216,7 +216,6 @@ class VesperiaPatcher:
         assert os.path.isfile(path), f"Cannot find {path}"
 
         header_size: int = ctypes.sizeof(ChestHeader)
-        chest_size: int = ctypes.sizeof(ChestEntry)
         item_size: int = ctypes.sizeof(ChestItemEntry)
 
         with open(path, 'r+b') as f:

@@ -13,6 +13,7 @@ config.json
 
 # Helper Artifacts
 /artifacts/*
+/patches/
 /global.json
 
 # Compile

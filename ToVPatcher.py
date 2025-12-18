@@ -4,6 +4,8 @@ import json
 import sys
 import os
 
+from concurrent.futures import ThreadPoolExecutor
+
 from packer import VesperiaPacker
 from patcher import VesperiaPatcher
 
@@ -14,7 +16,9 @@ class VesperiaPatcherApp:
     patch_data: dict
     targets: list = []
 
-    def __init__(self, patch_data: str, apply_immediately: bool = False):
+    threads: int
+
+    def __init__(self, patch_data: str, apply_immediately: bool = False, max_threads: int = 4):
         self.patch_data = json.load(open(patch_data), object_hook=utils.keys_to_int)
         identifier = f"{self.patch_data['player']}-{self.patch_data['created'].split(' ')[0]}-{self.patch_data['seed']}"
 
@@ -23,13 +27,16 @@ class VesperiaPatcherApp:
 
         self.patcher = VesperiaPatcher(identifier)
 
+        self.threads = max_threads
+
     def begin(self):
         start: float = time.time()
 
         print("--- Tales of Vesperia: Definitive Edition Patcher -------------\n"
               f"\tPlayer: {self.patch_data['player']}\n"
               f"\tGeneration Date: {self.patch_data['created']}\n"
-              f"\tSeed: {self.patch_data['seed']}\n")
+              f"\tSeed: {self.patch_data['seed']}\n"
+              f"\n\t[-/-] Threads: {self.threads}\n")
 
         if 'artes' in self.patch_data or 'skills' in self.patch_data:
             self.patch_btl()
@@ -91,42 +98,64 @@ class VesperiaPatcherApp:
         if 'chests' in self.patch_data:
             print("> Patching Chests...")
             base_dir: str = os.path.join(self.packer.build_dir, "maps")
-            for area in self.patch_data['chests'].keys():
-                work_dir: str = os.path.join(base_dir, area)
-                chest_data: str = os.path.join(work_dir, area + ".tlzc.ext", "0004")
 
-                self.packer.extract_map(area)
-                self.packer.decompress_data(chest_data, os.path.join(work_dir, "0004"))
+            def _extract_job(room: str, chest_path: str, dec_path: str):
+                self.packer.extract_map(room)
+                self.packer.decompress_data(chest_path, dec_path)
 
-            for area, chests in self.patch_data['chests'].items():
-                self.patcher.patch_chests(area, chests)
+            def _pack_job(room: str, chest_path: str, dec_path: str):
+                self.packer.compress_data(dec_path, chest_path)
+                self.packer.pack_map(room)
 
-            for area in self.patch_data['chests'].keys():
-                work_dir: str = os.path.join(base_dir, area)
-                dec_data: str = os.path.join(work_dir, "0004.tlzc")
-                chest_data: str = os.path.join(work_dir, area + ".tlzc.ext", "0004")
+            with ThreadPoolExecutor(max_workers=self.threads) as executor:
+                for area in self.patch_data['chests'].keys():
+                    work_dir: str = os.path.join(base_dir, area)
+                    chest: str = os.path.join(work_dir, area + ".tlzc.ext", "0004")
+                    dec: str = os.path.join(work_dir, "0004")
 
-                self.packer.compress_data(dec_data, chest_data)
-                self.packer.pack_map(area)
+                    executor.submit(_extract_job, area, chest, dec)
+
+            with ThreadPoolExecutor(max_workers=self.threads) as executor:
+                for area, chests in self.patch_data['chests'].items():
+                    executor.submit(self.patcher.patch_chests, area, chests)
+
+            with ThreadPoolExecutor(max_workers=self.threads) as executor:
+                for area in self.patch_data['chests'].keys():
+                    work_dir: str = os.path.join(base_dir, area)
+                    dec_data: str = os.path.join(work_dir, "0004.tlzc")
+                    chest_data: str = os.path.join(work_dir, area + ".tlzc.ext", "0004")
+
+                    executor.submit(_pack_job, area, chest_data, dec_data)
 
         self.packer.copy_to_output('npc')
 
 if __name__ == '__main__':
     patch_file: str = ""
+    threads: int = 4
     apply: bool = False
 
-    for arg in sys.argv[1:]:
+    skip: bool = False
+    for i, arg in enumerate(sys.argv[1:]):
+        if skip:
+            skip = False
+            continue
+
         if arg in ("-h", "--help"):
             print(
-                "Usage: ToVPatcher.py [ -a | --apply ] [ -r | --restore-backup ] <patch file>"
+                "Usage: ToVPatcher.py [OPTIONS] <patch_file>"
                 "\n\tPatcher for Tales of Vesperia: Definitive Edition on PC/Steam."
                 "\n\n\tOptions:"
+                "\n\t\t-t | --threads <number of threads>\tThe number of threads to use. Default: 4."
                 "\n\t\t-a | --apply-immediately\tImmediately apply the patched files into the game directory, "
                 "and move the affected original files to a backup directory (<game_directory>/Data64/_backup)."
                 "\n\t\t-r | --restore-backup\t\tRestore Backups of the original unmodified files if present "
                 "and remove all instances of patched files in the game directory"
             )
             exit(0)
+        elif arg in ("-t", "--threads"):
+            if len(sys.argv) - 1 - i > 1 and sys.argv[i + 2].isdigit():
+                threads = max(1, int(sys.argv[i + 2]))
+                skip = True
         elif arg in ("-a", "--apply-immediately"):
             apply = True
         elif arg in ("-r", "--restore-backup"):
@@ -138,5 +167,5 @@ if __name__ == '__main__':
 
     assert patch_file != "", "No Valid Patch File was provided!"
 
-    app = VesperiaPatcherApp(patch_file, apply)
+    app = VesperiaPatcherApp(patch_file, apply, threads)
     app.begin()

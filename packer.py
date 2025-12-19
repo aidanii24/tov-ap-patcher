@@ -53,7 +53,7 @@ class Hyouta:
         self.use_dotnet: bool = bool(dotnet)
 
     def check_dependencies(self) -> bool:
-        err: bool = False
+        error_occurred: bool = False
 
         if platform.system() == "Windows" or self.path.endswith(".dll"):
             try:
@@ -61,43 +61,50 @@ class Hyouta:
                                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
                 if not output.stdout or output.stderr:
-                    err = True
+                    error_occurred = True
                     print("Runtime Error: There was an error running dotnet. "
                           "Please try re-installing the SDK then try again.")
 
                 assert output.stdout.decode('utf-8')[0] == "6"
             except AssertionError:
-                err = True
+                error_occurred = True
                 print(
                     "Wrong Dependency: The installed .NET is incompatible with HyoutaToolsCLI. Please install .NET 6.0.")
             except FileNotFoundError:
-                err = True
+                error_occurred = True
                 print("Missing Dependency: .NET 6.0 is not installed, or is not present in the provided path.")
         else:
             self.use_dotnet: bool = False
 
         try:
             if self.use_dotnet:
-                assert self.path.endswith(".dll"), \
-                    "Missing Dependency: The specified HyoutaToolsCLI file must be a DLL file."
+                if not self.path.endswith(".dll"):
+                    error_occurred = error_occurred & True
+                    print("Missing Dependency: The specified HyoutaToolsCLI file must be a DLL file.")
                 command = [self.dotnet, self.path]
             else:
+                if not os.path.isfile(self.path): raise FileNotFoundError
+
                 executable: bool = os.access(self.path, os.X_OK)
-                assert executable, "Access Error: HyoutaToolsCLI does not have permission to be executed."
+                if not executable:
+                    error_occurred = True
+                    print("Access Error: HyoutaToolsCLI is not permitted to or cannot be run. "
+                          "Are you sure you are pointing to the HyoutaToolsCLI executable?"
+                          f"\nSpecified Location: {self.path}")
 
                 command: list = [self.path]
 
             output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if not output.stdout or output.stderr:
-                err = True
+                error_occurred = True
                 print("Runtime Error: There was an error running HyoutaToolsCLI. "
                       "Please try re-downloading the application then try again.")
 
         except FileNotFoundError:
-            err = True
+            error_occurred = True
             print("Missing Dependency: HyoutaToolsCLI was not found.")
 
-        return err
+        return error_occurred
 
     def build_base_command(self, *args) -> list[str]:
         if self.use_dotnet:
@@ -261,7 +268,7 @@ class VesperiaPacker:
             json.dump(dotnet_global, file, indent=4)
 
     def check_dependencies(self):
-        err: bool = False
+        error_occurred: bool = False
 
         try:
             with open(os.path.join(self.vesperia_dir, "TOV_DE.exe"), "rb") as file:
@@ -271,33 +278,37 @@ class VesperiaPacker:
                 assert exec_hash == checksums["TOV_DE.exe"]
                 file.close()
         except AssertionError:
-            err = True
+            error_occurred = True
             print("Wrong Dependency: The provided game executable did not meet the expected supported version."
                   "Please update the game then try again.")
         except FileNotFoundError:
-            err = True
+            error_occurred = True
             print("Missing Dependency: The game was not found in the provided path.")
 
-        err = self.hyouta.check_dependencies() and err
+        error_occurred = self.hyouta.check_dependencies() or error_occurred
 
         try:
+            if not os.path.isfile(self.comptoe): raise FileNotFoundError
+
             assert os.access(self.comptoe, os.X_OK)
 
             output = subprocess.run([self.comptoe], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if not output.stdout or output.stderr:
-                err = True
+                error_occurred = True
                 print("Runtime Error: There was an error running comptoe. "
                       "Please try re-downloading the application then try again.")
 
         except FileNotFoundError:
-            err = True
+            error_occurred = True
             print("Missing Dependency: comptoe was not found."
                   f"\nExpected at: {self.comptoe}")
         except AssertionError:
-            print("Access Error: comptoe is not permitted to or cannot be run.")
-            err = True
+            print("Access Error: comptoe is not permitted to or cannot be run. "
+                  "Are you sure you are pointing to the comptoe executable?"
+                  f"\nSpecified Location: {self.comptoe}")
+            error_occurred = True
 
-        if err:
+        if error_occurred:
             sys.exit(1)
 
     @staticmethod

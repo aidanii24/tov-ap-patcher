@@ -57,9 +57,15 @@ class Hyouta:
 
         if platform.system() == "Windows" or self.path.endswith(".dll"):
             try:
-                version = subprocess.check_output([self.dotnet, "--version"])
+                output = subprocess.run([self.dotnet, "--version"],
+                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                assert version.decode('utf-8')[0] == "6"
+                if not output.stdout or output.stderr:
+                    err = True
+                    print("Runtime Error: There was an error running dotnet. "
+                          "Please try re-installing the SDK then try again.")
+
+                assert output.stdout.decode('utf-8')[0] == "6"
             except AssertionError:
                 err = True
                 print(
@@ -67,11 +73,6 @@ class Hyouta:
             except FileNotFoundError:
                 err = True
                 print("Missing Dependency: .NET 6.0 is not installed, or is not present in the provided path.")
-            except subprocess.CalledProcessError as e:
-                err = True
-                if e.returncode != 255:
-                    print("Runtime Error: There was a problem calling .NET 6.0. "
-                          "Try re-installing the application then try again.")
         else:
             self.use_dotnet: bool = False
 
@@ -86,17 +87,15 @@ class Hyouta:
 
                 command: list = [self.path]
 
-            subprocess.check_output(command)
+            output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if not output.stdout or output.stderr:
+                err = True
+                print("Runtime Error: There was an error running HyoutaToolsCLI. "
+                      "Please try re-downloading the application then try again.")
+
         except FileNotFoundError:
             err = True
             print("Missing Dependency: HyoutaToolsCLI was not found.")
-        except subprocess.CalledProcessError as c:
-            if c.returncode != 255:
-                err = True
-                print("Runtime Error: There was a problem calling HyoutaToolsCLI. "
-                      "Try re-installing the application then try again.")
-        except AssertionError:
-            err = True
 
         return err
 
@@ -282,16 +281,21 @@ class VesperiaPacker:
         err = self.hyouta.check_dependencies() and err
 
         try:
-            subprocess.check_output([self.comptoe])
+            assert os.access(self.comptoe, os.X_OK)
+
+            output = subprocess.run([self.comptoe], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if not output.stdout or output.stderr:
+                err = True
+                print("Runtime Error: There was an error running comptoe. "
+                      "Please try re-downloading the application then try again.")
+
         except FileNotFoundError:
             err = True
             print("Missing Dependency: comptoe was not found."
                   f"\nExpected at: {self.comptoe}")
-        except subprocess.CalledProcessError as c:
-            if c.returncode != 255:
-                err = True
-                print("Runtime Error: There was a problem calling comptoe."
-                      "Try re-downloading the application then try again.")
+        except AssertionError:
+            print("Access Error: comptoe is not permitted to or cannot be run.")
+            err = True
 
         if err:
             sys.exit(1)

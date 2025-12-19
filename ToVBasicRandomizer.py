@@ -10,7 +10,7 @@ import os
 from odfdo import Document, Table, Row
 
 from utils import keys_to_int
-from dataclass.enums import Characters, Symbol, FatalStrikeType
+from resources.enums import Characters, Symbol, FatalStrikeType
 
 
 wd: str = os.path.dirname(__file__)

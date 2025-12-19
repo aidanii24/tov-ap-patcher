@@ -601,6 +601,7 @@ class ChestEntry(ctypes.Structure):
     _pack_ = 1
     _fields_ = [
         ("chest_id", ctypes.c_uint32),
+        # ("chest_type", ctypes.c_uint32),
         ("item_amount", ctypes.c_uint32),
     ]
 

@@ -27,13 +27,14 @@ def search_point_to_json():
         header: SearchPointHeader = SearchPointHeader.from_buffer_copy(mm.read(header_size))
 
         mm.seek(header.definition_start)
-
         for i in range(header.definition_entries):
             definitions.append(SearchPointDefinitionEntry.from_buffer_copy(mm.read(definition_size)))
 
+        mm.seek(header.content_start)
         for i in range(header.content_entries):
             contents.append(SearchPointContentEntry.from_buffer_copy(mm.read(contents_size)))
 
+        mm.seek(header.item_start)
         for i in range(header.item_entries):
             items.append(SearchPointItemEntry.from_buffer_copy(mm.read(item_size)))
 

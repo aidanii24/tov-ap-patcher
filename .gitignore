@@ -2,7 +2,7 @@
 .idea
 
 # Production Configurations
-/resources/
+/references/
 /dependencies/
 /builds/
 /output/

@@ -156,6 +156,9 @@ def get_chests(target) -> dict:
         for i in range(header.chest_entries):
             chest_id: int = int.from_bytes(mm.read(4), byteorder="little")
 
+            # mm.seek(0x8, 1)
+            # chest_type: int = int.from_bytes(mm.read(4), byteorder="little")
+
             mm.seek(0x38, 1)
             amount: int = int.from_bytes(mm.read(4), byteorder="little")
 

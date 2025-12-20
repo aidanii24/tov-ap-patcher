@@ -31,3 +31,9 @@ class FatalStrikeType(enum.Enum):
     @classmethod
     def _missing_(cls, value):
         return cls.NONE
+
+class SearchPointType(enum.Enum):
+    TREE_STUMP = 0
+    SHELL = 1
+    BONES = 2
+    SEAGULL = 3

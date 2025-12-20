@@ -10,7 +10,7 @@ import os
 from odfdo import Document, Table, Row
 
 from utils import keys_to_int
-from resources.enums import Characters, Symbol, FatalStrikeType
+from resources.enums import Characters, Symbol, FatalStrikeType, SearchPointType
 
 
 wd: str = os.path.dirname(__file__)
@@ -20,7 +20,8 @@ VALID_TARGETS: list[str] = [
     'skills',
     'items',
     'shops',
-    'chests'
+    'chests',
+    'search'
 ]
 
 class InputTemplate:
@@ -33,7 +34,12 @@ class InputTemplate:
 
     artes_by_char: dict[int, list[int]]
     skills_by_char: dict[int, list[int]]
+
     items_list: dict
+    item_to_category: dict
+    item_by_category: dict
+    common_items: list[int] # Any valid non-key and non-DLC item
+    key_items: list[int]
 
     seed: int
     random: random.Random
@@ -88,7 +94,9 @@ class InputTemplate:
 
             self.skills_by_char = json.load(open(skills_char_data_file), object_hook=keys_to_int)
 
-        if not targets or {'items', 'shops', 'chests'}.intersection(targets):
+        item_dependents: set[str] = set(targets).intersection({'items', 'shops', 'chests', 'search'})
+        search_only: bool = len(item_dependents) == 1 and 'search' in item_dependents
+        if not targets or item_dependents:
             items_ids_file: str = os.path.join(wd, "data", "items_id_table.json")
             items_file: str = os.path.join(wd, "data", "item.json")
 
@@ -98,6 +106,24 @@ class InputTemplate:
             self.item_ids = json.load(open(items_ids_file), object_hook=keys_to_int)
             self.items_list = json.load(open(items_file))['items']
 
+            self.item_by_category = {}
+            self.common_items = []
+            self.key_items = []
+
+            if not search_only:
+                self.item_to_category = {}
+
+            for item in self.items_list:
+                self.item_by_category.setdefault(item['category'], []).append(item['id'])
+
+                if 1 < item['category'] < 10:
+                    self.common_items.append(item['id'])
+                elif item['category'] == 10:
+                    self.key_items.append(item['id'])
+
+                if search_only: continue
+                self.item_to_category[item['id']] = item['category']
+
         if not os.path.isdir("patches"):
             os.makedirs("patches")
 
@@ -105,6 +131,8 @@ class InputTemplate:
                                  range_max: float = math.inf):
         return int(math.ceil(min(max(self.random.gauss(mu, sigma), range_min), range_max)))
 
+    def random_from_triangular(self, minimum: int, maximum: int):
+        return min(self.random.randint(minimum, maximum), self.random.randint(minimum, maximum))
 
     def generate(self, targets: list, spoil: bool = False):
         output: str = self.patch_output
@@ -138,6 +166,9 @@ class InputTemplate:
         if not targets or 'chests' in targets:
             chests_input = self.randomize_chests_input(self.generate_chests_input())
             patch_data['chests'] = chests_input
+
+        if not targets or 'search' in targets:
+            patch_data['search'] = self.randomize_search_points()
 
         if spoil:
             self.generate_spoiler_file(dict(item for item in [*patch_data.items()][4:]))
@@ -398,6 +429,46 @@ class InputTemplate:
 
         return report
 
+    def generate_search_report(self, patched_items: dict) -> Table:
+        search_point_file: str = os.path.join(wd, "data", "named_search_points.json")
+        assert os.path.isfile(search_point_file), f"'{search_point_file}' not found"
+
+        search_point_names: list[str] = json.load(open(search_point_file))['FIELD']
+
+        report_list: list = []
+        last_cont_idx: int = 0
+        last_itm_idx: int = 0
+        for i, definition in enumerate(patched_items['definitions']):
+            next_cont_end: int = last_cont_idx + definition['content_range']
+            item_ranges: list[int] = []
+            for content in patched_items['contents'][last_cont_idx:next_cont_end]:
+                item_ranges.append(content)
+
+            report_list.append([search_point_names[i], SearchPointType(definition['type']).name])
+            for idx, r in enumerate(item_ranges):
+                report_list.append([f"Item Pool #{idx}",
+                                    self.item_ids[patched_items['items'][last_itm_idx]['id']],
+                                    patched_items['items'][last_itm_idx]['count']])
+                last_itm_idx += 1
+                if r < 2: continue
+
+                for count in range(r - 1):
+                    report_list.append(["",
+                                        self.item_ids[patched_items['items'][last_itm_idx]['id']],
+                                        patched_items['items'][last_itm_idx]['count']])
+                    last_itm_idx += 1
+
+            last_cont_idx = next_cont_end
+
+        field_names: list[str] = ["Search Point", "Item", "Amount"]
+
+        report: Table = Table("SEARCH POINTS")
+        report.set_row_values(0, field_names)
+        for i, row in enumerate(report_list):
+            report.set_row_values(i + 1, row)
+
+        return report
+
     def generate_spoiler_file(self, patch_data: dict):
         print("> Generating Spoiler...")
         reports: list[Table] = []
@@ -413,6 +484,8 @@ class InputTemplate:
                 reports.append(self.generate_shop_items_report(data))
             elif entry == "chests":
                 reports.append(self.generate_chests_report(data))
+            elif entry == "search":
+                reports.append(self.generate_search_report(data))
 
         if not reports or None in reports: return
 
@@ -696,19 +769,8 @@ class InputTemplate:
         if 'commons' not in patch and 'uniques' not in patch:
             return new_input
 
-        item_to_category: dict = {}
-        item_by_category: dict = {}
-        eligible_items: list[int] = []
-
-        for item in self.items_list:
-            item_to_category[item['id']] = item['category']
-            item_by_category.setdefault(item['category'], []).append(item['id'])
-
-            if 1 < item['category'] < 10:
-                eligible_items.append(item['id'])
-
         def _randomize_item(itm, blacklist, stats_struct) -> int:
-            category: int = item_to_category[itm]
+            category: int = self.item_to_category[itm]
 
             stats_struct['total'] += 1
             new_item: int = itm
@@ -731,14 +793,14 @@ class InputTemplate:
             if self.random.random() <= candidacy_chance:
                 stats_struct['candidates'] += 1
                 # Randomize to an item of the same category
-                category_candidates = [*set(item_by_category[category]).difference(blacklist)]
+                category_candidates = [*set(self.item_by_category[category]).difference(blacklist)]
                 if category_candidates and self.random.random() <= same_category_chance:
                     stats_struct['sameCategory'] += 1
                     new_item = random.choice(category_candidates)
                 # Randomize to any eligible item
                 else:
                     stats_struct['fullRandom'] += 1
-                    new_item = random.choice([*set(eligible_items).difference(blacklist)])
+                    new_item = random.choice([*set(self.common_items).difference(blacklist)])
 
             return new_item
 
@@ -757,7 +819,7 @@ class InputTemplate:
             new_items = []
             for item in grouping['items']:
                 # Do not randomize dummy items, Key Items and DLC
-                if item not in eligible_items:
+                if item not in self.common_items:
                     new_items.append(item)
                     continue
 
@@ -775,7 +837,7 @@ class InputTemplate:
             already_present: list[int] = items_cache.get(shop, [])
             for item in items:
                 # Do not randomize dummy items, Key Items and DLC
-                if item not in eligible_items:
+                if item not in self.common_items:
                     new_items.append(item)
                     continue
 
@@ -799,19 +861,10 @@ class InputTemplate:
 
         gald_id: int = 0xFFFFFFFE
 
-        item_to_category: dict = {}
-        item_by_category: dict = {}
-        eligible_items: list[int] = [gald_id]
-
-        for item in self.items_list:
-            item_to_category[item['id']] = item['category']
-            item_by_category.setdefault(item['category'], []).append(item['id'])
-
-            if 1 < item['category'] < 10:
-                eligible_items.append(item['id'])
+        eligible_items: list[int] = [*self.common_items, gald_id]
 
         def _randomize_entry(itm, stats_struct) -> dict[str, int]:
-            category: int = item_to_category.get(itm['item_id'], 0) if itm['item_id'] != gald_id else -1
+            category: int = self.item_to_category.get(itm['item_id'], 0) if itm['item_id'] != gald_id else -1
 
             if category != -1 and (category <= 1 or category >= 10): return itm
             stats_struct['total'] += 1
@@ -829,7 +882,7 @@ class InputTemplate:
                 if self.random.random() <= same_category_chance:
                     if category != -1:
                         stats_struct['sameCategory'] += 1
-                        new_id = random.choice(item_by_category[category])
+                        new_id = random.choice(self.item_by_category[category])
                 # Randomize to any eligible item
                 else:
                     stats_struct['fullRandom'] += 1
@@ -875,7 +928,7 @@ class InputTemplate:
             for chest, items in chests.items():
                 new_input[area][chest] = []
                 for item in items:
-                    if item['item_id'] == gald_id or 1 < item_to_category.get(item['item_id'], 0) < 10:
+                    if item['item_id'] == gald_id or 1 < self.item_to_category.get(item['item_id'], 0) < 10:
                         new_input[area][chest].append(_randomize_entry(item, stats))
                     else:
                         new_input[area][chest].append(item)
@@ -895,9 +948,55 @@ class InputTemplate:
 
         return new_input
 
+    def randomize_search_points(self):
+        def _randomize_item() -> int:
+            if self.random.random() <= 0.7:
+                return random.choice(self.item_by_category[9])
+            else:
+                return random.choice(self.common_items)
+
+        print("> Randomizing Search Points Items...")
+        new_input: dict = {
+            'guarantee': True,
+            'definitions': [],
+            'contents': [],
+            'items': []
+        }
+
+        r_def_conts: list[int] = []
+        r_cont_itms: list[int] = []
+
+        for _ in range(88):
+            content_range: int = self.random_from_triangular(1, 5)
+            new_input['definitions'].append({
+                "type": self.random.randint(0, 3),
+                "content_range": content_range,
+                "max_use": self.random_from_triangular(1, 5)
+            })
+
+            item_ranges: list[int] = [self.random.randint(1, 5) for _ in range(content_range)]
+            new_input['contents'].extend(item_ranges)
+
+            for _ in range(sum(item_ranges)):
+                new_input['items'].append({
+                    'id': _randomize_item(),
+                    'count': self.random_from_triangular(1, 15)
+                })
+
+            r_def_conts.append(content_range)
+            r_cont_itms.extend(item_ranges)
+
+        print("--- Search Point Results -------------------")
+        print(f"Total Item Pools: {len(new_input['contents'])}")
+        print(f"Total Items: {len(new_input['items'])}")
+        print(f"Average Item Pools per Search Point: {sum(r_def_conts) / len(r_def_conts):.2f}")
+        print(f"Average Items per Item Pool: {sum(r_cont_itms) / len(r_cont_itms):.2f}\n")
+
+        return new_input
+
 
 if __name__ == "__main__":
-    target_list: list[str] = []
+    target_list: list[str] = ['search']
     create_spoiler: bool = False
 
     scanning_content: int = 0
@@ -908,7 +1007,7 @@ if __name__ == "__main__":
                 "\n\tA basic randomizer for use with ToVPatcher."
                 "\n\n\tOptions:"
                 "\n\t\t-s | --spoil\tCreate spoiler file."
-                "\n\n\tTargets: \"artes\" | \"skills\" | \"items\" | \"shops\" | \"chests\""
+                f"\n\n\tTargets: {" | ".join(VALID_TARGETS)}"
                 "\n\tSpecifies targets to randomize. When left unspecified, will randomize all targets."
             )
             sys.exit(0)

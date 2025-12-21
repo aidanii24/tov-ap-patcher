@@ -5,7 +5,6 @@ import os
 
 import utils
 import vesperia_types as vtypes
-from tests.debug import test_structure
 
 class VesperiaPatcher:
     build_dir: str = os.path.join(os.getcwd(), "builds")
@@ -254,11 +253,11 @@ class VesperiaPatcher:
             mm.flush()
             mm.close()
 
-    def patch_search_points(self, target: str, patches: dict):
+    @staticmethod
+    def patch_search_points(target: str, patches: dict):
         assert os.path.isfile(target), f"Cannot find {target}"
 
         header_size: int = ctypes.sizeof(vtypes.SearchPointHeader)
-        definition_size: int = ctypes.sizeof(vtypes.SearchPointDefinitionEntry)
         content_size: int = ctypes.sizeof(vtypes.SearchPointContentEntry)
         item_size: int = ctypes.sizeof(vtypes.SearchPointItemEntry)
 
@@ -272,13 +271,26 @@ class VesperiaPatcher:
         definitions.insert(0, definitions[0])
         definitions.insert(2, definitions[2])
 
-        content_duplicate_count: int = definitions[0]['content_range'] + definitions[2]['content_range']
-        contents_to_duplicate: list = contents[:content_duplicate_count]
+        content_duplicates: list[int] = [definitions[0]['content_range'], definitions[2]['content_range']]
+        duplicated_contents: list = []
+        duplicated_items: list = []
 
-        item_duplicate_count: int = sum(c['item_range'] for c in contents_to_duplicate)
+        last_content_range: int = 0
+        last_item_range: int = 0
+        for content_range in content_duplicates:
+            current_contents: list = contents[last_content_range:last_content_range + content_range]
 
-        contents = contents_to_duplicate + contents
-        items = items[:item_duplicate_count] + items
+            item_range: int = sum([c['item_range'] for c in current_contents])
+            current_items: list = items[last_item_range:last_item_range + item_range]
+
+            duplicated_contents += current_contents + current_contents
+            duplicated_items += current_items + current_items
+
+            last_content_range += len(current_contents)
+            last_item_range += len(current_items)
+
+        contents = duplicated_contents + contents[last_content_range:]
+        items = duplicated_items + items[last_item_range:]
 
         with open(target, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)

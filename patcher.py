@@ -5,7 +5,6 @@ import os
 
 import utils
 import vesperia_types as vtypes
-from vesperia_types import SkillsEntry, ChestHeader, ChestItemEntry
 
 
 class VesperiaPatcher:
@@ -98,7 +97,7 @@ class VesperiaPatcher:
             for entry, patch in patched_data.items():
                 mm.seek(header_size + (entry * entry_size))
 
-                skills_data: vtypes.SkillsEntry = SkillsEntry(*patch.values())
+                skills_data: vtypes.SkillsEntry = vtypes.SkillsEntry(*patch.values())
                 mm.write(bytearray(skills_data))
 
             mm.flush()
@@ -215,13 +214,13 @@ class VesperiaPatcher:
         path: str = os.path.join(self.build_dir, "maps", target_file, "0004.tlzc")
         assert os.path.isfile(path), f"Cannot find {path}"
 
-        header_size: int = ctypes.sizeof(ChestHeader)
-        item_size: int = ctypes.sizeof(ChestItemEntry)
+        header_size: int = ctypes.sizeof(vtypes.ChestHeader)
+        item_size: int = ctypes.sizeof(vtypes.ChestItemEntry)
 
         with open(path, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
 
-            header = ChestHeader.from_buffer_copy(mm.read(header_size))
+            header = vtypes.ChestHeader.from_buffer_copy(mm.read(header_size))
 
             chest_entries: list[dict] = []
 
@@ -242,7 +241,7 @@ class VesperiaPatcher:
                 if chest['chest_id'] in patches:
                     mm.seek(position)
                     for i, item in enumerate(patches[chest['chest_id']]):
-                        item = ChestItemEntry(*item.values())
+                        item = vtypes.ChestItemEntry(*item.values())
                         mm.write(bytearray(item))
 
                         # Break in case of mismatched item count and prevent writing to other chest's item data
@@ -254,3 +253,43 @@ class VesperiaPatcher:
 
             mm.flush()
             mm.close()
+
+    def patch_search_points(self, patches: dict):
+        target: str = os.path.join(self.build_dir, "maps", "FIELD", "FIELD.tlzc.ext", "0005.tlzc")
+        assert os.path.isdir(target), f"Cannot find {target}"
+
+        header_size: int = ctypes.sizeof(vtypes.SearchPointHeader)
+        definition_size: int = ctypes.sizeof(vtypes.SearchPointDefinitionEntry)
+        content_size: int = ctypes.sizeof(vtypes.SearchPointContentEntry)
+        item_size: int = ctypes.sizeof(vtypes.SearchPointItemEntry)
+
+        cum_index: int = 0
+        with open(target, 'wb') as f:
+            mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
+
+            header = vtypes.SearchPointHeader.from_buffer_copy(mm.read(header_size))
+
+            mm.seek(header.definition_start)
+            for definition in patches['definitions']:
+                # Write Search Point Type
+                mm.seek(0xC, 1)
+                mm.write(definition['type'].to_bytes(4, byteorder="little"))
+
+                # Write Chance to apper
+                if patches.get(['guarantee'], False):
+                    mm.seek(0x14, 1)
+                    mm.write((100).to_bytes(4, byteorder="little"))
+
+                    mm.seek(0xF, 1)
+                else:
+                    mm.seek(0x28, 1)
+
+                # Write Max Use
+                mm.write(definition['max_use'].to_bytes(4, byteorder="little"))
+
+                # Write Content Start and Range
+                mm.seek(0x4, 1)
+                mm.write(cum_index.to_bytes(4, byteorder="little"))
+                mm.write(definition['content_range'].to_bytes(4, byteorder="little"))
+
+                cum_index += definition['content_range']

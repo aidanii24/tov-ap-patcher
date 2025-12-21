@@ -131,8 +131,11 @@ class InputTemplate:
                                  range_max: float = math.inf):
         return int(math.ceil(min(max(self.random.gauss(mu, sigma), range_min), range_max)))
 
-    def random_from_triangular(self, minimum: int, maximum: int):
-        return min(self.random.randint(minimum, maximum), self.random.randint(minimum, maximum))
+    def random_from_triangular(self, minimum: int, maximum: int, mode: str = "min"):
+        if mode == "max":
+            return max(self.random.randint(minimum, maximum), self.random.randint(minimum, maximum))
+        else:
+            return min(self.random.randint(minimum, maximum), self.random.randint(minimum, maximum))
 
     def generate(self, targets: list, spoil: bool = False):
         output: str = self.patch_output
@@ -442,7 +445,7 @@ class InputTemplate:
             next_cont_end: int = last_cont_idx + definition['content_range']
             item_ranges: list[int] = []
             for content in patched_items['contents'][last_cont_idx:next_cont_end]:
-                item_ranges.append(content)
+                item_ranges.append(content['item_range'])
 
             report_list.append([search_point_names[i], SearchPointType(definition['type']).name])
             for idx, r in enumerate(item_ranges):
@@ -975,7 +978,11 @@ class InputTemplate:
             })
 
             item_ranges: list[int] = [self.random.randint(1, 5) for _ in range(content_range)]
-            new_input['contents'].extend(item_ranges)
+            for r in item_ranges:
+                new_input['contents'].append({
+                    "item_range": r,
+                    "chance": self.random_from_triangular(1, 10, "max") * 10
+                })
 
             for _ in range(sum(item_ranges)):
                 new_input['items'].append({

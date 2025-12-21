@@ -228,20 +228,22 @@ class VesperiaPacker:
 
     @classmethod
     def generate_config(cls):
-        vesperia: str = default_vesperia
-        if sys.platform == "linux" or sys.platform == "linux2":
-            vesperia = os.path.join(os.path.expanduser("~"), ".steam", default_vesperia)
-        elif sys.platform == "win32":
-            vesperia = os.path.join("C:", "Program Files (x86)", default_vesperia)
+        system: str = platform.system()
 
-        dotnet_required: bool = platform.system() == "Windows"
+        vesperia: str = default_vesperia
+        if system == "Linux":
+            vesperia = os.path.join(os.path.expanduser("~"), ".steam", default_vesperia)
+        elif system == "Windows":
+            vesperia = os.path.join("C:\\Program Files (x86)", default_vesperia)
+
+        dotnet_required: bool = system == "Windows"
 
         dotnet: str = default_dotnet if dotnet_required  else ""
         hyouta: str = default_hyouta if dotnet_required else default_hyouta.rstrip(".dll")
 
         config = {
             dependency_vesperia : vesperia,
-            dependencies_comptoe: default_comptoe,
+            dependencies_comptoe: default_comptoe + (".exe" if platform == "Windows" else "")
         }
 
         if dotnet_required:

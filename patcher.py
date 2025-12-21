@@ -5,7 +5,7 @@ import os
 
 import utils
 import vesperia_types as vtypes
-
+from tests.debug import test_structure
 
 class VesperiaPatcher:
     build_dir: str = os.path.join(os.getcwd(), "builds")
@@ -254,42 +254,88 @@ class VesperiaPatcher:
             mm.flush()
             mm.close()
 
-    def patch_search_points(self, patches: dict):
-        target: str = os.path.join(self.build_dir, "maps", "FIELD", "FIELD.tlzc.ext", "0005.tlzc")
-        assert os.path.isdir(target), f"Cannot find {target}"
+    def patch_search_points(self, target: str, patches: dict):
+        assert os.path.isfile(target), f"Cannot find {target}"
 
         header_size: int = ctypes.sizeof(vtypes.SearchPointHeader)
         definition_size: int = ctypes.sizeof(vtypes.SearchPointDefinitionEntry)
         content_size: int = ctypes.sizeof(vtypes.SearchPointContentEntry)
         item_size: int = ctypes.sizeof(vtypes.SearchPointItemEntry)
 
-        cum_index: int = 0
-        with open(target, 'wb') as f:
+        definitions: list[dict] = patches['definitions']
+        contents: list[dict] = patches['contents']
+        items: list[dict] = patches['items']
+
+        # The first two definitions have duplicate entries with different pools
+        # Mimic the definition layout, but the BasicRandomizer will treat them as the same point
+        # with the same pool
+        definitions.insert(0, definitions[0])
+        definitions.insert(2, definitions[2])
+
+        content_duplicate_count: int = definitions[0]['content_range'] + definitions[2]['content_range']
+        contents_to_duplicate: list = contents[:content_duplicate_count]
+
+        item_duplicate_count: int = sum(c['item_range'] for c in contents_to_duplicate)
+
+        contents = contents_to_duplicate + contents
+        items = items[:item_duplicate_count] + items
+
+        with open(target, 'r+b') as f:
             mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE)
 
             header = vtypes.SearchPointHeader.from_buffer_copy(mm.read(header_size))
 
+            # Resize File
+            # Add 7 bytes is for the "dummy\x00" string at the end
+            data_end: int = header.content_start + len(contents) * content_size + len(items) * item_size
+            new_size: int = data_end + 6
+
+            mm.resize(new_size)
+
             mm.seek(header.definition_start)
-            for definition in patches['definitions']:
+            last_content_index: int = 0
+            for definition in definitions:
                 # Write Search Point Type
                 mm.seek(0xC, 1)
                 mm.write(definition['type'].to_bytes(4, byteorder="little"))
 
                 # Write Chance to apper
-                if patches.get(['guarantee'], False):
-                    mm.seek(0x14, 1)
-                    mm.write((100).to_bytes(4, byteorder="little"))
+                if patches.get('guarantee', False):
+                    mm.seek(0x12, 1)
+                    mm.write((100).to_bytes(2, byteorder="little"))
 
-                    mm.seek(0xF, 1)
+                    mm.seek(0x10, 1)
                 else:
-                    mm.seek(0x28, 1)
+                    mm.seek(0x24, 1)
 
                 # Write Max Use
-                mm.write(definition['max_use'].to_bytes(4, byteorder="little"))
+                mm.write(definition['max_use'].to_bytes(2, byteorder="little"))
 
                 # Write Content Start and Range
-                mm.seek(0x4, 1)
-                mm.write(cum_index.to_bytes(4, byteorder="little"))
+                mm.seek(0x2, 1)
+                mm.write(last_content_index.to_bytes(4, byteorder="little"))
                 mm.write(definition['content_range'].to_bytes(4, byteorder="little"))
 
-                cum_index += definition['content_range']
+                last_content_index += definition['content_range']
+
+            mm.seek(header.content_start)
+            last_item_index: int = 0
+            for content in contents:
+                content_data = vtypes.SearchPointContentEntry(content['chance'], last_item_index, content['item_range'])
+                mm.write(bytearray(content_data))
+
+                last_item_index += content['item_range']
+
+            header.content_entries = len(contents)
+            header.item_entries = len(items)
+            header.item_start = mm.tell()
+            for item in items:
+                item_data = vtypes.SearchPointItemEntry(*item.values())
+                mm.write(bytearray(item_data))
+
+            header.entry_end = mm.tell()
+            mm.write("dummy\x00".encode())
+
+            mm.seek(0)
+            header.file_size = mm.size()
+            mm.write(bytearray(header))

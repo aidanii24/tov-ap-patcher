@@ -1003,7 +1003,7 @@ class InputTemplate:
 
 
 if __name__ == "__main__":
-    target_list: list[str] = ['search']
+    target_list: list[str] = []
     create_spoiler: bool = False
 
     scanning_content: int = 0

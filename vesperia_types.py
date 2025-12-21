@@ -555,6 +555,9 @@ class SearchPointContentEntry(ctypes.Structure):
         ("padding", ctypes.c_uint32),
     ]
 
+    def __init__(self, chance:int, item_index:int, item_range:int):
+        super().__init__(chance, item_index, item_range, 0)
+
 class SearchPointItemEntry(ctypes.Structure):
     _pack_ = 1
     _fields_ = [

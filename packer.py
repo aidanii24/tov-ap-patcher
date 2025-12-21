@@ -524,7 +524,7 @@ class VesperiaPacker:
         self.hyouta.compress_tlzc(map_decompressed, data_file)
 
     def compress_data(self, file: str, out: str = ""):
-        assert os.path.isfile(file)
+        assert os.path.isfile(file), f"Cannot find {file}"
         if not out:
             if file.endswith(".tlzc"):
                 output: str = file.replace(".tlzc", "")

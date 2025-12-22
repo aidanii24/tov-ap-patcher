@@ -1,3 +1,5 @@
+import shutil
+
 import utils
 import time
 import json
@@ -16,9 +18,11 @@ class VesperiaPatcherApp:
     patch_data: dict
     targets: list = []
 
+    clean: bool = False
     threads: int
 
-    def __init__(self, patch_data: str, apply_immediately: bool = False, max_threads: int = 4):
+    def __init__(self, patch_data: str, max_threads: int = 4, apply_immediately: bool = False,
+                 clean_build: bool = False):
         self.patch_data = json.load(open(patch_data), object_hook=utils.keys_to_int)
         identifier = f"{self.patch_data['player']}-{self.patch_data['created'].split(' ')[0]}-{self.patch_data['seed']}"
 
@@ -27,6 +31,8 @@ class VesperiaPatcherApp:
         self.patcher = VesperiaPatcher(identifier)
 
         self.threads = max_threads
+
+        self.clean = clean_build
 
     def begin(self):
         start: float = time.time()
@@ -51,6 +57,9 @@ class VesperiaPatcherApp:
 
         self.packer.apply_patch()
         end: float = time.time()
+
+        if self.clean and os.path.isdir(self.packer.build_dir):
+            shutil.rmtree(self.packer.build_dir, ignore_errors=True)
 
         print(f"\n[-/-] Patch Finished\tTime: {end - start:.2f} seconds")
         if self.packer.apply_immediately:
@@ -146,6 +155,7 @@ class VesperiaPatcherApp:
 if __name__ == '__main__':
     patch_file: str = ""
     threads: int = 4
+    clean: bool = False
     apply: bool = False
 
     skip: bool = False
@@ -158,10 +168,13 @@ if __name__ == '__main__':
             print(
                 "Usage:\tToVPatcher [OPTIONS] <patch_file>"
                 "\n\tPatcher for Tales of Vesperia: Definitive Edition on PC/Steam."
-                "\n\n\tOptions:"
-                "\n\t\t-t | --threads <number of threads>\tThe number of threads to use. Default: 4."
+                "\n\n\tPatcher Options:"
+                "\n\t\t-t | --threads <amount>\t\tThe number of threads to use. Default: 4." 
+                "\n\t\t-c | --clean\t\t\tDelete the used builds subdirectory after patching."
                 "\n\t\t-a | --apply-immediately\tImmediately apply the patched files into the game directory, "
                 "and move the affected original files to a backup directory (<game_directory>/Data64/.backup)."
+                "\n"
+                "Management Options"
                 "\n\t\t-r | --restore-backup\t\tRestore Backups of the original unmodified files if present "
                 "and remove all instances of patched files in the game directory"
             )
@@ -172,6 +185,8 @@ if __name__ == '__main__':
                 skip = True
         elif arg in ("-a", "--apply-immediately"):
             apply = True
+        elif arg in ("-c", "--clean"):
+            clean = True
         elif arg in ("-r", "--restore-backup"):
             packer = VesperiaPacker()
             packer.restore_backup()
@@ -181,5 +196,5 @@ if __name__ == '__main__':
 
     assert patch_file != "", "No Valid Patch File was provided!"
 
-    app = VesperiaPatcherApp(patch_file, apply, threads)
+    app = VesperiaPatcherApp(patch_file, threads, apply, clean)
     app.begin()

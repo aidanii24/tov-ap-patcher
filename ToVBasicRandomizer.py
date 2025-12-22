@@ -44,6 +44,7 @@ class InputTemplate:
     seed: int
     random: random.Random
 
+    identifier: str = "randomizer"
     patch_output: str = os.path.join(".", "patches", "randomizer.tovdepatch")
     report_output: str = os.path.join(".", "patches", "tovde-spoiler.ods")
 
@@ -51,9 +52,9 @@ class InputTemplate:
         self.seed = uuid.uuid1().int
         self.random = random.Random(seed)
 
-        patch_name: str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")
-        self.patch_output = os.path.join(".", "patches", f"{patch_name}.tovdepatch")
-        self.report_output = os.path.join(".", "patches", f"tovde-spoiler-{patch_name}.ods")
+        self.identifier = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")
+        self.patch_output = os.path.join(".", "patches", f"{self.identifier}.tovdepatch")
+        self.report_output = os.path.join(".", "patches", f"tovde-spoiler-{self.identifier}.ods")
 
         if not targets or 'artes' in targets:
             artes_ids_file: str = os.path.join(wd, 'data', 'artes_id_table.json')
@@ -142,7 +143,7 @@ class InputTemplate:
 
         patch_data: dict = {
             'version': '0.1',
-            'created': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'created': self.identifier,
             'seed': self.seed,
             'player': "test",
         }

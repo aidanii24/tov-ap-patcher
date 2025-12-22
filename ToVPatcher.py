@@ -24,7 +24,7 @@ class VesperiaPatcherApp:
     def __init__(self, patch_data: str, max_threads: int = 4, apply_immediately: bool = False,
                  clean_build: bool = False):
         self.patch_data = json.load(open(patch_data), object_hook=utils.keys_to_int)
-        identifier = f"{self.patch_data['player']}-{self.patch_data['created'].split(' ')[0]}-{self.patch_data['seed']}"
+        identifier = f"{self.patch_data['player']}-{self.patch_data['created']}"
 
         self.packer = VesperiaPacker(identifier, apply_immediately)
 

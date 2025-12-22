@@ -103,13 +103,26 @@ the patched files. Simply add the argument `-a` or `--apply-immediately`.
 ```commandline
 ToVPatcher -a ./patches/sample.tovdepatch
 ```
+During patching, the patcher will use the `builds` folder as space for extracting and decompressing files before
+patching them, and will be left there after patching completes. If it is desired to remove these files after patching
+finishes, add the `-c` or `--clean` argument.
+```commandline
+ToVPatcher -c ./patches/sample.tovdepatch
+```
 ## Manual Application
 When manually applying the patch, it is important to note that certain files are left unpacked as folders. Simply
 remove the original files, and then place the folders in their place. Examples of files that are left unpacked when patched
 include `btl.svo`, `item.svo` and `npc.svo`. Their patched folders will usually just be the same name without the
-file extension.\
+file extension.
+
 For patched files that remain as files, simply replace them as normal.
-## Restoring Backups
+## Re-applying Patches
+The patcher can also re-apply patches and restore unaffected files by using the `-s` or `--set` argument.
+It only needs to be provided the directory of the patched files desired.
+```commandline
+ToVPatcher -s ./builds/yuri-lowell-2019-01-11
+```
+## Restoring Originals
 During patching, patched files are also automatically backed up inside
 a `.backup` folder within the game directory, so any patches can be safely reverted by replacing the patched files 
 and folder with the backed up original files. This process can also be automated by using the patcher.

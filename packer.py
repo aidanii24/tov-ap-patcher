@@ -572,13 +572,16 @@ class VesperiaPacker:
 
         shutil.copytree(target, os.path.join(self.output_dir, "Data64", dir_name), dirs_exist_ok=True)
 
-    def apply_patch(self):
-        if not self.apply_immediately:
+    def apply_patch(self, custom_output: str = ""):
+        if not custom_output and not self.apply_immediately:
             return
 
         print("> Applying Patch...")
 
-        shutil.copytree(self.output_dir, self.vesperia_dir, dirs_exist_ok=True)
+        if custom_output:
+            shutil.copytree(custom_output, self.vesperia_dir, dirs_exist_ok=True)
+        else:
+            shutil.copytree(self.output_dir, self.vesperia_dir, dirs_exist_ok=True)
 
     def clean_game(self, quiet: bool = True):
         detected_patches: list[str] = []
@@ -597,14 +600,14 @@ class VesperiaPacker:
             for patches in detected_patches:
                 shutil.rmtree(patches)
 
-    def restore_backup(self):
+    def restore_backup(self, quiet: bool = False):
         if not os.path.isdir(self.backup_dir):
-            print("> There is no backup to restore.")
+            if not quiet: print("> There is no backup to restore.")
             return
 
         self.clean_game()
 
-        print("> Restoring Backup...")
+        if not quiet: print("> Restoring Backup...")
         shutil.copytree(self.backup_dir, os.path.join(self.vesperia_dir, "Data64"), dirs_exist_ok=True)
 
-        print("[-/-] Backup Restored")
+        if not quiet: print("[-/-] Backup Restored")

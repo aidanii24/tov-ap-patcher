@@ -173,8 +173,8 @@ if __name__ == '__main__':
                 "\n\t\t-c | --clean\t\t\tDelete the used builds subdirectory after patching."
                 "\n\t\t-a | --apply-immediately\tImmediately apply the patched files into the game directory, "
                 "and move the affected original files to a backup directory (<game_directory>/Data64/.backup)."
-                "\n"
-                "Management Options"
+                "\n\n\tManagement Options"
+                "\n\t\t-s | --set <output>\t\tApply the specified patch output."
                 "\n\t\t-r | --restore-backup\t\tRestore Backups of the original unmodified files if present "
                 "and remove all instances of patched files in the game directory"
             )
@@ -187,6 +187,18 @@ if __name__ == '__main__':
             apply = True
         elif arg in ("-c", "--clean"):
             clean = True
+        elif arg in ("-s", "--set"):
+            path: str = sys.argv[i + 2]
+            check: str = os.path.join(path, "Data64")
+            if len(sys.argv) - 1 - i > 1 and os.path.isdir(path) and os.path.isdir(check):
+                packer = VesperiaPacker()
+                packer.restore_backup(True)
+                packer.apply_patch()
+
+                print(f"> Patch \"{path}\" has been applied to the game directory.")
+            else:
+                print(f"> The patch output \"{path}\" either does not exist or is not a valid patch directory.")
+            sys.exit(0)
         elif arg in ("-r", "--restore-backup"):
             packer = VesperiaPacker()
             packer.restore_backup()

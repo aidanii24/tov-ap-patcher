@@ -152,6 +152,7 @@ pyinstaller ToVRandomizerTools.spec
 The binaries will be available in the generated `dist` directory upon successful build.
 # Acknowledgements
 Thanks to @Sora3100 for providing me with the knowledge and resources to make this possible.
+
 Thank you to @AdmiralCurtiss for the development of HyoutaTools, and the team behind @lifebottle
 and the original work of @talestra for developing comptoe. These tools are necessary for the patcher to access
 various files of the game, and this would not have been possible without them.

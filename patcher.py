@@ -57,6 +57,9 @@ class VesperiaPatcher:
                     mm.seek(-8, 1)
 
                     arte_data: vtypes.ArtesEntry = vtypes.ArtesEntry(*patched_data[arte_entry].values())
+                    if patched_data[arte_entry]['evolve_condition1']:
+                        arte_data.can_evolve = 1
+
                     mm.write(bytearray(arte_data))
                     del patched_data[arte_entry]
                 else:

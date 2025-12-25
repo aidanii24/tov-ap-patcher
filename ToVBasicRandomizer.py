@@ -564,17 +564,18 @@ class InputTemplate:
                 arte['fatal_strike_type'] = self.random.randrange(0, 3)
 
             # Randomize Evolution
-            ## Only Randomize Artes with Evolve Conditions already, since Evolve Base can't seem to be changed for now
+            ## Only Randomize Artes with Evolve Conditions already, as other artes seems to require
+            ## their arte type changed to Altered Artes to apply properly
+            ## Meebo reports this wasn't necessary, but currently cannot consistently reproduce
             has_evolve: bool = False
             if arte['evolve_base']:
                 has_evolve = True
 
                 # Average Total Artes over Altered Artes Count across all Party Members
-                if self.random.random() <= 0.258:
+                if self.random.random() <= 0.6:   # 0.258
                     r_evolve += 1
 
-                    ## Can't change evolve base for now; this property seems to be for information display only
-                    # arte['evolve_base'] = self.random.choice(self.artes_by_char[data['character_ids'][0]])
+                    arte['evolve_base'] = self.random.choice(self.artes_by_char[data['character_ids'][0]])
 
                     continue_iter: bool = True
                     iterations: int = 1

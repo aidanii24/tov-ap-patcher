@@ -4,6 +4,23 @@ A pair of tools for randomizing and patching aspects of Tales of Vesperia: Defin
 These tools were created in part for an eventual integration of the game into the 
 [Archipelago](https://github.com/ArchipelagoMW/Archipelago) Randomizer framework, but can work
 standalone with the bundled Basic Randomizer.
+# Features
+- Artes Randomization
+  - TP
+  - Cast Time (Magic only)
+  - Learn Conditions
+  - Evolve Conditions (for existing Altered artes only)
+- Skills Randomization
+  - Category
+  - SP Cost
+  - LP Cost
+- Items Randomization
+  - Price
+  - Skills
+- Shops Randomization
+- Chests Randomization
+- Search Point Randomization
+
 # Use
 ToVRandomizerTools comes with two main utilities: **ToVBasicRandomizer**, 
 which is a naive randomizer that can create a patch file, and **ToVPatcher**, which can take that patch file
@@ -138,10 +155,6 @@ Once Python is ready, source dependencies must be installed. All dependencies ar
 When using an IDE such as PyCharm, you will be prompted to download these. Otherwise, it can be easily installed with `pip.`
 ```commandline
 pip install -r requirements.txt
-```
-Once source dependencies are installed, pyinstaller must also be installed to bundle the tools.
-```commandline
-pip install pyinstaller
 ```
 A spec file is already present in the repository, which provides all the information pyinstaller needs to bundle the program.
 Provide this spec file to pyinstaller to build the application. Note that pyinstaller is not a cross-compiler;

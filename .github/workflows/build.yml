@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Executable
         run: |
-          pyinstaller ${{ SPEC_FILE }}
+          pyinstaller ${{ env.SPEC_FILE }}
         working-directory: ./
 
       - name: Create Artifact (Windows)

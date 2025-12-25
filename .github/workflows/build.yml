@@ -1,0 +1,51 @@
+name: Build
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['windows-latest', 'ubuntu-latest']
+
+    env:
+      SPEC_FILE: 'ToVRandomizerTools.spec'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.13.x
+
+      - name: Set up Dependencies
+        run: |
+          pip install -r requirements.txt
+        working-directory: ./
+
+      - name: Build Executable
+        run: |
+          pyinstaller ${{ SPEC_FILE }}
+        working-directory: ./
+
+      - name: Create Artifact (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ToVRandomizerTools-windows
+          path: dist/
+
+      - name: Create Artifact (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ToVRandomizerTools-linux
+          path: dist/
+
+      - name: List bundle output
+        run: ls -R ./dist/

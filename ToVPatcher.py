@@ -206,7 +206,11 @@ if __name__ == '__main__':
         elif os.path.isfile(arg) and arg.endswith(".tovdepatch"):
             patch_file = arg
 
-    assert patch_file != "", "No Valid Patch File was provided!"
+    try:
+        assert patch_file != ""
+    except AssertionError:
+        print("<!> No Valid Patch File was provided!")
+        sys.exit(1)
 
     app = VesperiaPatcherApp(patch_file, threads, apply, clean)
     app.begin()

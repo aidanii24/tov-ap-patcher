@@ -125,17 +125,29 @@ class Hyouta:
         if manifest:
             command.extend(["-j", manifest + ".json"])
 
-        subprocess.check_output(command)
+        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.stderr:
+            print(result.stderr)
+            print("> Aborting Patch...")
+            sys.exit(1)
 
     def decompress_tlzc(self, file: str, out: str=""):
         command: list[str] = self.build_base_command("tlzc", "-d", file, out)
 
-        subprocess.check_output(command)
+        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.stderr:
+            print(result.stderr)
+            print("> Aborting Patch...")
+            sys.exit(1)
 
     def extract_scenario(self, file: str, dir_out: str=""):
         command: list[str] = self.build_base_command("Tales.Vesperia.Scenario.Extract", file, dir_out)
 
-        subprocess.check_output(command)
+        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.stderr:
+            print(result.stderr)
+            print("> Aborting Patch...")
+            sys.exit(1)
 
     def pack_svo(self, manifest_file: str, out: str=""):
         command: list[str] = self.build_base_command("ToVfps4p", manifest_file)
@@ -143,17 +155,29 @@ class Hyouta:
         if out:
             command.append(out)
 
-        subprocess.check_output(command)
+        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.stderr:
+            print(result.stderr)
+            print("> Aborting Patch...")
+            sys.exit(1)
 
     def compress_tlzc(self, file: str, out: str=""):
         command: list[str] = self.build_base_command("tlzc", "-c", file, out)
 
-        subprocess.check_output(command)
+        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.stderr:
+            print(result.stderr)
+            print("> Aborting Patch...")
+            sys.exit(1)
 
     def pack_scenario(self, file: str, dir_out: str=""):
         command: list[str] = self.build_base_command("Tales.Vesperia.Scenario.Pack", file, dir_out)
 
-        subprocess.check_output(command)
+        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.stderr:
+            print(result.stderr)
+            print("> Aborting Patch...")
+            sys.exit(1)
 
 class VesperiaPacker:
     """Handler Instance for Extraction, Packing, Compressing and Decompressing files from the game."""
@@ -370,7 +394,11 @@ class VesperiaPacker:
         if out:
             command.append(out)
 
-        subprocess.check_output(command)
+        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.stderr:
+            print(result.stderr)
+            print("> Aborting Patch...")
+            sys.exit(1)
 
     def comptoe_compress(self, file: str, out: str = ""):
         command: list[str] = [self.comptoe, "-c", file]
@@ -378,7 +406,11 @@ class VesperiaPacker:
         if out:
             command.append(out)
 
-        subprocess.check_output(command)
+        result = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.stderr:
+            print(result.stderr)
+            print("> Aborting Patch...")
+            sys.exit(1)
 
     def set_build_dir(self, build_dir: str):
         self.build_dir = build_dir
@@ -397,7 +429,7 @@ class VesperiaPacker:
                                 os.path.join(self.manifest_dir, "BTL_PACK.DAT"))
 
     def extract_artes(self):
-        path: str = os.path.join(self.build_dir, "BTL_PACK", "0004")
+        path: str = os.path.join(self.build_dir, "BTL_PACK", "sdf0004")
         assert os.path.isfile(path)
 
         self.hyouta.extract_svo(path, manifest=os.path.join(self.manifest_dir, "0004"))

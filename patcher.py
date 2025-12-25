@@ -15,13 +15,15 @@ class VesperiaPatcher:
 
     def patch_artes(self, arte_patches: dict):
         target: str = os.path.join(self.build_dir, "BTL_PACK", "0004.ext", "ALL.0000")
-        assert os.path.isfile(target)
+        assert os.path.isfile(target), f"Expected file {target}, but it does not exist."
 
         original_data_file: str = os.path.join(self.data_dir, "artes.json")
-        assert os.path.isfile(original_data_file), f"Cannot find {original_data_file}"
+        assert os.path.isfile(original_data_file), f"Expected file {original_data_file}, but it does not exist."
 
         patches = {int(key): value for key, value in arte_patches.items()}
-        assert patches
+        if not patches:
+            print("Expected Patch data for target 'artes`, but none were found! Abandoning patching for the target.")
+            return
 
         original_data: dict = json.load(open(original_data_file))['artes']
 
@@ -71,13 +73,15 @@ class VesperiaPatcher:
 
     def patch_skills(self, skill_patches: dict):
         target: str = os.path.join(self.build_dir, "BTL_PACK", "0010.ext", "ALL.0000")
-        assert os.path.isfile(target)
+        assert os.path.isfile(target), f"Expected file {target}, but it does not exist."
 
         original_data_file: str = os.path.join(self.data_dir, "skills.json")
-        assert os.path.isfile(original_data_file), f"Cannot find {original_data_file}"
+        assert os.path.isfile(original_data_file), f"Expected file {original_data_file}, but it does not exist."
 
         patches = {int(key): value for key, value in skill_patches.items()}
-        assert patches
+        if not patches:
+            print("Expected Patch data for target 'skills`, but none were found! Abandoning patching for the target.")
+            return
 
         original_data: dict = json.load(open(original_data_file))['skills']
 
@@ -107,7 +111,7 @@ class VesperiaPatcher:
 
     def patch_items(self, item_patches: dict):
         target: str = os.path.join(self.build_dir, "item", "ITEM.DAT")
-        assert os.path.isfile(target)
+        assert os.path.isfile(target), f"Expected file {target}, but it does not exist."
 
         if 'base' in item_patches:
             self.patch_items_base(target, item_patches['base'])
@@ -119,7 +123,7 @@ class VesperiaPatcher:
         patches: dict[int, dict] = {int(key): value for key, value in item_patches.items()}
 
         original_data_file: str = os.path.join(self.data_dir, "item.json")
-        assert os.path.isfile(original_data_file), f"Cannot find {original_data_file}"
+        assert os.path.isfile(original_data_file), f"Expected file {original_data_file}, but it does not exist."
 
         original_data: dict = json.load(open(original_data_file))["items"]
 
@@ -151,7 +155,7 @@ class VesperiaPatcher:
 
     def patch_shops(self, shop_patches: dict, lang: str = "ENG"):
         target: str = os.path.join(self.build_dir, "language", f".{lang}.dec", "0.dec")
-        assert os.path.isfile(target)
+        assert os.path.isfile(target), f"Expected file {target}, but it does not exist."
 
         if 'commons' in shop_patches or 'uniques' in shop_patches:
             patches: dict = {}
@@ -164,7 +168,7 @@ class VesperiaPatcher:
 
     def patch_shops_precise(self, target_file: str, patches: dict):
         original_data_file: str = os.path.join(self.data_dir, "shop_items.json")
-        assert os.path.isfile(original_data_file), f"Cannot find {original_data_file}"
+        assert os.path.isfile(original_data_file), f"Expected file {original_data_file}, but it does not exist."
 
         original_data: dict = json.load(open(original_data_file), object_hook=utils.keys_to_int)
 
@@ -214,7 +218,7 @@ class VesperiaPatcher:
 
     def patch_chests(self, target_file: str, patches: dict):
         path: str = os.path.join(self.build_dir, "maps", target_file, "0004.tlzc")
-        assert os.path.isfile(path), f"Cannot find {path}"
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         header_size: int = ctypes.sizeof(vtypes.ChestHeader)
         item_size: int = ctypes.sizeof(vtypes.ChestItemEntry)
@@ -258,7 +262,7 @@ class VesperiaPatcher:
 
     @staticmethod
     def patch_search_points(target: str, patches: dict):
-        assert os.path.isfile(target), f"Cannot find {target}"
+        assert os.path.isfile(target), f"Expected file {target}, but it does not exist."
 
         header_size: int = ctypes.sizeof(vtypes.SearchPointHeader)
         content_size: int = ctypes.sizeof(vtypes.SearchPointContentEntry)

@@ -429,20 +429,20 @@ class VesperiaPacker:
                                 os.path.join(self.manifest_dir, "BTL_PACK.DAT"))
 
     def extract_artes(self):
-        path: str = os.path.join(self.build_dir, "BTL_PACK", "sdf0004")
-        assert os.path.isfile(path)
+        path: str = os.path.join(self.build_dir, "BTL_PACK", "0004")
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         self.hyouta.extract_svo(path, manifest=os.path.join(self.manifest_dir, "0004"))
 
     def extract_skills(self):
         path: str = os.path.join(self.build_dir, "BTL_PACK", "0010")
-        assert os.path.isfile(path)
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         self.hyouta.extract_svo(path, manifest=os.path.join(self.manifest_dir, "0010"))
 
     def unpack_item(self):
         path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_item))
-        assert os.path.isfile(path)
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         base_build: str = os.path.join(self.build_dir, "item")
         if not os.path.isdir(base_build):
@@ -453,7 +453,7 @@ class VesperiaPacker:
     def unpack_npc(self):
         path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_npc))
         base_build: str = os.path.join(self.build_dir, "npc")
-        assert os.path.isfile(path)
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         self.hyouta.extract_svo(path, base_build)
 
@@ -462,7 +462,7 @@ class VesperiaPacker:
         data_file: str = data_name + ".DAT"
 
         path: str = os.path.join(self.build_dir, "npc", data_file)
-        assert os.path.isfile(path), f"Cannot find {path}"
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         work_dir: str = os.path.join(self.build_dir, "maps", data_name)
         if not os.path.isdir(work_dir): os.makedirs(work_dir)
@@ -473,14 +473,14 @@ class VesperiaPacker:
         self.hyouta.extract_svo(field_decompress, "", os.path.join(self.manifest_dir, decompress_name))
 
     def decompress_data(self, file: str, out: str = ""):
-        assert os.path.isfile(file), f"Cannot find {file}"
+        assert os.path.isfile(file), f"Expected file {file}, but it does not exist."
 
         output: str = file if not out else out + ".tlzc"
         self.hyouta.decompress_tlzc(file, output)
 
     def unpack_ui(self):
         path: str = os.path.join(self.vesperia_dir, tov_ui)
-        assert os.path.isfile(path)
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         work_dir: str = os.path.join(self.build_dir, "ui")
         if not os.path.isdir(work_dir): os.mkdir(work_dir)
@@ -490,7 +490,7 @@ class VesperiaPacker:
     def extract_scenario(self, lang = "ENG"):
         # target: str = f"scenario_{lang}.dat"
         path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_scenario))
-        assert os.path.isfile(path)
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         work_dir: str = os.path.join(self.build_dir, "language")
         if not os.path.isdir(work_dir): os.mkdir(work_dir)
@@ -501,7 +501,7 @@ class VesperiaPacker:
         self.hyouta.extract_scenario(path, extract_dir)
 
     def decompress_scenario(self, file: str, lang: str = "ENG"):
-        assert file
+        assert file, f"Unexpected empty file entry."
 
         work_dir: str = os.path.join(self.build_dir, "language")
         if not os.path.isdir(work_dir): os.mkdir(work_dir)
@@ -510,7 +510,7 @@ class VesperiaPacker:
         if not os.path.isdir(extract_dir): os.mkdir(extract_dir)
 
         target: str = os.path.join(extract_dir, file)
-        assert os.path.isfile(target)
+        assert os.path.isfile(target), f"Expected file {target}, but it does not exist."
 
         decompress_dir: str = os.path.join(work_dir, f".{lang}.dec")
         if not os.path.isdir(decompress_dir): os.mkdir(decompress_dir)
@@ -519,7 +519,7 @@ class VesperiaPacker:
 
     def pack_btl(self):
         path: str = os.path.join(self.manifest_dir, "BTL_PACK.DAT.json")
-        assert os.path.isfile(path)
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         self.ensure_output_directory()
         output_dir: str = os.path.join(self.output_dir, "Data64", "btl")
@@ -529,27 +529,27 @@ class VesperiaPacker:
 
     def pack_artes(self):
         path: str = os.path.join(self.manifest_dir, "0004.json")
-        assert os.path.isfile(path)
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         self.hyouta.pack_svo(path, os.path.join(self.build_dir, "BTL_PACK", "0004"))
 
     def pack_skills(self):
         path: str = os.path.join(self.manifest_dir, "0010.json")
-        assert os.path.isfile(path)
+        assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         self.hyouta.pack_svo(path, os.path.join(self.build_dir, "BTL_PACK", "0010"))
 
     def pack_map(self, map_data: str):
         base_dir: str = os.path.join(self.build_dir, "maps")
-        assert os.path.isdir(base_dir)
+        assert os.path.isdir(base_dir), f"Expected directory {base_dir}, but it does not exist."
 
         data_name: str = map_data if not map_data.endswith(".DAT") else map_data.replace(".DAT", "")
         work_dir: str = os.path.join(base_dir, data_name)
         extract_dir: str = os.path.join(work_dir, data_name + ".tlzc.ext")
-        assert os.path.isdir(extract_dir)
+        assert os.path.isdir(extract_dir), f"Expected directory {extract_dir}, but it does not exist."
 
         manifest: str = os.path.join(self.manifest_dir, data_name + ".tlzc.json")
-        assert os.path.isfile(manifest)
+        assert os.path.isfile(manifest), f"Expected manifest {manifest}, but it does not exist."
 
         map_decompressed: str = os.path.join(work_dir, data_name + ".tlzc")
         self.hyouta.pack_svo(manifest, os.path.join(work_dir, data_name + ".tlzc"))
@@ -558,7 +558,7 @@ class VesperiaPacker:
         self.hyouta.compress_tlzc(map_decompressed, data_file)
 
     def compress_data(self, file: str, out: str = ""):
-        assert os.path.isfile(file), f"Cannot find {file}"
+        assert os.path.isfile(file), f"Expected file {path}, but it does not exist."
         if not out:
             if file.endswith(".tlzc"):
                 output: str = file.replace(".tlzc", "")
@@ -574,9 +574,9 @@ class VesperiaPacker:
         path: str = os.path.join(self.build_dir, "language")
         main: str = os.path.join(path, "." + lang)
         dec: str = main + ".dec"
-        assert os.path.isdir(path)
-        assert os.path.isdir(main)
-        assert os.path.isdir(dec)
+        assert os.path.isdir(path), f"Cannot find build directory for language: {lang}."
+        assert os.path.isdir(main), f"Expected directory {path}, but it does not exist."
+        assert os.path.isdir(dec), f"Expected file {dec}, but it does not exist."
 
         for dec_file in os.listdir(dec):
             file: str = os.path.join(dec, f"{dec_file}")

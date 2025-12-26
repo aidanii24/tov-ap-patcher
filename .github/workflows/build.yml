@@ -1,11 +1,10 @@
 name: Build
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
-    inputs:
-      createRelease:
-        description: 'Create a release from the generated artifacts'
-        type: boolean
 
 jobs:
   build:
@@ -20,8 +19,8 @@ jobs:
       SPEC_FILE: 'ToVRandomizerTools.spec'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -61,3 +60,33 @@ jobs:
 
       - name: List bundle output
         run: ls -R ./dist/
+
+  release:
+    if: github.event_name == "push"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Artifacts
+        uses: actions/download-artifacts@v4
+        with:
+          merge-multiple: true
+
+      - name: List Downloaded Files (Debug)
+        run: |
+          ls -R
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            ${{ env.PKG_NAME }}-linux.tar.gz
+            ${{ env.PKG_NAME }}-windows.zip

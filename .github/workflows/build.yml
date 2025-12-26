@@ -54,7 +54,7 @@ jobs:
       - name: Archive as tarball (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          tar cvf - ${{ env.PKG_NAME }} ${{ env.PKG_NAME }} | gzip -9 - > ${{ env.PKG_NAME }}.tar.gz
+          tar cvf - ${{ env.PKG_NAME }} ${{ env.PKG_NAME }} | gzip -9 - > ${{ env.PKG_NAME }}-linux.tar.gz
         working-directory: ./dist/
 
       - name: Create Artifact (Linux)

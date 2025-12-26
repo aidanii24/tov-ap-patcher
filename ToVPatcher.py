@@ -193,7 +193,7 @@ if __name__ == '__main__':
             if len(sys.argv) - 1 - i > 1 and os.path.isdir(path) and os.path.isdir(check):
                 packer = VesperiaPacker()
                 packer.restore_backup(True)
-                packer.apply_patch()
+                packer.apply_patch(path)
 
                 print(f"> Patch \"{path}\" has been applied to the game directory.")
             else:

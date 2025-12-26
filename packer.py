@@ -558,7 +558,7 @@ class VesperiaPacker:
         self.hyouta.compress_tlzc(map_decompressed, data_file)
 
     def compress_data(self, file: str, out: str = ""):
-        assert os.path.isfile(file), f"Expected file {path}, but it does not exist."
+        assert os.path.isfile(file), f"Expected file {file}, but it does not exist."
         if not out:
             if file.endswith(".tlzc"):
                 output: str = file.replace(".tlzc", "")
@@ -611,9 +611,23 @@ class VesperiaPacker:
         print("> Applying Patch...")
 
         if custom_output:
+            self.prepare_game(custom_output)
             shutil.copytree(custom_output, self.vesperia_dir, dirs_exist_ok=True)
         else:
             shutil.copytree(self.output_dir, self.vesperia_dir, dirs_exist_ok=True)
+
+    def prepare_game(self, patched_path: str):
+        data_dir: str = os.path.join(patched_path, "Data64")
+        contents: list[str] = os.listdir(data_dir)
+
+        if "btl" in contents:
+            os.remove(os.path.join(self.vesperia_dir, tov_btl))
+
+        if "item" in contents:
+            os.remove(os.path.join(self.vesperia_dir, tov_item))
+
+        if "npc" in contents:
+            os.remove(os.path.join(self.vesperia_dir, tov_npc))
 
     def clean_game(self, quiet: bool = True):
         detected_patches: list[str] = []

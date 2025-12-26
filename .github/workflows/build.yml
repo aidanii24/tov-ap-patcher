@@ -78,6 +78,10 @@ jobs:
         run: |
           ls -R
 
+      - name: Zip Windows Artifact
+        run: |
+          zip -r ${{ env.PKG_NAME }}-windows.zip ./ToVRandomizerTools
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         env:
@@ -87,6 +91,7 @@ jobs:
           name: ${{ github.ref_name }}
           draft: false
           prerelease: false
+          overwrite_files: true
           files: |
-            ${{ env.PKG_NAME }}-linux.tar.gz
-            ${{ env.PKG_NAME }}-windows.zip
+            '${{ env.PKG_NAME }}-linux.tar.gz'
+            '${{ env.PKG_NAME }}-windows.zip'

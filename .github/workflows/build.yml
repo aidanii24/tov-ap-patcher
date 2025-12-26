@@ -3,15 +3,9 @@ name: Build
 on:
   workflow_dispatch:
     inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
-        type: choice
-        options:
-          - info
-          - warning
-          - debug
+      createRelease:
+        description: 'Create a release from the generated artifacts'
+        type: boolean
 
 jobs:
   build:

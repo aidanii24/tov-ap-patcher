@@ -2,7 +2,7 @@
 from PyInstaller.utils.hooks import collect_data_files
 from PyInstaller.utils.hooks import copy_metadata
 
-datas = [('data', '.')]
+datas = []
 datas += collect_data_files('odfdo')
 datas += copy_metadata('odfdo')
 

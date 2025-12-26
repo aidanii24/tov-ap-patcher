@@ -42,8 +42,6 @@ jobs:
       - name: Build Executable
         run: |
           pyinstaller ${{ env.SPEC_FILE }}
-          cd dist
-          tar -cvzf ${{ env.PKG_NAME }}-linux.tar.gz ${{ env.PKG_NAME }}
         working-directory: ./
 
       - name: Create Artifact (Windows)
@@ -52,6 +50,12 @@ jobs:
         with:
           name: ToVRandomizerTools-windows
           path: dist/
+
+      - name: Archive as tarball (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          tar -cvzf ${{ env.PKG_NAME }}-linux.tar.gz ${{ env.PKG_NAME }}
+        working-directory: ./dist/
 
       - name: Create Artifact (Linux)
         if: matrix.os == 'ubuntu-latest'

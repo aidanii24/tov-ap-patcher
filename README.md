@@ -77,8 +77,10 @@ executable name to run it.
 ```commandline
 ToVPatcher ./patches/sample.tovdepatch
 ```
-If a `config.json` does not exist within the same directory, one will be created and be prompted to be configured.
-The configuration file will ask for the paths of the following:
+If a `config.json` does not exist within the same directory, one will be created. The default configurations will 
+attempt a basic guess on where the dependencies are and the patcher will attempt to use that. If the dependencies could
+not be found with the default paths, the `config.json` can be configured to give the correct paths. The configuration 
+file will ask for the paths of the following:
 - Base directory of _Tales of Vesperia: Definitive Edition_
 - HyoutaToolsCLI*
 - comptoe
@@ -163,6 +165,13 @@ when building under Linux, it will only build a Linux executable, same on Window
 pyinstaller ToVRandomizerTools.spec
 ```
 The binaries will be available in the generated `dist` directory upon successful build.
+# Roadmap
+- [ ] Event Rewards Patching
+- [ ] Text Patching (string_dic_<lang>.so)
+- [ ] Adding new Icons for in-game use
+- [ ] Implement GUI
+- [ ] Archipelago Support
+
 # Acknowledgements
 Thanks to @Sora3100 for providing me with the knowledge and resources to make this possible.
 

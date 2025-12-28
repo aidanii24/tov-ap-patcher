@@ -193,39 +193,46 @@ class VesperiaPacker:
     apply_immediately: bool = False
 
     def __init__(self, patch_id: str = "singleton", apply_immediately: bool = False):
-        if not os.path.isfile(dependencies):
+        config_present: bool = os.path.isfile(dependencies)
+
+        if not config_present:
             VesperiaPacker.generate_config()
-            print("> Please provide the paths to the dependencies in the config.json file, then try again.")
-            sys.exit(0)
-        else:
-            with open(dependencies, 'r+') as file:
-                data = json.load(file)
 
-                if dependency_vesperia in data and data[dependency_vesperia]:
-                    self.vesperia_dir = data[dependency_vesperia]
-                    self.backup_dir = os.path.join(self.vesperia_dir, "Data64", ".backup")
+        with open(dependencies, 'r+') as file:
+            data = json.load(file)
 
-                if dependency_dotnet in data and data[dependency_dotnet]:
-                    dotnet_dir = data[dependency_dotnet]
-                else:
-                    dotnet_dir = ""
+            if dependency_vesperia in data and data[dependency_vesperia]:
+                self.vesperia_dir = data[dependency_vesperia]
+                self.backup_dir = os.path.join(self.vesperia_dir, "Data64", ".backup")
 
-                if dependency_hyouta in data and data[dependency_hyouta]:
-                    hyouta_dir = data[dependency_hyouta]
+            if dependency_dotnet in data and data[dependency_dotnet]:
+                dotnet_dir = data[dependency_dotnet]
+            else:
+                dotnet_dir = ""
 
-                if dependencies_comptoe in data and data[dependencies_comptoe]:
-                    self.comptoe = data[dependencies_comptoe]
+            if dependency_hyouta in data and data[dependency_hyouta]:
+                hyouta_dir = data[dependency_hyouta]
 
-                if hyouta_dir:
-                    self.hyouta = Hyouta(hyouta_dir, dotnet_dir)
+            if dependencies_comptoe in data and data[dependencies_comptoe]:
+                self.comptoe = data[dependencies_comptoe]
 
-                file.close()
+            if hyouta_dir:
+                self.hyouta = Hyouta(hyouta_dir, dotnet_dir)
+
+            file.close()
 
         # Enforce use of dotnet6.x with a global.json
         if self.hyouta.use_dotnet and not os.path.isfile(os.path.join(os.getcwd(), "global.json")):
             self.generate_global()
 
-        self.check_dependencies()
+        dependencies_error: bool = self.check_dependencies()
+        if dependencies_error:
+            if not config_present:
+                print("\n> Some dependencies could not be automatically detected.\n"
+                      "Please provide the correct paths to the dependencies in the config.json, then try again.")
+                sys.exit(0)
+            else:
+                sys.exit(1)
 
         if patch_id == "singleton":
             return
@@ -249,6 +256,12 @@ class VesperiaPacker:
         self.output_dir = os.path.join(self.output_dir, patch_id)
 
         self.apply_immediately = apply_immediately
+
+        if os.path.isdir(self.output_dir) and apply_immediately:
+            print("> The patched game files for this patch file has already been generated.")
+            self.apply_patch()
+            print("> Applied patch to game directory.")
+            sys.exit(0)
 
     @classmethod
     def generate_config(cls):
@@ -334,8 +347,7 @@ class VesperiaPacker:
                   f"\nSpecified Location: {self.comptoe}")
             error_occurred = True
 
-        if error_occurred:
-            sys.exit(1)
+        return error_occurred
 
     @staticmethod
     def verify_vesperia_file(filepath: str) -> bool:

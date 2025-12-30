@@ -6,30 +6,8 @@ import sys
 import os
 
 from vesperia_types import *
+from config.settings import paths, keys
 
-
-# Configuraiton Files
-dependencies: str = "config.json"
-
-# Dependencies Default Directories
-dependency_vesperia = "vesperia"
-dependency_dotnet = "dotnet"
-dependency_hyouta = "hyouta"
-dependencies_comptoe = "comptoe"
-
-default_vesperia: str = os.path.join("steam", "steamapps", "common", "Tales of Vesperia Definitive Edition")
-default_backup: str = os.path.join(default_vesperia, "Data64", ".backup")
-default_dotnet: str = "dotnet"
-default_hyouta: str = os.path.join("HyoutaToolsCLI", "HyoutaToolsCLI.dll")
-default_comptoe: str = "comptoe"
-
-# Vesperia Files directories
-tov_executable = "TOV_DE.exe"
-tov_btl = os.path.join("Data64", "btl.svo")
-tov_item = os.path.join("Data64", "item.svo")
-tov_npc = os.path.join("Data64", "npc.svo")
-tov_ui = os.path.join("Data64", "UI.svo")
-tov_scenario = os.path.join("Data64", "language", "scenario_ENG.dat")
 
 # Checksums
 checksums: dict[str, str] = {
@@ -43,8 +21,8 @@ checksums: dict[str, str] = {
 
 class Hyouta:
     """Wrapper instance for HyoutaToolsCLI Commands"""
-    dotnet: str = default_dotnet
-    path: str = default_hyouta
+    dotnet: str = keys.DEP_DOTNET
+    path: str = paths.HYOUTA
 
     def __init__(self, path: str, dotnet = "dotnet"):
         self.path: str = path
@@ -181,40 +159,40 @@ class Hyouta:
 
 class VesperiaPacker:
     """Handler Instance for Extraction, Packing, Compressing and Decompressing files from the game."""
-    vesperia_dir: str = default_vesperia
-    backup_dir: str = default_backup
-    comptoe: str = default_comptoe
+    vesperia_dir: str = paths.VESPERIA
+    backup_dir: str = paths.BACKUP
+    comptoe: str = keys.DEP_COMPTOE
     hyouta: Hyouta
 
-    build_dir: str = os.path.join(os.getcwd(), "builds")
-    manifest_dir: str = os.path.join(build_dir, "manifests")
-    output_dir: str = os.path.join(os.getcwd(), "output")
+    build_dir: str = paths.BUILDS
+    manifest_dir: str = paths.MANIFESTS
+    output_dir: str = paths.OUTPUT
 
     apply_immediately: bool = False
 
     def __init__(self, patch_id: str = "singleton", apply_immediately: bool = False):
-        config_present: bool = os.path.isfile(dependencies)
+        config_present: bool = os.path.isfile(paths.CONFIG)
 
         if not config_present:
             VesperiaPacker.generate_config()
 
-        with open(dependencies, 'r+') as file:
+        with open(paths.CONFIG, 'r+') as file:
             data = json.load(file)
 
-            if dependency_vesperia in data and data[dependency_vesperia]:
-                self.vesperia_dir = data[dependency_vesperia]
+            if keys.DEP_VESPERIA in data and data[keys.DEP_VESPERIA]:
+                self.vesperia_dir = data[keys.DEP_VESPERIA]
                 self.backup_dir = os.path.join(self.vesperia_dir, "Data64", ".backup")
 
-            if dependency_dotnet in data and data[dependency_dotnet]:
-                dotnet_dir = data[dependency_dotnet]
+            if keys.DEP_DOTNET in data and data[keys.DEP_DOTNET]:
+                dotnet_dir = data[keys.DEP_DOTNET]
             else:
                 dotnet_dir = ""
 
-            if dependency_hyouta in data and data[dependency_hyouta]:
-                hyouta_dir = data[dependency_hyouta]
+            if keys.DEP_HYOUTA in data and data[keys.DEP_HYOUTA]:
+                hyouta_dir = data[keys.DEP_HYOUTA]
 
-            if dependencies_comptoe in data and data[dependencies_comptoe]:
-                self.comptoe = data[dependencies_comptoe]
+            if keys.DEP_COMPTOE in data and data[keys.DEP_COMPTOE]:
+                self.comptoe = data[keys.DEP_COMPTOE]
 
             if hyouta_dir:
                 self.hyouta = Hyouta(hyouta_dir, dotnet_dir)
@@ -267,28 +245,28 @@ class VesperiaPacker:
     def generate_config(cls):
         system: str = platform.system()
 
-        vesperia: str = default_vesperia
+        vesperia: str = paths.VESPERIA
         if system == "Linux":
-            vesperia = os.path.join(os.path.expanduser("~"), ".steam", default_vesperia)
+            vesperia = os.path.join(os.path.expanduser("~"), ".steam", paths.VESPERIA)
         elif system == "Windows":
-            vesperia = os.path.join("C:\\Program Files (x86)", default_vesperia)
+            vesperia = os.path.join("C:\\Program Files (x86)", paths.VESPERIA)
 
         dotnet_required: bool = system == "Windows"
 
-        dotnet: str = default_dotnet if dotnet_required  else ""
-        hyouta: str = default_hyouta if dotnet_required else default_hyouta.rstrip(".dll")
+        dotnet: str = keys.DEP_DOTNET if dotnet_required  else ""
+        hyouta: str = os.path.join(paths.HYOUTA, paths.HYOUTA) if dotnet_required else f"{paths.HYOUTA}.dll"
 
         config = {
-            dependency_vesperia : vesperia,
-            dependencies_comptoe: default_comptoe + (".exe" if platform == "Windows" else "")
+            keys.DEP_VESPERIA : vesperia,
+            keys.DEP_COMPTOE: keys.DEP_COMPTOE + (".exe" if platform == "Windows" else "")
         }
 
         if dotnet_required:
-            config[dependency_dotnet] = dotnet
+            config[keys.DEP_DOTNET] = dotnet
 
-        config[dependency_hyouta] = hyouta
+        config[keys.DEP_HYOUTA] = hyouta
 
-        with open(dependencies, "x+") as file:
+        with open(paths.CONFIG, "x+") as file:
             json.dump(config, file, indent=4)
 
             file.close()
@@ -428,7 +406,7 @@ class VesperiaPacker:
         self.build_dir = build_dir
 
     def unpack_btl(self):
-        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_btl))
+        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, paths.BTL))
 
         base_build: str = os.path.join(self.build_dir, "btl")
         if not os.path.isfile(path):
@@ -453,7 +431,7 @@ class VesperiaPacker:
         self.hyouta.extract_svo(path, manifest=os.path.join(self.manifest_dir, "0010"))
 
     def unpack_item(self):
-        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_item))
+        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, paths.ITEM))
         assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         base_build: str = os.path.join(self.build_dir, "item")
@@ -463,7 +441,7 @@ class VesperiaPacker:
         self.hyouta.extract_svo(path, base_build)
 
     def unpack_npc(self):
-        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_npc))
+        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, paths.NPC))
         base_build: str = os.path.join(self.build_dir, "npc")
         assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
@@ -491,7 +469,7 @@ class VesperiaPacker:
         self.hyouta.decompress_tlzc(file, output)
 
     def unpack_ui(self):
-        path: str = os.path.join(self.vesperia_dir, tov_ui)
+        path: str = os.path.join(self.vesperia_dir, paths.UI)
         assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         work_dir: str = os.path.join(self.build_dir, "ui")
@@ -501,7 +479,7 @@ class VesperiaPacker:
 
     def extract_scenario(self, lang = "ENG"):
         # target: str = f"scenario_{lang}.dat"
-        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, tov_scenario))
+        path: str = self.check_vesperia_file(os.path.join(self.vesperia_dir, paths.SCENARIO))
         assert os.path.isfile(path), f"Expected file {path}, but it does not exist."
 
         work_dir: str = os.path.join(self.build_dir, "language")
@@ -633,13 +611,13 @@ class VesperiaPacker:
         contents: list[str] = os.listdir(data_dir)
 
         if "btl" in contents:
-            os.remove(os.path.join(self.vesperia_dir, tov_btl))
+            os.remove(os.path.join(self.vesperia_dir, paths.BTL))
 
         if "item" in contents:
-            os.remove(os.path.join(self.vesperia_dir, tov_item))
+            os.remove(os.path.join(self.vesperia_dir, paths.ITEM))
 
         if "npc" in contents:
-            os.remove(os.path.join(self.vesperia_dir, tov_npc))
+            os.remove(os.path.join(self.vesperia_dir, paths.NPC))
 
     def clean_game(self, quiet: bool = True):
         detected_patches: list[str] = []

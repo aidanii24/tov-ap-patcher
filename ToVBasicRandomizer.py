@@ -10,10 +10,9 @@ import os
 from odfdo import Document, Table, Row
 
 from utils import keys_to_int
-from resources.enums import Characters, Symbol, FatalStrikeType, SearchPointType
+from res.enums import Characters, Symbol, FatalStrikeType, SearchPointType
+from config.settings import paths
 
-
-wd: str = os.path.dirname(__file__)
 
 VALID_TARGETS: list[str] = [
     'artes',
@@ -57,8 +56,8 @@ class InputTemplate:
         self.report_output = os.path.join(".", "patches", f"tovde-spoiler-{self.identifier}.ods")
 
         if not targets or 'artes' in targets:
-            artes_ids_file: str = os.path.join(wd, 'data', 'artes_id_table.json')
-            artes_data_file: str = os.path.join(wd, 'data', 'artes.json')
+            artes_ids_file: str = os.path.join(paths.STATIC_DIR, 'artes_id_table.json')
+            artes_data_file: str = os.path.join(paths.STATIC_DIR, 'artes.json')
 
             assert os.path.isfile(artes_ids_file), f'{artes_ids_file} does not exist'
             assert os.path.isfile(artes_data_file), f'{artes_data_file} does not exist'
@@ -80,9 +79,9 @@ class InputTemplate:
             self.artes_by_char = artes_by_char
 
         if not targets or {'artes', 'skills', 'items'}.intersection(targets):
-            skills_ids_file: str = os.path.join(wd, 'data', 'skills_id_table.json')
-            skills_data_file: str = os.path.join(wd, 'data', 'skills.json')
-            skills_char_data_file: str = os.path.join(wd, 'data', 'skills_by_char.json')
+            skills_ids_file: str = os.path.join(paths.STATIC_DIR, 'skills_id_table.json')
+            skills_data_file: str = os.path.join(paths.STATIC_DIR, 'skills.json')
+            skills_char_data_file: str = os.path.join(paths.STATIC_DIR, 'skills_by_char.json')
 
             assert os.path.isfile(skills_data_file), f'{skills_ids_file} does not exist'
             assert os.path.isfile(skills_data_file), f'{skills_data_file} does not exist'
@@ -98,8 +97,8 @@ class InputTemplate:
         item_dependents: set[str] = set(targets).intersection({'items', 'shops', 'chests', 'search'})
         search_only: bool = len(item_dependents) == 1 and 'search' in item_dependents
         if not targets or item_dependents:
-            items_ids_file: str = os.path.join(wd, "data", "items_id_table.json")
-            items_file: str = os.path.join(wd, "data", "item.json")
+            items_ids_file: str = os.path.join(paths.STATIC_DIR, "items_id_table.json")
+            items_file: str = os.path.join(paths.STATIC_DIR, "item.json")
 
             assert os.path.isfile(items_ids_file), f"File {items_file} does not exist."
             assert os.path.isfile(items_file), f"File {items_file} does not exist."
@@ -182,35 +181,35 @@ class InputTemplate:
 
     @staticmethod
     def generate_artes_input():
-        artes_data: str = os.path.join(wd, "data", "templates", "artes_api.json")
+        artes_data: str = os.path.join(paths.STATIC_DIR, "templates", "artes_api.json")
         assert os.path.isfile(artes_data)
 
         return json.load(open(artes_data))
 
     @staticmethod
     def generate_skills_input() -> dict:
-        skills_data: str = os.path.join(wd, "data", "templates", "skills_api.json")
+        skills_data: str = os.path.join(paths.STATIC_DIR, "templates", "skills_api.json")
         assert os.path.isfile(skills_data)
 
         return json.load(open(skills_data))
 
     @staticmethod
     def generate_items_input() -> dict:
-        items_data: str = os.path.join(wd, "data", "templates", "items_api.json")
+        items_data: str = os.path.join(paths.STATIC_DIR, "templates", "items_api.json")
         assert os.path.isfile(items_data)
 
         return json.load(open(items_data))
 
     @staticmethod
     def generate_shop_items_input() -> dict:
-        shop_items_data: str = os.path.join(wd, "data", "templates", "shop_items_api.json")
+        shop_items_data: str = os.path.join(paths.STATIC_DIR, "templates", "shop_items_api.json")
         assert os.path.isfile(shop_items_data)
 
         return json.load(open(shop_items_data), object_hook=keys_to_int)
 
     @staticmethod
     def generate_chests_input() -> dict:
-        chests_data: str = os.path.join(wd, "data", "chests.json")
+        chests_data: str = os.path.join(paths.STATIC_DIR, "chests.json")
         assert os.path.isfile(chests_data)
 
         return json.load(open(chests_data))
@@ -409,7 +408,7 @@ class InputTemplate:
             else:
                 return str(item_id)
 
-        name_file: str = os.path.join(wd, "data", "named_npc_maps.json")
+        name_file: str = os.path.join(paths.STATIC_DIR, "named_npc_maps.json")
         assert os.path.isfile(name_file), f"'{name_file}' not found"
 
         id_to_name: dict[str, str] = json.load(open(name_file))
@@ -434,7 +433,7 @@ class InputTemplate:
         return report
 
     def generate_search_report(self, patched_items: dict) -> Table:
-        search_point_file: str = os.path.join(wd, "data", "named_search_points.json")
+        search_point_file: str = os.path.join(paths.STATIC_DIR, "named_search_points.json")
         assert os.path.isfile(search_point_file), f"'{search_point_file}' not found"
 
         search_point_names: list[str] = json.load(open(search_point_file))['FIELD']

@@ -11,7 +11,7 @@ patcher_a = Analysis(
     ['ToVPatcher.py'],
     pathex=['.venv/lib'],
     binaries=[],
-    datas=[('data', 'data')],
+    datas=[('static', 'static')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

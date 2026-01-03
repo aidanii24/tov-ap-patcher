@@ -1,6 +1,6 @@
 import os
 
-from lib.extractor import FPS4Utils
+from lib.packing import fps4
 
 
 target = os.path.join("..", "builds", "btl", "BTL_PACK.DAT")
@@ -9,4 +9,4 @@ manifest_dir = os.path.join("..", "builds", "TEST", ".manifest", "BTL_PACK.json"
 
 assert os.path.exists(target)
 
-FPS4Utils.extract(target, outdir, manifest_dir)
+fps4.extract(target, outdir, manifest_dir)

@@ -2,10 +2,10 @@ import subprocess
 import platform
 import hashlib
 import shutil
+import json
 import sys
 import os
 
-from vesperia_types import *
 from config.settings import paths, keys
 
 

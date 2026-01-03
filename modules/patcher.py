@@ -3,9 +3,9 @@ import mmap
 import json
 import os
 
-import utils
-import vesperia_types as vtypes
+import modules.vesperia_types as vtypes
 from config.settings import paths
+import utils
 
 class VesperiaPatcher:
     build_dir: str = os.path.join(os.getcwd(), "builds")

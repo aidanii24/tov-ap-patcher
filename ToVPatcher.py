@@ -8,8 +8,8 @@ import os
 
 from concurrent.futures import ThreadPoolExecutor
 
-from packer import VesperiaPacker
-from patcher import VesperiaPatcher
+from modules.packer import VesperiaPacker
+from modules.patcher import VesperiaPatcher
 
 class VesperiaPatcherApp:
     packer: VesperiaPacker
@@ -153,6 +153,8 @@ class VesperiaPatcherApp:
         self.packer.copy_to_output('npc')
 
 if __name__ == '__main__':
+    print(sys.argv)
+
     patch_file: str = ""
     threads: int = 4
     clean: bool = False
@@ -160,6 +162,7 @@ if __name__ == '__main__':
 
     skip: bool = False
     for i, arg in enumerate(sys.argv[1:]):
+        print(i, arg, arg.encode("ascii", "ignore"))
         if skip:
             skip = False
             continue
@@ -205,6 +208,8 @@ if __name__ == '__main__':
             sys.exit(0)
         elif os.path.isfile(arg) and arg.endswith(".tovdepatch"):
             patch_file = arg
+
+    print("Patch:", patch_file)
 
     try:
         assert patch_file != ""

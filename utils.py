@@ -25,3 +25,13 @@ def read_null_terminated_string(mm: mmap.mmap, encoding: str = 'utf-8', start: i
         mm.seek(cur)
 
     return content.decode(encoding)
+
+def get_alignment_from_lowest_unset_bit(alignment: int) -> int:
+    bits: int = 0
+    for b in range(64):
+        if alignment & (1 << b) == 0:
+            break
+
+        b += 1
+
+    return bits

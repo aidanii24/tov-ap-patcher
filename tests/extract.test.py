@@ -1,6 +1,6 @@
 import os
 
-from ..lib.extractor import FPS4Utils
+from lib.extractor import FPS4Utils
 
 
 target = os.path.join("..", "builds", "btl", "BTL_PACK.DAT")
